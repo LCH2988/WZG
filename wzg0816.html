@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>登記表單</title>
+  <title>【活動登記】</title>
     <style type="text/css">
     html, body {
       margin: 0;
@@ -29,9 +29,33 @@
   </style>
 </head>
 <body>
-<iframe src= "https://script.google.com/macros/s/AKfycbzmMDyCnX2cn0RLU_qasSMgOl4hiST25_C1z38wPYX50DBuB9JcjZKFNrsGXip1fNgMpw/exec" frameborder="0" marginheight="0" marginwidth="0"
+<iframe id="dynamic-iframe" frameborder="0" marginheight="0" marginwidth="0"
 width="100%" height="100%" scrolling="auto">
 </iframe>
+   <script>
+    // 替換這個 URL 為您發布的試算表 CSV 連結
+    const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTJNmi-NJY8OHeEDzytDmwfNS_cbKnFVdRFi1tlwtvVl9iJMjtGXGffxp2LsEc54_iCDJkVy-lAloV/pub?gid=0&single=true&output=csv';
+
+  fetch(spreadsheetUrl)
+  .then(response => response.text())
+  .then(data => {
+    const rows = data.split('\n');
+    if (rows.length > 50) {  // 改為 50，因為我們現在要讀取第 51 行
+      const cells = rows[50].split(',');  // 改為 50，因為陣列索引是從 0 開始的
+      if (cells.length >= 4) {
+        const url = cells[3].trim(); // D51 單元格仍然是第四個單元格（索引為 3）
+        document.getElementById('dynamic-iframe').src = url;
+      } else {
+        console.error('D51 單元格不存在');
+      }
+    } else {
+      console.error('試算表沒有足夠的行');
+    }
+  })
+  
+
+      .catch(error => console.error('獲取試算表數據時出錯:', error));
+  </script>
 
 </body>
 
