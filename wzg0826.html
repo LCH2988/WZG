@@ -43,7 +43,7 @@ fetch(spreadsheetUrl)
     if (rows.length > 6 ) {  // 確保有第7行
       const cells = rows[6].split(',');  // 讀取第7行（索引為 6）
       if (cells.length >= 4) {
-        const url = cells[3].trim(); // D51 單元格是第51行的第四個單元格（索引為 3）
+        const url = cells[3].trim(); // D51 單元格是第7行的第四個單元格（索引為 3）
         document.getElementById('dynamic-iframe').src = url;
       } else {
         console.error('D7 單元格不存在');
