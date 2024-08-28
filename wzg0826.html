@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>登記系統</title>
+  <title>點名系統</title>
     <style type="text/css">
     html, body {
       margin: 0;
@@ -41,12 +41,12 @@ fetch(spreadsheetUrl)
   .then(data => {
     const rows = data.split('\n');
     if (rows.length > 50) {  // 確保有第五行
-      const cells = rows[50].split(',');  // 讀取第51行（索引為 4）
+      const cells = rows[50].split(',');  // 讀取第五行（索引為 4）
       if (cells.length >= 4) {
-        const url = cells[3].trim(); // D51 單元格是第51行的第四個單元格（索引為 3）
+        const url = cells[3].trim(); // D5 單元格是第五行的第四個單元格（索引為 3）
         document.getElementById('dynamic-iframe').src = url;
       } else {
-        console.error('D51 單元格不存在');
+        console.error('D5 單元格不存在');
       }
     } else {
       console.error('試算表沒有足夠的行');
