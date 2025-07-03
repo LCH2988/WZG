@@ -102,6 +102,12 @@
           transform: translateY(-2px);
       }
       
+      .btn-primary:disabled {
+          background: #cccccc;
+          cursor: not-allowed;
+          transform: none;
+      }
+      
       .btn-secondary {
           background: #6c757d;
           color: white;
@@ -120,6 +126,45 @@
           font-size: 14px;
           margin-top: 5px;
       }
+      
+      .loading {
+          display: none;
+          text-align: center;
+          padding: 20px;
+      }
+      
+      .spinner {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #4ECDC4;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 10px;
+      }
+      
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+      
+      .success-message {
+          background: #d4edda;
+          color: #155724;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          border: 1px solid #c3e6cb;
+      }
+      
+      .error-message {
+          background: #f8d7da;
+          color: #721c24;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          border: 1px solid #f5c6cb;
+      }
   </style>
 </head>
 <body>
@@ -130,6 +175,13 @@
       </div>
       
       <div class="form-container">
+          <div class="loading" id="loading">
+              <div class="spinner"></div>
+              <p>處理中...</p>
+          </div>
+          
+          <div id="messageArea"></div>
+          
           <form id="donationForm">
               <div class="form-group">
                   <label for="donorCode">捐款代號：</label>
@@ -150,8 +202,8 @@
                   <div class="error" id="amountError"></div>
               </div>
               
-              <button type="submit" class="btn btn-primary">確認捐款</button>
-              <button type="button" class="btn btn-secondary" onclick="liff.closeWindow()">取消</button>
+              <button type="submit" class="btn btn-primary" id="submitBtn">確認捐款</button>
+              <button type="button" class="btn btn-secondary" onclick="closeLiff()">取消</button>
           </form>
       </div>
   </div>
@@ -159,32 +211,100 @@
   <script>
       let currentAmount = 0;
       let isCustomAmount = false;
+      let liffInitialized = false;
+      let userProfile = null;
 
       // 初始化 LIFF
-      liff.init({
-          liffId: '2006113324-od69VN74'
-      }).then(() => {
-          // 獲取 URL 參數
-          const urlParams = new URLSearchParams(window.location.search);
-          const amount = urlParams.get('amount');
-          const custom = urlParams.get('custom');
-          
-          if (custom === 'true') {
-              // 自訂金額模式
-              isCustomAmount = true;
-              document.getElementById('customAmount').classList.remove('hidden');
-              document.getElementById('amountDisplay').textContent = '自訂金額';
-          } else if (amount) {
-              // 預設金額模式
-              currentAmount = parseInt(amount);
-              document.getElementById('amountDisplay').textContent = `NT$ ${currentAmount.toLocaleString()}`;
+      async function initializeLiff() {
+          try {
+              // 從 GAS 設定取得 LIFF ID
+              const liffId = await getLiffIdFromGAS();
+              
+              await liff.init({
+                  liffId: liffId
+              });
+              
+              liffInitialized = true;
+              
+              // 取得用戶資料
+              if (liff.isLoggedIn()) {
+                  userProfile = await liff.getProfile();
+                  console.log('用戶資料:', userProfile);
+              }
+              
+              // 獲取 URL 參數
+              const urlParams = new URLSearchParams(window.location.search);
+              const amount = urlParams.get('amount');
+              const custom = urlParams.get('custom');
+              
+              if (custom === 'true') {
+                  isCustomAmount = true;
+                  document.getElementById('customAmount').classList.remove('hidden');
+                  document.getElementById('amountDisplay').textContent = '自訂金額';
+              } else if (amount) {
+                  currentAmount = parseInt(amount);
+                  document.getElementById('amountDisplay').textContent = `NT$ ${currentAmount.toLocaleString()}`;
+              }
+              
+          } catch (err) {
+              console.error('LIFF 初始化失敗:', err);
+              showMessage('系統初始化失敗，請重新開啟', 'error');
           }
-      }).catch((err) => {
-          console.error('LIFF 初始化失敗:', err);
-      });
+      }
+
+      // 從 GAS 取得 LIFF ID
+      async function getLiffIdFromGAS() {
+          try {
+              const response = await fetch(`${window.location.origin}/exec?action=getLiffId`);
+              const data = await response.json();
+              return data.liffId || 'YOUR_LIFF_ID'; // 備用值
+          } catch (error) {
+              console.error('取得 LIFF ID 失敗:', error);
+              return 'YOUR_LIFF_ID'; // 備用值
+          }
+      }
+
+      // 關閉 LIFF 視窗
+      function closeLiff() {
+          if (liffInitialized && liff.isInClient()) {
+              liff.closeWindow();
+          } else {
+              window.close();
+          }
+      }
+
+      // 顯示訊息
+      function showMessage(message, type = 'info') {
+          const messageArea = document.getElementById('messageArea');
+          const messageClass = type === 'error' ? 'error-message' : 'success-message';
+          
+          messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`;
+          
+          // 3秒後自動清除訊息
+          setTimeout(() => {
+              messageArea.innerHTML = '';
+          }, 3000);
+      }
+
+      // 顯示/隱藏載入中
+      function showLoading(show) {
+          const loading = document.getElementById('loading');
+          const form = document.getElementById('donationForm');
+          const submitBtn = document.getElementById('submitBtn');
+          
+          if (show) {
+              loading.style.display = 'block';
+              form.style.display = 'none';
+              submitBtn.disabled = true;
+          } else {
+              loading.style.display = 'none';
+              form.style.display = 'block';
+              submitBtn.disabled = false;
+          }
+      }
 
       // 表單提交處理
-      document.getElementById('donationForm').addEventListener('submit', function(e) {
+      document.getElementById('donationForm').addEventListener('submit', async function(e) {
           e.preventDefault();
           
           const donorCode = document.getElementById('donorCode').value.trim();
@@ -224,20 +344,81 @@
               return;
           }
           
-          // 發送訊息到 LINE
-          const message = `${donorCode}${donorName}捐${amount}`;
+          // 顯示載入中
+          showLoading(true);
           
-          liff.sendMessages([{
-              type: 'text',
-              text: message
-          }]).then(() => {
-              alert('捐款資訊已送出，感謝您的愛心！');
-              liff.closeWindow();
-          }).catch((err) => {
-              console.error('發送訊息失敗:', err);
-              alert('發送失敗，請重試');
-          });
+          try {
+              // 準備捐款資料
+              const donationData = {
+                  donorCode: donorCode,
+                  donorName: donorName,
+                  amount: amount,
+                  userId: userProfile ? userProfile.userId : 'liff_user',
+                  displayName: userProfile ? userProfile.displayName : donorName
+              };
+              
+              // 發送到 GAS 後端處理
+              const result = await processDonationWithGAS(donationData);
+              
+              if (result.success) {
+                  // 發送訊息到 LINE
+                  const message = `${donorCode}${donorName}捐${amount}`;
+                  
+                  if (liffInitialized && liff.isInClient()) {
+                      await liff.sendMessages([{
+                          type: 'text',
+                          text: message
+                      }]);
+                  }
+                  
+                  showMessage('捐款資訊已送出，感謝您的愛心！', 'success');
+                  
+                  // 2秒後關閉視窗
+                  setTimeout(() => {
+                      closeLiff();
+                  }, 2000);
+                  
+              } else {
+                  throw new Error(result.message || '處理失敗');
+              }
+              
+          } catch (err) {
+              console.error('處理捐款失敗:', err);
+              showMessage('處理失敗，請重試：' + err.message, 'error');
+          } finally {
+              showLoading(false);
+          }
       });
+
+      // 透過 GAS 處理捐款
+      async function processDonationWithGAS(donationData) {
+          try {
+              const response = await fetch(`${window.location.origin}/exec`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      action: 'processDonation',
+                      data: donationData
+                  })
+              });
+              
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              
+              const result = await response.json();
+              return result;
+              
+          } catch (error) {
+              console.error('GAS 處理錯誤:', error);
+              return { success: false, message: error.message };
+          }
+      }
+
+      // 頁面載入完成後初始化
+      window.addEventListener('load', initializeLiff);
   </script>
 </body>
 </html>
