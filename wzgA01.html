@@ -1,38 +1,243 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>登記表單</title>
-    <style type="text/css">
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
-      height: 100%;
-    }
-
-    iframe {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border: none;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
+  <title>捐款確認</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      
+      body {
+          font-family: 'Arial', sans-serif;
+          background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+          min-height: 100vh;
+          padding: 20px;
+      }
+      
+      .container {
+          max-width: 400px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+          overflow: hidden;
+      }
+      
+      .header {
+          background: #FF6B6B;
+          color: white;
+          padding: 20px;
+          text-align: center;
+      }
+      
+      .header h1 {
+          font-size: 24px;
+          margin-bottom: 5px;
+      }
+      
+      .form-container {
+          padding: 30px;
+      }
+      
+      .form-group {
+          margin-bottom: 20px;
+      }
+      
+      label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #333;
+      }
+      
+      input[type="text"], input[type="number"] {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          font-size: 16px;
+          transition: border-color 0.3s;
+      }
+      
+      input[type="text"]:focus, input[type="number"]:focus {
+          outline: none;
+          border-color: #4ECDC4;
+      }
+      
+      .amount-display {
+          background: #f8f9fa;
+          padding: 15px;
+          border-radius: 8px;
+          text-align: center;
+          font-size: 24px;
+          font-weight: bold;
+          color: #FF6B6B;
+          margin-bottom: 20px;
+      }
+      
+      .btn {
+          width: 100%;
+          padding: 15px;
+          border: none;
+          border-radius: 8px;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.3s;
+          margin-bottom: 10px;
+      }
+      
+      .btn-primary {
+          background: #4ECDC4;
+          color: white;
+      }
+      
+      .btn-primary:hover {
+          background: #45B7B8;
+          transform: translateY(-2px);
+      }
+      
+      .btn-secondary {
+          background: #6c757d;
+          color: white;
+      }
+      
+      .btn-secondary:hover {
+          background: #5a6268;
+      }
+      
+      .hidden {
+          display: none;
+      }
+      
+      .error {
+          color: #dc3545;
+          font-size: 14px;
+          margin-top: 5px;
+      }
   </style>
 </head>
 <body>
-<iframe src= "https://script.google.com/macros/s/AKfycbzmTuqB4b0Y4pGnRt67NzWHCQ11uTfTNs4VmvWFSU8dkYJdSAji0InCF6o1-_BYOi_c/exec" frameborder="0" marginheight="0" marginwidth="0"
-width="100%" height="100%" scrolling="auto">
-</iframe>
+  <div class="container">
+      <div class="header">
+          <h1>💝 捐款確認</h1>
+          <p>請填寫您的資料</p>
+      </div>
+      
+      <div class="form-container">
+          <form id="donationForm">
+              <div class="form-group">
+                  <label for="donorCode">捐款代號：</label>
+                  <input type="text" id="donorCode" name="donorCode" placeholder="例：A01" required>
+                  <div class="error" id="donorCodeError"></div>
+              </div>
+              
+              <div class="form-group">
+                  <label for="donorName">捐款人姓名/單位：</label>
+                  <input type="text" id="donorName" name="donorName" placeholder="請輸入姓名或單位名稱" required>
+                  <div class="error" id="donorNameError"></div>
+              </div>
+              
+              <div class="form-group">
+                  <label for="amount">捐款金額：</label>
+                  <div class="amount-display" id="amountDisplay">NT$ 0</div>
+                  <input type="number" id="customAmount" name="customAmount" placeholder="請輸入金額" min="1" class="hidden">
+                  <div class="error" id="amountError"></div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">確認捐款</button>
+              <button type="button" class="btn btn-secondary" onclick="liff.closeWindow()">取消</button>
+          </form>
+      </div>
+  </div>
 
+  <script>
+      let currentAmount = 0;
+      let isCustomAmount = false;
+
+      // 初始化 LIFF
+      liff.init({
+          liffId: '2006113324-od69VN74'
+      }).then(() => {
+          // 獲取 URL 參數
+          const urlParams = new URLSearchParams(window.location.search);
+          const amount = urlParams.get('amount');
+          const custom = urlParams.get('custom');
+          
+          if (custom === 'true') {
+              // 自訂金額模式
+              isCustomAmount = true;
+              document.getElementById('customAmount').classList.remove('hidden');
+              document.getElementById('amountDisplay').textContent = '自訂金額';
+          } else if (amount) {
+              // 預設金額模式
+              currentAmount = parseInt(amount);
+              document.getElementById('amountDisplay').textContent = `NT$ ${currentAmount.toLocaleString()}`;
+          }
+      }).catch((err) => {
+          console.error('LIFF 初始化失敗:', err);
+      });
+
+      // 表單提交處理
+      document.getElementById('donationForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const donorCode = document.getElementById('donorCode').value.trim();
+          const donorName = document.getElementById('donorName').value.trim();
+          let amount = currentAmount;
+          
+          // 清除之前的錯誤訊息
+          document.querySelectorAll('.error').forEach(el => el.textContent = '');
+          
+          // 驗證輸入
+          let hasError = false;
+          
+          if (!donorCode) {
+              document.getElementById('donorCodeError').textContent = '請輸入捐款代號';
+              hasError = true;
+          }
+          
+          if (!donorName) {
+              document.getElementById('donorNameError').textContent = '請輸入捐款人姓名或單位';
+              hasError = true;
+          }
+          
+          if (isCustomAmount) {
+              const customAmount = parseInt(document.getElementById('customAmount').value);
+              if (!customAmount || customAmount <= 0) {
+                  document.getElementById('amountError').textContent = '請輸入有效的捐款金額';
+                  hasError = true;
+              } else {
+                  amount = customAmount;
+              }
+          } else if (!amount || amount <= 0) {
+              document.getElementById('amountError').textContent = '捐款金額不能為空';
+              hasError = true;
+          }
+          
+          if (hasError) {
+              return;
+          }
+          
+          // 發送訊息到 LINE
+          const message = `${donorCode}${donorName}捐${amount}`;
+          
+          liff.sendMessages([{
+              type: 'text',
+              text: message
+          }]).then(() => {
+              alert('捐款資訊已送出，感謝您的愛心！');
+              liff.closeWindow();
+          }).catch((err) => {
+              console.error('發送訊息失敗:', err);
+              alert('發送失敗，請重試');
+          });
+      });
+  </script>
 </body>
-
 </html>
