@@ -1,424 +1,559 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>捐款確認</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <title>桃園威振宮 - 行館喬遷建廟基金捐款</title>
   <style>
       * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
       }
-      
+
       body {
-          font-family: 'Arial', sans-serif;
-          background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+          font-family: 'Microsoft JhengHei', Arial, sans-serif;
+          background: linear-gradient(135deg, #8B0000, #CD853F);
           min-height: 100vh;
           padding: 20px;
+          font-size: 19.2px; /* 24px * 0.8 */
       }
-      
+
       .container {
-          max-width: 400px;
+          max-width: 900px;
           margin: 0 auto;
           background: white;
           border-radius: 15px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
           overflow: hidden;
       }
-      
+
       .header {
-          background: #FF6B6B;
+          background: linear-gradient(45deg, #8B0000, #B22222);
           color: white;
-          padding: 20px;
+          padding: 40px;
           text-align: center;
+          position: relative;
       }
-      
-      .header h1 {
-          font-size: 24px;
-          margin-bottom: 5px;
+
+      .temple-name {
+          font-size: 2.8em; /* 3.5em * 0.8 */
+          font-weight: bold;
+          margin-bottom: 15px;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
       }
-      
-      .form-container {
-          padding: 30px;
-      }
-      
-      .form-group {
+
+      .subtitle {
+          font-size: 1.6em; /* 2em * 0.8 */
           margin-bottom: 20px;
       }
-      
-      label {
+
+      .purpose {
+          background: rgba(255,215,0,0.2);
+          padding: 20px;
+          border-radius: 10px;
+          font-size: 1.12em; /* 1.4em * 0.8 */
+          line-height: 1.6;
+      }
+
+      .form-section {
+          padding: 50px;
+      }
+
+      .form-group {
+          margin-bottom: 40px;
+      }
+
+      .form-group label {
           display: block;
-          margin-bottom: 8px;
+          margin-bottom: 15px;
           font-weight: bold;
           color: #333;
+          font-size: 1.44em; /* 1.8em * 0.8 */
       }
-      
-      input[type="text"], input[type="number"] {
+
+      .required {
+          color: #DC143C;
+          font-size: 0.96em; /* 1.2em * 0.8 */
+      }
+
+      input[type="text"],
+      input[type="tel"],
+      input[type="number"],
+      textarea {
           width: 100%;
-          padding: 12px;
-          border: 2px solid #e0e0e0;
-          border-radius: 8px;
-          font-size: 16px;
+          padding: 20px 25px;
+          border: 3px solid #ddd;
+          border-radius: 12px;
+          font-size: 1.28em; /* 1.6em * 0.8 */
           transition: border-color 0.3s;
+          line-height: 1.4;
+          background: white;
       }
-      
-      input[type="text"]:focus, input[type="number"]:focus {
+
+      input[type="text"]:focus,
+      input[type="tel"]:focus,
+      input[type="number"]:focus,
+      textarea:focus {
           outline: none;
-          border-color: #4ECDC4;
+          border-color: #DAA520;
+          box-shadow: 0 0 10px rgba(218,165,32,0.3);
       }
-      
-      .amount-display {
-          background: #f8f9fa;
-          padding: 15px;
-          border-radius: 8px;
-          text-align: center;
-          font-size: 24px;
-          font-weight: bold;
-          color: #FF6B6B;
-          margin-bottom: 20px;
+
+      .amount-buttons {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 15px;
+          margin-top: 20px;
       }
-      
-      .btn {
-          width: 100%;
-          padding: 15px;
-          border: none;
-          border-radius: 8px;
-          font-size: 18px;
+
+      .amount-btn {
+          background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+          border: 3px solid #ddd;
+          border-radius: 12px;
+          padding: 20px 15px;
+          font-size: 1.12em; /* 1.4em * 0.8 */
           font-weight: bold;
+          color: #333;
           cursor: pointer;
           transition: all 0.3s;
-          margin-bottom: 10px;
+          text-align: center;
+          min-height: 80px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
       }
-      
-      .btn-primary {
-          background: #4ECDC4;
-          color: white;
-      }
-      
-      .btn-primary:hover {
-          background: #45B7B8;
+
+      .amount-btn:hover {
+          background: linear-gradient(135deg, #e9ecef, #dee2e6);
+          border-color: #DAA520;
           transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       }
-      
-      .btn-primary:disabled {
-          background: #cccccc;
+
+      .amount-btn:active {
+          transform: translateY(0);
+          background: linear-gradient(135deg, #DAA520, #FFD700);
+          color: white;
+          border-color: #B8860B;
+      }
+
+      textarea {
+          min-height: 120px;
+          resize: vertical;
+      }
+
+      .bank-info {
+          background: #f0f8ff;
+          padding: 30px;
+          border-radius: 15px;
+          margin: 40px 0;
+          border-left: 8px solid #4169E1;
+      }
+
+      .bank-info h4 {
+          color: #4169E1;
+          margin-bottom: 20px;
+          font-size: 1.6em; /* 2em * 0.8 */
+      }
+
+      .bank-details {
+          display: grid;
+          gap: 15px;
+      }
+
+      .bank-detail {
+          display: flex;
+          justify-content: space-between;
+          padding: 15px 0;
+          border-bottom: 2px solid #e0e0e0;
+          font-size: 1.12em; /* 1.4em * 0.8 */
+      }
+
+      .bank-detail:last-child {
+          border-bottom: none;
+      }
+
+      .bank-detail strong {
+          color: #333;
+          min-width: 120px;
+      }
+
+      .account-number {
+          font-family: monospace;
+          font-size: 1.28em; /* 1.6em * 0.8 */
+          color: #DC143C;
+          font-weight: bold;
+      }
+
+      .submit-btn {
+          background-color: #d32f2f; /* 紅色 */
+          color: #fff; 
+          padding: 25px 50px;
+          border: none;
+          border-radius: 15px;
+          font-size: 1.6em; /* 2em * 0.8 */
+          font-weight: bold;
+          cursor: pointer;
+          width: 100%;
+          transition: all 0.3s;
+          box-shadow: 0 6px 20px rgba(218,165,32,0.3);
+          margin-top: 30px;
+      }
+
+      .submit-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(218,165,32,0.4);
+      }
+
+      .submit-btn:disabled {
+          background: #ccc;
           cursor: not-allowed;
           transform: none;
       }
-      
-      .btn-secondary {
-          background: #6c757d;
-          color: white;
-      }
-      
-      .btn-secondary:hover {
-          background: #5a6268;
-      }
-      
-      .hidden {
+
+      .modal {
           display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          z-index: 1000;
       }
-      
-      .error {
-          color: #dc3545;
-          font-size: 14px;
-          margin-top: 5px;
-      }
-      
-      .loading {
-          display: none;
+
+      .modal-content {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          padding: 40px;
+          border-radius: 20px;
           text-align: center;
-          padding: 20px;
+          max-width: 500px;
+          width: 90%;
       }
-      
-      .spinner {
-          border: 4px solid #f3f3f3;
-          border-top: 4px solid #4ECDC4;
+
+      .success-icon {
+          font-size: 3.2em; /* 4em * 0.8 */
+          color: #28a745;
+          margin-bottom: 25px;
+      }
+
+      .modal-content h3 {
+          font-size: 1.76em; /* 2.2em * 0.8 */
+          margin-bottom: 20px;
+          color: #333;
+      }
+
+      .modal-content p {
+          font-size: 1.28em; /* 1.6em * 0.8 */
+          line-height: 1.5;
+          margin-bottom: 15px;
+      }
+
+      .modal-btn {
+          margin-top: 25px;
+          padding: 15px 40px;
+          background: #DAA520;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 1.28em; /* 1.6em * 0.8 */
+          font-weight: bold;
+      }
+
+      .loading {
+          display: inline-block;
+          width: 25px;
+          height: 25px;
+          border: 4px solid rgba(255, 255, 255, .3);
           border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 10px;
+          border-top-color: #fff;
+          animation: spin 1s ease-in-out infinite;
+          margin-left: 15px;
       }
-      
+
       @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          to { transform: rotate(360deg); }
       }
-      
-      .success-message {
-          background: #d4edda;
-          color: #155724;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          border: 1px solid #c3e6cb;
+
+      /* 手機適配 */
+      @media (max-width: 768px) {
+          body {
+              font-size: 17.6px; /* 22px * 0.8 */
+              padding: 10px;
+          }
+          
+          .container {
+              margin: 5px;
+          }
+          
+          .header {
+              padding: 25px;
+          }
+          
+          .temple-name {
+              font-size: 2.24em; /* 2.8em * 0.8 */
+          }
+          
+          .subtitle {
+              font-size: 1.28em; /* 1.6em * 0.8 */
+          }
+          
+          .form-section {
+              padding: 25px;
+          }
+          
+          .form-group label {
+              font-size: 1.28em; /* 1.6em * 0.8 */
+          }
+          
+          input[type="text"],
+          input[type="tel"],
+          input[type="number"],
+          textarea {
+              font-size: 1.12em; /* 1.4em * 0.8 */
+              padding: 18px 20px;
+          }
+          
+          .submit-btn {
+              font-size: 1.44em; /* 1.8em * 0.8 */
+              padding: 20px 40px;
+          }
+
+          .amount-buttons {
+              grid-template-columns: repeat(2, 1fr);
+              gap: 12px;
+          }
+
+          .amount-btn {
+              font-size: 0.96em; /* 1.2em * 0.8 */
+              padding: 15px 10px;
+              min-height: 70px;
+          }
       }
-      
-      .error-message {
-          background: #f8d7da;
-          color: #721c24;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          border: 1px solid #f5c6cb;
-      }
+
+
   </style>
 </head>
 <body>
   <div class="container">
-      <div class="header">
-          <h1>💝 捐款確認</h1>
-          <p>請填寫您的資料</p>
-      </div>
-      
-      <div class="form-container">
-          <div class="loading" id="loading">
-              <div class="spinner"></div>
-              <p>處理中...</p>
+      <!-- <div class="header">
+          <h1 class="temple-name">桃園威振宮</h1>
+          <p class="subtitle">行館喬遷建廟基金</p>
+          <div class="purpose">
+              <p>🙏 捐贈善心大德芳名錄，名流青史功德無量</p>
+              <p>敬邀諸位善信大德發心接龍捐助</p>
+              <p>護持建廟善業，福慧雙修，功德無量</p>
           </div>
-          
-          <div id="messageArea"></div>
-          
+      </div> -->
+
+      <div class="form-section">
           <form id="donationForm">
               <div class="form-group">
-                  <label for="donorCode">捐款代號：</label>
-                  <input type="text" id="donorCode" name="donorCode" placeholder="例：A01" required>
-                  <div class="error" id="donorCodeError"></div>
+                  <label for="name">姓名 <span class="required">*</span></label>
+                  <input type="text" id="name" name="name" required>
               </div>
-              
+
               <div class="form-group">
-                  <label for="donorName">捐款人姓名/單位：</label>
-                  <input type="text" id="donorName" name="donorName" placeholder="請輸入姓名或單位名稱" required>
-                  <div class="error" id="donorNameError"></div>
+                  <label for="phone">電話 <span class="required">*</span></label>
+                  <input type="tel" id="phone" name="phone" required>
               </div>
-              
+
               <div class="form-group">
-                  <label for="amount">捐款金額：</label>
-                  <div class="amount-display" id="amountDisplay">NT$ 0</div>
-                  <input type="number" id="customAmount" name="customAmount" placeholder="請輸入金額" min="1" class="hidden">
-                  <div class="error" id="amountError"></div>
+                  <label for="amount">捐款金額 <span class="required">*</span></label>
+                  <input type="number" id="amount" name="amount" min="100" required placeholder="請輸入捐款金額或點選下方按鍵">
+                  
+                  <div class="amount-buttons">
+                      <button type="button" class="amount-btn" data-amount="1000">1仟元</button>
+                      <button type="button" class="amount-btn" data-amount="2000">2仟元</button>
+                      <button type="button" class="amount-btn" data-amount="5000">5仟元</button>
+                      <button type="button" class="amount-btn" data-amount="10000">1萬元</button>
+                      <button type="button" class="amount-btn" data-amount="20000">2萬元</button>
+                      <button type="button" class="amount-btn" data-amount="50000">5萬元</button>
+                      <button type="button" class="amount-btn" data-amount="100000">十萬元</button>
+                  </div>
               </div>
-              
-              <button type="submit" class="btn btn-primary" id="submitBtn">確認捐款</button>
-              <button type="button" class="btn btn-secondary" onclick="closeLiff()">取消</button>
+
+              <div class="form-group">
+                  <label for="remarks">備註</label>
+                  <textarea id="remarks" name="remarks" placeholder="如有特殊需求或祈願內容，請在此填寫..."></textarea>
+              </div>
+
+              <div class="bank-info">
+                  <h4>💰 匯款資訊</h4>
+                  <div class="bank-details">
+                      <div class="bank-detail">
+                          <strong>銀行：</strong>
+                          <span>土地銀行 - 內壢分行</span>
+                      </div>
+                      <div class="bank-detail">
+                          <strong>帳號：</strong>
+                          <span class="account-number">145-001-007228</span>
+                      </div>
+                      <div class="bank-detail">
+                          <strong>戶名：</strong>
+                          <span>桃園市威振關懷慈善協會</span>
+                      </div>
+                  </div>
+                  <p style="margin-top: 20px; color: #666; font-size: 0.96em;">
+                      ※ 匯款後請填寫此表單以便核對，感謝您的善心捐助
+                  </p>
+              </div>
+
+              <button type="submit" class="submit-btn" id="submitBtn">🙏 確認捐款</button>
           </form>
       </div>
   </div>
 
+  <!-- 成功提交模態框 -->
+  <div id="successModal" class="modal">
+      <div class="modal-content">
+          <div class="success-icon">🙏</div>
+          <h3>感謝您的善心捐助！</h3>
+          <p>您的捐款資料已成功提交</p>
+          <p>功德無量，福慧雙修</p>
+          <button class="modal-btn" onclick="closeModal()">確定</button>
+      </div>
+  </div>
   <script>
-      let currentAmount = 0;
-      let isCustomAmount = false;
-      let liffInitialized = false;
-      let userProfile = null;
+    // ===== LIFF 初始化 =====
+    const liffId = "2006113324-od69VN74"; // <-- 這裡填入你的 LIFF ID
+    liff.init({ liffId }).catch(err => {
+      alert('LIFF 初始化失敗: ' + err);
+    });
 
-      // 初始化 LIFF
-      async function initializeLiff() {
-          try {
-              // 從 GAS 設定取得 LIFF ID
-              const liffId = await getLiffIdFromGAS();
+    let isSubmitting = false;
+
+    // 金額按鍵點擊事件
+      document.querySelectorAll('.amount-btn').forEach(button => {
+          button.addEventListener('click', function() {
+              const amount = this.getAttribute('data-amount');
+              document.getElementById('amount').value = amount;
               
-              await liff.init({
-                  liffId: liffId
+              // 視覺回饋效果
+              this.style.background = 'linear-gradient(135deg, #DAA520, #FFD700)';
+              this.style.color = 'white';
+              this.style.borderColor = '#B8860B';
+              
+              // 重置其他按鈕樣式
+              document.querySelectorAll('.amount-btn').forEach(btn => {
+                  if (btn !== this) {
+                      btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                      btn.style.color = '#333';
+                      btn.style.borderColor = '#ddd';
+                  }
               });
               
-              liffInitialized = true;
-              
-              // 取得用戶資料
-              if (liff.isLoggedIn()) {
-                  userProfile = await liff.getProfile();
-                  console.log('用戶資料:', userProfile);
-              }
-              
-              // 獲取 URL 參數
-              const urlParams = new URLSearchParams(window.location.search);
-              const amount = urlParams.get('amount');
-              const custom = urlParams.get('custom');
-              
-              if (custom === 'true') {
-                  isCustomAmount = true;
-                  document.getElementById('customAmount').classList.remove('hidden');
-                  document.getElementById('amountDisplay').textContent = '自訂金額';
-              } else if (amount) {
-                  currentAmount = parseInt(amount);
-                  document.getElementById('amountDisplay').textContent = `NT$ ${currentAmount.toLocaleString()}`;
-              }
-              
-          } catch (err) {
-              console.error('LIFF 初始化失敗:', err);
-              showMessage('系統初始化失敗，請重新開啟', 'error');
-          }
-      }
-
-      // 從 GAS 取得 LIFF ID
-      async function getLiffIdFromGAS() {
-          try {
-              const response = await fetch(`${window.location.origin}/exec?action=getLiffId`);
-              const data = await response.json();
-              return data.liffId || 'YOUR_LIFF_ID'; // 備用值
-          } catch (error) {
-              console.error('取得 LIFF ID 失敗:', error);
-              return 'YOUR_LIFF_ID'; // 備用值
-          }
-      }
-
-      // 關閉 LIFF 視窗
-      function closeLiff() {
-          if (liffInitialized && liff.isInClient()) {
-              liff.closeWindow();
-          } else {
-              window.close();
-          }
-      }
-
-      // 顯示訊息
-      function showMessage(message, type = 'info') {
-          const messageArea = document.getElementById('messageArea');
-          const messageClass = type === 'error' ? 'error-message' : 'success-message';
-          
-          messageArea.innerHTML = `<div class="${messageClass}">${message}</div>`;
-          
-          // 3秒後自動清除訊息
-          setTimeout(() => {
-              messageArea.innerHTML = '';
-          }, 3000);
-      }
-
-      // 顯示/隱藏載入中
-      function showLoading(show) {
-          const loading = document.getElementById('loading');
-          const form = document.getElementById('donationForm');
-          const submitBtn = document.getElementById('submitBtn');
-          
-          if (show) {
-              loading.style.display = 'block';
-              form.style.display = 'none';
-              submitBtn.disabled = true;
-          } else {
-              loading.style.display = 'none';
-              form.style.display = 'block';
-              submitBtn.disabled = false;
-          }
-      }
-
-      // 表單提交處理
-      document.getElementById('donationForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          
-          const donorCode = document.getElementById('donorCode').value.trim();
-          const donorName = document.getElementById('donorName').value.trim();
-          let amount = currentAmount;
-          
-          // 清除之前的錯誤訊息
-          document.querySelectorAll('.error').forEach(el => el.textContent = '');
-          
-          // 驗證輸入
-          let hasError = false;
-          
-          if (!donorCode) {
-              document.getElementById('donorCodeError').textContent = '請輸入捐款代號';
-              hasError = true;
-          }
-          
-          if (!donorName) {
-              document.getElementById('donorNameError').textContent = '請輸入捐款人姓名或單位';
-              hasError = true;
-          }
-          
-          if (isCustomAmount) {
-              const customAmount = parseInt(document.getElementById('customAmount').value);
-              if (!customAmount || customAmount <= 0) {
-                  document.getElementById('amountError').textContent = '請輸入有效的捐款金額';
-                  hasError = true;
-              } else {
-                  amount = customAmount;
-              }
-          } else if (!amount || amount <= 0) {
-              document.getElementById('amountError').textContent = '捐款金額不能為空';
-              hasError = true;
-          }
-          
-          if (hasError) {
-              return;
-          }
-          
-          // 顯示載入中
-          showLoading(true);
-          
-          try {
-              // 準備捐款資料
-              const donationData = {
-                  donorCode: donorCode,
-                  donorName: donorName,
-                  amount: amount,
-                  userId: userProfile ? userProfile.userId : 'liff_user',
-                  displayName: userProfile ? userProfile.displayName : donorName
-              };
-              
-              // 發送到 GAS 後端處理
-              const result = await processDonationWithGAS(donationData);
-              
-              if (result.success) {
-                  // 發送訊息到 LINE
-                  const message = `${donorCode}${donorName}捐${amount}`;
-                  
-                  if (liffInitialized && liff.isInClient()) {
-                      await liff.sendMessages([{
-                          type: 'text',
-                          text: message
-                      }]);
-                  }
-                  
-                  showMessage('捐款資訊已送出，感謝您的愛心！', 'success');
-                  
-                  // 2秒後關閉視窗
-                  setTimeout(() => {
-                      closeLiff();
-                  }, 2000);
-                  
-              } else {
-                  throw new Error(result.message || '處理失敗');
-              }
-              
-          } catch (err) {
-              console.error('處理捐款失敗:', err);
-              showMessage('處理失敗，請重試：' + err.message, 'error');
-          } finally {
-              showLoading(false);
-          }
+              setTimeout(() => {
+                  this.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                  this.style.color = '#333';
+                  this.style.borderColor = '#ddd';
+              }, 200);
+          });
       });
 
-      // 透過 GAS 處理捐款
-      async function processDonationWithGAS(donationData) {
-          try {
-              const response = await fetch(`${window.location.origin}/exec`, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                      action: 'processDonation',
-                      data: donationData
-                  })
-              });
-              
-              if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              
-              const result = await response.json();
-              return result;
-              
-          } catch (error) {
-              console.error('GAS 處理錯誤:', error);
-              return { success: false, message: error.message };
+      // 當手動輸入金額時，重置所有按鈕樣式
+      document.getElementById('amount').addEventListener('input', function() {
+          document.querySelectorAll('.amount-btn').forEach(btn => {
+              btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+              btn.style.color = '#333';
+              btn.style.borderColor = '#ddd';
+          });
+      });
+
+    // 表單提交處理
+    document.getElementById('donationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (isSubmitting) return;
+
+      // 驗證欄位
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const amount = document.getElementById('amount').value;
+      const remarks = document.getElementById('remarks').value.trim();
+
+      if (!name) { alert('請填寫姓名'); return; }
+      if (!phone) { alert('請填寫電話'); return; }
+      if (!amount || amount < 100) { alert('請填寫正確的捐款金額（最少100元）'); return; }
+
+      isSubmitting = true;
+      const submitBtn = document.getElementById('submitBtn');
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '提交中... <span class="loading"></span>';
+
+      // 收集表單資料
+      const formData = {
+        name: name,
+        phone: phone,
+        amount: parseInt(amount),
+        remarks: remarks,
+        timestamp: new Date().toLocaleString('zh-TW')
+      };
+
+      try {
+        // 送出到 GAS
+        await fetch('https://script.google.com/macros/s/AKfycby-u_siYl3gxumLeUmIFUWq5Q4TORFIU5wpGQf12alVpC9F5kr9wHPn7iV6XcYWPNg/exec', {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        // ===== 送出成功後，主動以用戶身份發送訊息到聊天室 =====
+        if (liff.isInClient()) {
+          let message = `威振宮 捐款登記\n\n🙇‍♂️ 捐款人：${name}\n💰 金額：${amount} 元${remarks ? '\n📋 備註：' + remarks : ''}`;
+          await liff.sendMessages([
+            { type: 'text', text: message }
+          ]);
+          // 可選：liff.closeWindow();
+        } else {
+          alert('請於 LINE App 內開啟此頁面，以完成 LINE 訊息發送。');
+        }
+
+        showSuccessModal();
+        this.reset();
+        // 重置按鈕樣式
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+          btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+          btn.style.color = '#333';
+          btn.style.borderColor = '#ddd';
+        });
+      } catch (error) {
+        alert('提交失敗，請稍後再試或直接聯繫廟方');
+        console.error('Error:', error);
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      }
+    });
+
+    function showSuccessModal() {
+          document.getElementById('successModal').style.display = 'block';
+      }
+
+      function closeModal() {
+          document.getElementById('successModal').style.display = 'none';
+      }
+
+      // 點擊模態框外部關閉
+      window.onclick = function(event) {
+          const modal = document.getElementById('successModal');
+          if (event.target === modal) {
+              closeModal();
           }
       }
 
-      // 頁面載入完成後初始化
-      window.addEventListener('load', initializeLiff);
+    // 限制金額只能數字
+    document.getElementById('amount').addEventListener('input', function() {
+      this.value = this.value.replace(/[^\d]/g, '');
+    });
   </script>
 </body>
 </html>
