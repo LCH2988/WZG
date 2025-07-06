@@ -163,6 +163,50 @@
     .preview-modal .modal-content {
         text-align: left;
     }
+    
+    /* 選項卡樣式 */
+    .message-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .tab-btn {
+        flex: 1;
+        padding: 12px 15px;
+        border: none;
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        font-size: 0.95em;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    .tab-btn:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+    .tab-btn.active {
+        background: #007bff;
+        color: white;
+        border-bottom: 2px solid #007bff;
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .tab-description {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+    
     .preview-message {
         background: #f8f9fa;
         border: 2px solid #e9ecef;
@@ -175,6 +219,16 @@
         white-space: pre-line;
         color: #333;
     }
+    .quick-trigger {
+        background: #fff3cd !important;
+        border: 2px solid #ffc107 !important;
+        color: #856404 !important;
+        font-size: 1.3em !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        padding: 30px !important;
+    }
+    
     .preview-header {
         text-align: center;
         margin-bottom: 20px;
@@ -193,13 +247,12 @@
         font-size: 0.95em;
         color: #856404;
     }
-    .modal-buttons {
-        display: flex;
-        gap: 15px;
-        margin-top: 25px;
+    .send-options {
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
     }
     .modal-btn {
-        flex: 1;
         padding: 15px 20px;
         border: none;
         border-radius: 10px;
@@ -262,11 +315,12 @@
         max-height: 200px;
         overflow-y: auto;
     }
-    .send-options {
-        display: grid;
-        gap: 10px;
-        margin-top: 20px;
+    .field-error {
+        color: #dc3545;
+        font-size: 0.9em;
+        margin-top: 5px;
     }
+    
     @media (max-width: 768px) {
         body { font-size: 17.6px; padding: 10px; }
         .container { margin: 5px; }
@@ -278,9 +332,11 @@
         .submit-btn { font-size: 1.44em; padding: 20px 40px; }
         .amount-buttons { grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .amount-btn { font-size: 0.96em; padding: 15px 10px; min-height: 70px; }
-        .modal-buttons { flex-direction: column; }
         .preview-message { font-size: 1em; }
         .send-options { grid-template-columns: 1fr; }
+        .message-tabs { flex-direction: column; gap: 8px; }
+        .tab-btn { border-radius: 8px; font-size: 0.85em; padding: 10px 12px; }
+        .tab-description { font-size: 0.85em; padding: 12px; }
     }
 </style>
 </head>
@@ -352,36 +408,7 @@
 <!-- 預覽確認模態框 -->
 <div id="previewModal" class="modal preview-modal">
     <div class="modal-content">
-        <div class="preview-header">
-            <h3>📋 請確認捐款登記訊息</h3>
-            <p style="color: #666;">確認後將發送登記資訊</p>
-        </div>
-        
-        <div class="preview-message" id="previewMessage">
-            <!-- 預覽訊息將在這裡顯示 -->
-        </div>
-        
-        <div class="preview-note">
-            <strong>📢 發送方式：</strong><br>
-            • <strong>LINE 發送</strong>：以您的帳號發送到目前聊天（需在 LINE 中開啟）<br>
-            • <strong>複製訊息</strong>：複製後可手動貼到任何地方<br>
-            • <strong>僅登記</strong>：只提交到系統，不發送訊息
-        </div>
-        
-        <div class="send-options">
-            <button class="modal-btn btn-confirm" id="confirmSendBtn" onclick="confirmAndSend()">
-                📱 LINE 發送 + 登記
-            </button>
-            <button class="modal-btn btn-copy" onclick="copyAndSubmit()">
-                📋 複製訊息 + 登記
-            </button>
-            <button class="modal-btn btn-cancel" onclick="submitOnly()">
-                📝 僅登記到系統
-            </button>
-            <button class="modal-btn btn-edit" onclick="editForm()">
-                ✏️ 修改表單
-            </button>
-        </div>
+        <!-- 內容將由 JavaScript 動態生成 -->
     </div>
 </div>
 
@@ -499,37 +526,22 @@
       });
     });
 
-    // 表單提交 - 顯示預覽
+    // 表單提交 - 顯示預覽（續）
     document.getElementById('donationForm').addEventListener('submit', function(e) {
       e.preventDefault();
       debugLog('表單提交，開始驗證...');
       
+      // 驗證表單
+      if (!validateForm()) {
+        debugLog('表單驗證失敗');
+        return;
+      }
+
       // 驗證欄位
       const name = document.getElementById('name').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const amount = document.getElementById('amount').value;
       const remarks = document.getElementById('remarks').value.trim();
-
-      if (!name) { 
-        debugLog('驗證失敗：姓名為空');
-        alert('請填寫姓名'); 
-        return; 
-      }
-      if (!phone) { 
-        debugLog('驗證失敗：電話為空');
-        alert('請填寫電話'); 
-        return; 
-      }
-      if (!/^09\d{8}$/.test(phone)) {
-        debugLog('驗證失敗：電話格式錯誤');
-        alert('請輸入正確的手機號碼（09xxxxxxxx）');
-        return;
-      }
-      if (!amount || amount < 100) { 
-        debugLog('驗證失敗：金額錯誤');
-        alert('請填寫正確的捐款金額（最少100元）'); 
-        return; 
-      }
 
       debugLog('表單驗證通過，生成預覽訊息...');
 
@@ -544,17 +556,95 @@
         liffDisplayName: userProfile?.displayName || ''
       };
 
-      // 生成預覽訊息
-      const previewMessage = generateDonationMessage(currentFormData);
-      document.getElementById('previewMessage').textContent = previewMessage;
-      
-      debugLog('顯示預覽模態框');
       // 顯示預覽模態框
-      document.getElementById('previewModal').style.display = 'block';
+      showPreviewModal();
     });
 
-    // 生成捐款登記訊息
-    function generateDonationMessage(data) {
+    // 🔥 新增：顯示預覽模態框
+    function showPreviewModal() {
+      const modal = document.getElementById('previewModal');
+      const modalContent = modal.querySelector('.modal-content');
+      
+      // 生成模態框內容
+      modalContent.innerHTML = `
+        <div class="preview-header">
+          <h3>📋 請確認捐款登記訊息</h3>
+          <p style="color: #666;">確認後將發送登記資訊並通知 LINE Bot</p>
+        </div>
+        
+        <!-- 選項卡 -->
+        <div class="message-tabs">
+          <button class="tab-btn active" onclick="switchTab('registration')">📝 登記訊息</button>
+          <button class="tab-btn" onclick="switchTab('quick')">⚡ 快速觸發</button>
+          <button class="tab-btn" onclick="switchTab('complete')">📄 完整訊息</button>
+        </div>
+        
+        <!-- 登記訊息選項卡 -->
+        <div id="tab-registration" class="tab-content active">
+          <div class="tab-description">
+            <strong>📝 標準登記訊息</strong><br>
+            包含基本捐款資訊，適合一般登記使用
+          </div>
+          <div class="preview-message" id="registrationMessage">
+            ${generateRegistrationMessage(currentFormData)}
+          </div>
+        </div>
+        
+        <!-- 快速觸發選項卡 -->
+        <div id="tab-quick" class="tab-content">
+          <div class="tab-description">
+            <strong>⚡ 快速觸發格式</strong><br>
+            模擬快速捐款觸發指令，可直接在 LINE 中使用
+          </div>
+          <div class="preview-message quick-trigger" id="quickMessage">
+            我要建廟捐款${currentFormData.amount}元
+          </div>
+          <div style="font-size: 0.9em; color: #666; margin-top: 10px;">
+            💡 此格式可直接在 LINE 中傳送，系統會自動回應
+          </div>
+        </div>
+        
+        <!-- 完整訊息選項卡 -->
+        <div id="tab-complete" class="tab-content">
+          <div class="tab-description">
+            <strong>📄 完整詳細訊息</strong><br>
+            包含所有資訊的完整版本，適合正式通知
+          </div>
+          <div class="preview-message" id="completeMessage">
+            ${generateCompleteMessage(currentFormData)}
+          </div>
+        </div>
+        
+        <div class="preview-note">
+          <strong>📢 提交說明：</strong><br>
+          • <strong>LINE 發送</strong>：以您的帳號發送到目前聊天（需在 LINE 中開啟）<br>
+          • <strong>複製訊息</strong>：複製後可手動貼到任何地方<br>
+          • <strong>僅登記</strong>：只提交到系統，不發送訊息<br>
+          • <strong>🤖 所有方式都會自動通知 LINE Bot 進行處理</strong>
+        </div>
+        
+        <div class="send-options">
+          <button class="modal-btn btn-confirm" id="confirmSendBtn" onclick="confirmAndSend()">
+            📱 LINE 發送 + 登記
+          </button>
+          <button class="modal-btn btn-copy" onclick="copyAndSubmit()">
+            📋 複製訊息 + 登記
+          </button>
+          <button class="modal-btn btn-cancel" onclick="submitOnly()">
+            📝 僅登記到系統
+          </button>
+          <button class="modal-btn btn-edit" onclick="editForm()">
+            ✏️ 修改表單
+          </button>
+        </div>
+      `;
+      
+      modal.style.display = 'block';
+      debugLog('顯示預覽模態框');
+    }
+
+    // 生成登記訊息
+    function generateRegistrationMessage(data) {
       return `🙏 威振宮 建廟基金捐款登記
 
 👤 捐款人：${data.name}
@@ -569,14 +659,38 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
 戶名：桃園市威振關懷慈善協會
 
 已完成線上登記，將盡快匯款並聯繫廟方確認
-感謝威振宮提供此便民服務 🙏
+感謝威振宮提供此便民服務 🙏`;
+    }
+
+    // 生成完整訊息
+    function generateCompleteMessage(data) {
+      return `🙏 威振宮 行館喬遷建廟基金捐款
+
+📋 捐款登記資訊：
+👤 捐款人：${data.name}
+📞 聯絡電話：${data.phone}
+💰 捐款金額：NT$ ${data.amount.toLocaleString()} 元
+${data.remarks ? '📝 備註說明：' + data.remarks : ''}
+⏰ 登記時間：${data.timestamp}
+👤 LINE 用戶：${data.liffDisplayName || '善心大德'}
+
+🏦 匯款帳戶資訊：
+🏛️ 銀行：土地銀行 內壢分行
+💳 帳號：145-001-007228
+👤 戶名：桃園市威振關懷慈善協會
+
+📱 線上表單：https://liff.line.me/2006113324-od69VN74
+🤖 快速捐款：直接傳送「我要建廟捐款XXXX元」
+
+✅ 已完成線上登記，將盡快匯款並聯繫廟方確認
+🙏 感謝您對威振宮建廟工程的護持與支持
 
 #威振宮建廟 #善心捐助 #功德無量`;
     }
 
     // 提交到後端
     async function submitToBackend(additionalData = {}) {
-      const gasUrl = 'https://script.google.com/macros/s/AKfycbwzl5UBMtpNt8YQAwc-3ZzbCoyOV3Erj1epQw1jeM_ss0R3vERE3zJkbhL_8UwnL5Ql/exec';
+      const gasUrl = 'https://script.google.com/macros/s/AKfycbyiEbh59Rti26xfp_YwnXsN4sJGIvm9atrVtApyOKGjD0-kaFCGjbKr3vECOP6CY1sx/exec';
       
       const submitData = {
         ...currentFormData,
@@ -611,6 +725,9 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
         btn.style.color = '#333';
         btn.style.borderColor = '#ddd';
       });
+      clearAllFieldErrors();
+      clearSavedFormData();
+      currentFormData = null;
     }
 
     // 點擊模態框外部關閉
@@ -630,7 +747,23 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
     window.debugLog = debugLog;
     window.submitToBackend = submitToBackend;
     window.resetForm = resetForm;
+    window.showPreviewModal = showPreviewModal;
+    window.generateRegistrationMessage = generateRegistrationMessage;
+    window.generateCompleteMessage = generateCompleteMessage;
   });
+
+  // 🔥 新增：切換選項卡
+  function switchTab(tabName) {
+    // 移除所有 active 類別
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // 添加 active 類別到選中的選項卡
+    event.target.classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    window.debugLog('切換到選項卡: ' + tabName);
+  }
 
   // 確認並發送到 LINE
   async function confirmAndSend() {
@@ -657,9 +790,12 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
         throw new Error('請先登入 LINE');
       }
 
-      // 發送 LINE 訊息
-      const message = document.getElementById('previewMessage').textContent;
-      window.debugLog('準備發送訊息，長度: ' + message.length);
+      // 取得當前選中的訊息
+      const activeTab = document.querySelector('.tab-content.active');
+      const message = activeTab.querySelector('.preview-message').textContent;
+      const tabId = activeTab.id;
+      
+      window.debugLog(`準備發送訊息，選項卡: ${tabId}，長度: ${message.length}`);
 
       await liff.sendMessages([{
         type: 'text',
@@ -669,11 +805,16 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
       window.debugLog('LINE 訊息發送成功');
 
       // 提交到後端
-      await window.submitToBackend({ messageSent: true, sendMethod: 'line' });
+      await window.submitToBackend({ 
+        messageSent: true, 
+        sendMethod: 'line',
+        messageType: getMessageType(tabId),
+        sentMessage: message
+      });
       
       // 顯示成功訊息
       document.getElementById('previewModal').style.display = 'none';
-      document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統';
+      document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統，LINE Bot 已收到通知';
       document.getElementById('successModal').style.display = 'block';
       
       window.resetForm();
@@ -700,12 +841,14 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
   }
 
   // 複製訊息並提交
-  // 複製訊息並提交
   async function copyAndSubmit() {
     window.debugLog('開始複製訊息流程...');
     
     try {
-      const message = document.getElementById('previewMessage').textContent;
+      // 取得當前選中的訊息
+      const activeTab = document.querySelector('.tab-content.active');
+      const message = activeTab.querySelector('.preview-message').textContent;
+      const tabId = activeTab.id;
       
       // 嘗試複製到剪貼簿
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -727,11 +870,16 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
       }
 
       // 提交到後端
-      await window.submitToBackend({ messageSent: false, sendMethod: 'copy' });
+      await window.submitToBackend({ 
+        messageSent: false, 
+        sendMethod: 'copy',
+        messageType: getMessageType(tabId),
+        copiedMessage: message
+      });
       
       // 顯示成功訊息
       document.getElementById('previewModal').style.display = 'none';
-      document.getElementById('successMessage').textContent = '訊息已複製到剪貼簿，資料已記錄到系統';
+      document.getElementById('successMessage').textContent = '訊息已複製到剪貼簿，資料已記錄到系統，LINE Bot 已收到通知';
       document.getElementById('successModal').style.display = 'block';
       
       window.resetForm();
@@ -748,12 +896,20 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
     window.debugLog('開始僅提交流程...');
     
     try {
+      // 取得當前選中的訊息類型
+      const activeTab = document.querySelector('.tab-content.active');
+      const tabId = activeTab.id;
+      
       // 提交到後端
-      await window.submitToBackend({ messageSent: false, sendMethod: 'submit_only' });
+      await window.submitToBackend({ 
+        messageSent: false, 
+        sendMethod: 'submit_only',
+        messageType: getMessageType(tabId)
+      });
       
       // 顯示成功訊息
       document.getElementById('previewModal').style.display = 'none';
-      document.getElementById('successMessage').textContent = '您的捐款資料已成功記錄到系統';
+      document.getElementById('successMessage').textContent = '您的捐款資料已成功記錄到系統，LINE Bot 已收到通知';
       document.getElementById('successModal').style.display = 'block';
       
       window.resetForm();
@@ -763,6 +919,16 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
       console.error('提交錯誤:', error);
       alert('提交失敗：' + error.message);
     }
+  }
+
+  // 🔥 新增：取得訊息類型
+  function getMessageType(tabId) {
+    const types = {
+      'tab-registration': 'registration',
+      'tab-quick': 'quick',
+      'tab-complete': 'complete'
+    };
+    return types[tabId] || 'standard';
   }
 
   // 修改表單
@@ -776,128 +942,6 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
     window.debugLog('關閉模態框: ' + modalId);
     document.getElementById(modalId).style.display = 'none';
   }
-
-  // 處理 ESC 鍵關閉模態框
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-      const previewModal = document.getElementById('previewModal');
-      const successModal = document.getElementById('successModal');
-      
-      if (previewModal.style.display === 'block') {
-        previewModal.style.display = 'none';
-      }
-      if (successModal.style.display === 'block') {
-        successModal.style.display = 'none';
-      }
-    }
-  });
-
-  // 防止表單重複提交
-  document.getElementById('donationForm').addEventListener('submit', function(e) {
-    if (isSubmitting) {
-      e.preventDefault();
-      return false;
-    }
-  });
-
-  // 頁面離開前的確認
-  window.addEventListener('beforeunload', function(e) {
-    if (currentFormData && !document.getElementById('successModal').style.display) {
-      e.preventDefault();
-      e.returnValue = '';
-      return '您有未完成的捐款登記，確定要離開嗎？';
-    }
-  });
-
-  // 自動儲存表單資料到 localStorage（可選）
-  function autoSaveForm() {
-    const formData = {
-      name: document.getElementById('name').value,
-      phone: document.getElementById('phone').value,
-      amount: document.getElementById('amount').value,
-      remarks: document.getElementById('remarks').value
-    };
-    
-    if (formData.name || formData.phone || formData.amount) {
-      localStorage.setItem('donationFormData', JSON.stringify(formData));
-    }
-  }
-
-  // 恢復表單資料
-  function restoreFormData() {
-    try {
-      const savedData = localStorage.getItem('donationFormData');
-      if (savedData) {
-        const formData = JSON.parse(savedData);
-        if (formData.name) document.getElementById('name').value = formData.name;
-        if (formData.phone) document.getElementById('phone').value = formData.phone;
-        if (formData.amount) document.getElementById('amount').value = formData.amount;
-        if (formData.remarks) document.getElementById('remarks').value = formData.remarks;
-        
-        window.debugLog('已恢復儲存的表單資料');
-      }
-    } catch (error) {
-      window.debugLog('恢復表單資料失敗: ' + error.message);
-    }
-  }
-
-  // 清除儲存的表單資料
-  function clearSavedFormData() {
-    localStorage.removeItem('donationFormData');
-    window.debugLog('已清除儲存的表單資料');
-  }
-
-  // 頁面載入時恢復表單資料
-  window.addEventListener('load', function() {
-    restoreFormData();
-    
-    // 監聽表單變化，自動儲存
-    ['name', 'phone', 'amount', 'remarks'].forEach(id => {
-      document.getElementById(id).addEventListener('input', autoSaveForm);
-    });
-  });
-
-  // 成功提交後清除儲存的資料
-  function onSubmitSuccess() {
-    clearSavedFormData();
-    window.resetForm();
-  }
-
-  // 增強版重置表單函數
-  window.resetForm = function() {
-    document.getElementById('donationForm').reset();
-    document.querySelectorAll('.amount-btn').forEach(btn => {
-      btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-      btn.style.color = '#333';
-      btn.style.borderColor = '#ddd';
-    });
-    clearSavedFormData();
-    currentFormData = null;
-  };
-
-  // 網路狀態檢查
-  function checkNetworkStatus() {
-    if (!navigator.onLine) {
-      document.getElementById('liffStatus').className = 'status-info status-warning';
-      document.getElementById('liffStatus').innerHTML = '<div>⚠️ 網路連線中斷，請檢查網路設定</div>';
-      return false;
-    }
-    return true;
-  }
-
-  // 監聽網路狀態變化
-  window.addEventListener('online', function() {
-    window.debugLog('網路連線恢復');
-    if (liffReady && userProfile) {
-      document.getElementById('liffStatus').className = 'status-info status-success';
-      document.getElementById('liffStatus').innerHTML = `<div>✅ 使用者：${userProfile.displayName}</div>`;
-    }
-  });
-
-  window.addEventListener('offline', function() {
-    window.debugLog('網路連線中斷');
-    checkNetworkStatus();
-  });
 
   // 表單驗證增強
   function validateForm() {
@@ -981,6 +1025,110 @@ ${data.remarks ? '📝 備註：' + data.remarks : ''}
         error.remove();
       }
     });
+  });
+
+  // 處理 ESC 鍵關閉模態框
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const previewModal = document.getElementById('previewModal');
+      const successModal = document.getElementById('successModal');
+      
+      if (previewModal.style.display === 'block') {
+        previewModal.style.display = 'none';
+      }
+      if (successModal.style.display === 'block') {
+        successModal.style.display = 'none';
+      }
+    }
+  });
+
+  // 防止表單重複提交
+  document.getElementById('donationForm').addEventListener('submit', function(e) {
+    if (isSubmitting) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // 頁面離開前的確認
+  window.addEventListener('beforeunload', function(e) {
+    if (currentFormData && !document.getElementById('successModal').style.display) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '您有未完成的捐款登記，確定要離開嗎？';
+    }
+  });
+
+  // 自動儲存表單資料到 localStorage
+  function autoSaveForm() {
+    const formData = {
+      name: document.getElementById('name').value,
+      phone: document.getElementById('phone').value,
+      amount: document.getElementById('amount').value,
+      remarks: document.getElementById('remarks').value
+    };
+    
+    if (formData.name || formData.phone || formData.amount) {
+      localStorage.setItem('donationFormData', JSON.stringify(formData));
+    }
+  }
+
+  // 恢復表單資料
+  function restoreFormData() {
+    try {
+      const savedData = localStorage.getItem('donationFormData');
+      if (savedData) {
+        const formData = JSON.parse(savedData);
+        if (formData.name) document.getElementById('name').value = formData.name;
+        if (formData.phone) document.getElementById('phone').value = formData.phone;
+        if (formData.amount) document.getElementById('amount').value = formData.amount;
+        if (formData.remarks) document.getElementById('remarks').value = formData.remarks;
+        
+        window.debugLog('已恢復儲存的表單資料');
+      }
+    } catch (error) {
+      window.debugLog('恢復表單資料失敗: ' + error.message);
+    }
+  }
+
+  // 清除儲存的表單資料
+  function clearSavedFormData() {
+    localStorage.removeItem('donationFormData');
+    window.debugLog('已清除儲存的表單資料');
+  }
+
+  // 頁面載入時恢復表單資料
+  window.addEventListener('load', function() {
+    restoreFormData();
+    
+    // 監聽表單變化，自動儲存
+    ['name', 'phone', 'amount', 'remarks'].forEach(id => {
+      document.getElementById(id).addEventListener('input', autoSaveForm);
+    });
+  });
+
+  // 網路狀態檢查
+  function checkNetworkStatus() {
+    if (!navigator.onLine) {
+      document.getElementById('liffStatus').className = 'status-info status-warning';
+      document.getElementById('liffStatus').innerHTML = '<div>⚠️ 網路連線中斷，請檢查網路設定</div>';
+      return false;
+    }
+    return true;
+  }
+
+  // 監聽網路狀態變化
+  window.addEventListener('online', function() {
+    window.debugLog('網路連線恢復');
+    if (liffReady && userProfile) {
+      document.getElementById('liffStatus').className = 'status-info status-success';
+      document.getElementById('liffStatus').innerHTML = `<div>✅ 使用者：${userProfile.displayName}</div>`;
+    }
+  });
+
+  window.addEventListener('offline', function() {
+    window.debugLog('網路連線中斷');
+    checkNetworkStatus();
   });
 
 </script>
