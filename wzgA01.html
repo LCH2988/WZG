@@ -1,396 +1,413 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>桃園威振宮 - 行館喬遷建廟基金捐款</title>
-  <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body {
-          font-family: 'Microsoft JhengHei', Arial, sans-serif;
-          background: linear-gradient(135deg, #8B0000, #CD853F);
-          min-height: 100vh;
-          padding: 20px;
-          font-size: 19.2px;
-      }
-      .container {
-          max-width: 900px;
-          margin: 0 auto;
-          background: white;
-          border-radius: 15px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-          overflow: hidden;
-      }
-      .form-section { padding: 50px; }
-      .form-group { margin-bottom: 40px; }
-      .form-group label {
-          display: block;
-          margin-bottom: 15px;
-          font-weight: bold;
-          color: #333;
-          font-size: 1.44em;
-      }
-      .required { color: #DC143C; font-size: 0.96em; }
-      input[type="text"], input[type="tel"], input[type="number"], textarea {
-          width: 100%;
-          padding: 20px 25px;
-          border: 3px solid #ddd;
-          border-radius: 12px;
-          font-size: 1.28em;
-          transition: border-color 0.3s;
-          line-height: 1.4;
-          background: white;
-      }
-      input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus, textarea:focus {
-          outline: none;
-          border-color: #DAA520;
-          box-shadow: 0 0 10px rgba(218,165,32,0.3);
-      }
-      .amount-buttons {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 15px;
-          margin-top: 20px;
-      }
-      .amount-btn {
-          background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-          border: 3px solid #ddd;
-          border-radius: 12px;
-          padding: 20px 15px;
-          font-size: 1.12em;
-          font-weight: bold;
-          color: #333;
-          cursor: pointer;
-          transition: all 0.3s;
-          text-align: center;
-          min-height: 80px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-      }
-      .amount-btn:hover {
-          background: linear-gradient(135deg, #e9ecef, #dee2e6);
-          border-color: #DAA520;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      }
-      .amount-btn:active {
-          transform: translateY(0);
-          background: linear-gradient(135deg, #DAA520, #FFD700);
-          color: white;
-          border-color: #B8860B;
-      }
-      textarea { min-height: 120px; resize: vertical; }
-      .bank-info {
-          background: #f0f8ff;
-          padding: 30px;
-          border-radius: 15px;
-          margin: 40px 0;
-          border-left: 8px solid #4169E1;
-      }
-      .bank-info h4 {
-          color: #4169E1;
-          margin-bottom: 20px;
-          font-size: 1.6em;
-      }
-      .bank-details { display: grid; gap: 15px; }
-      .bank-detail {
-          display: flex;
-          justify-content: space-between;
-          padding: 15px 0;
-          border-bottom: 2px solid #e0e0e0;
-          font-size: 1.12em;
-      }
-      .bank-detail:last-child { border-bottom: none; }
-      .bank-detail strong { color: #333; min-width: 120px; }
-      .account-number {
-          font-family: monospace;
-          font-size: 1.28em;
-          color: #DC143C;
-          font-weight: bold;
-      }
-      .submit-btn {
-          background-color: #d32f2f;
-          color: #fff; 
-          padding: 25px 50px;
-          border: none;
-          border-radius: 15px;
-          font-size: 1.6em;
-          font-weight: bold;
-          cursor: pointer;
-          width: 100%;
-          transition: all 0.3s;
-          box-shadow: 0 6px 20px rgba(218,165,32,0.3);
-          margin-top: 30px;
-      }
-      .submit-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 8px 25px rgba(218,165,32,0.4);
-      }
-      .submit-btn:disabled {
-          background: #ccc;
-          cursor: not-allowed;
-          transform: none;
-      }
-      .modal {
-          display: none;
-          position: fixed;
-          top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.5);
-          z-index: 1000;
-      }
-      .modal-content {
-          position: absolute;
-          top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
-          background: white;
-          padding: 40px;
-          border-radius: 20px;
-          text-align: center;
-          max-width: 500px; width: 90%;
-      }
-      .success-icon {
-          font-size: 3.2em;
-          color: #28a745;
-          margin-bottom: 25px;
-      }
-      .modal-content h3 { font-size: 1.76em; margin-bottom: 20px; color: #333; }
-      .modal-content p { font-size: 1.28em; line-height: 1.5; margin-bottom: 15px; }
-      .modal-btn {
-          margin-top: 25px;
-          padding: 15px 40px;
-          background: #DAA520;
-          color: white;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          font-size: 1.28em;
-          font-weight: bold;
-      }
-      .loading {
-          display: inline-block;
-          width: 25px; height: 25px;
-          border: 4px solid rgba(255, 255, 255, .3);
-          border-radius: 50%;
-          border-top-color: #fff;
-          animation: spin 1s ease-in-out infinite;
-          margin-left: 15px;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      @media (max-width: 768px) {
-          body { font-size: 17.6px; padding: 10px; }
-          .container { margin: 5px; }
-          .form-section { padding: 25px; }
-          .form-group label { font-size: 1.28em; }
-          input[type="text"], input[type="tel"], input[type="number"], textarea {
-              font-size: 1.12em; padding: 18px 20px;
-          }
-          .submit-btn { font-size: 1.44em; padding: 20px 40px; }
-          .amount-buttons { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-          .amount-btn { font-size: 0.96em; padding: 15px 10px; min-height: 70px; }
-      }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桃園威振宮 - 行館喬遷建廟基金捐款</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        background: linear-gradient(135deg, #8B0000, #CD853F);
+        min-height: 100vh;
+        padding: 20px;
+        font-size: 19.2px;
+    }
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        overflow: hidden;
+    }
+    .form-section { padding: 50px; }
+    .form-group { margin-bottom: 40px; }
+    .form-group label {
+        display: block;
+        margin-bottom: 15px;
+        font-weight: bold;
+        color: #333;
+        font-size: 1.44em;
+    }
+    .required { color: #DC143C; font-size: 0.96em; }
+    input[type="text"], input[type="tel"], input[type="number"], textarea {
+        width: 100%;
+        padding: 20px 25px;
+        border: 3px solid #ddd;
+        border-radius: 12px;
+        font-size: 1.28em;
+        transition: border-color 0.3s;
+        line-height: 1.4;
+        background: white;
+    }
+    input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus, textarea:focus {
+        outline: none;
+        border-color: #DAA520;
+        box-shadow: 0 0 10px rgba(218,165,32,0.3);
+    }
+    .amount-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .amount-btn {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: 3px solid #ddd;
+        border-radius: 12px;
+        padding: 20px 15px;
+        font-size: 1.12em;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .amount-btn:hover {
+        background: linear-gradient(135deg, #e9ecef, #dee2e6);
+        border-color: #DAA520;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .amount-btn:active {
+        transform: translateY(0);
+        background: linear-gradient(135deg, #DAA520, #FFD700);
+        color: white;
+        border-color: #B8860B;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .bank-info {
+        background: #f0f8ff;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 40px 0;
+        border-left: 8px solid #4169E1;
+    }
+    .bank-info h4 {
+        color: #4169E1;
+        margin-bottom: 20px;
+        font-size: 1.6em;
+    }
+    .bank-details { display: grid; gap: 15px; }
+    .bank-detail {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 2px solid #e0e0e0;
+        font-size: 1.12em;
+    }
+    .bank-detail:last-child { border-bottom: none; }
+    .bank-detail strong { color: #333; min-width: 120px; }
+    .account-number {
+        font-family: monospace;
+        font-size: 1.28em;
+        color: #DC143C;
+        font-weight: bold;
+    }
+    .submit-btn {
+        background-color: #d32f2f;
+        color: #fff; 
+        padding: 25px 50px;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.6em;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s;
+        box-shadow: 0 6px 20px rgba(218,165,32,0.3);
+        margin-top: 30px;
+    }
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(218,165,32,0.4);
+    }
+    .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    .modal-content {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 500px; width: 90%;
+    }
+    .success-icon {
+        font-size: 3.2em;
+        color: #28a745;
+        margin-bottom: 25px;
+    }
+    .modal-content h3 { font-size: 1.76em; margin-bottom: 20px; color: #333; }
+    .modal-content p { font-size: 1.28em; line-height: 1.5; margin-bottom: 15px; }
+    .modal-btn {
+        margin-top: 25px;
+        padding: 15px 40px;
+        background: #DAA520;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1.28em;
+        font-weight: bold;
+    }
+    .loading {
+        display: inline-block;
+        width: 25px; height: 25px;
+        border: 4px solid rgba(255, 255, 255, .3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-left: 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 768px) {
+        body { font-size: 17.6px; padding: 10px; }
+        .container { margin: 5px; }
+        .form-section { padding: 25px; }
+        .form-group label { font-size: 1.28em; }
+        input[type="text"], input[type="tel"], input[type="number"], textarea {
+            font-size: 1.12em; padding: 18px 20px;
+        }
+        .submit-btn { font-size: 1.44em; padding: 20px 40px; }
+        .amount-buttons { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .amount-btn { font-size: 0.96em; padding: 15px 10px; min-height: 70px; }
+    }
+</style>
 </head>
 <body>
-  <div class="container">
-      <div class="form-section">
-          <form id="donationForm" autocomplete="off">
-              <div class="form-group">
-                  <label for="name">姓名 <span class="required">*</span></label>
-                  <input type="text" id="name" name="name" required autocomplete="off">
-              </div>
-              <div class="form-group">
-                  <label for="phone">電話 <span class="required">*</span></label>
-                  <input type="tel" id="phone" name="phone" required autocomplete="off" pattern="09\d{8}">
-              </div>
-              <div class="form-group">
-                  <label for="amount">捐款金額 <span class="required">*</span></label>
-                  <input type="number" id="amount" name="amount" min="100" required placeholder="請輸入捐款金額或點選下方按鍵">
-                  <div class="amount-buttons">
-                      <button type="button" class="amount-btn" data-amount="1000">1仟元</button>
-                      <button type="button" class="amount-btn" data-amount="2000">2仟元</button>
-                      <button type="button" class="amount-btn" data-amount="5000">5仟元</button>
-                      <button type="button" class="amount-btn" data-amount="10000">1萬元</button>
-                      <button type="button" class="amount-btn" data-amount="20000">2萬元</button>
-                      <button type="button" class="amount-btn" data-amount="50000">5萬元</button>
-                      <button type="button" class="amount-btn" data-amount="100000">十萬元</button>
-                  </div>
-              </div>
-              <div class="form-group">
-                  <label for="remarks">備註</label>
-                  <textarea id="remarks" name="remarks" placeholder="如有特殊需求或祈願內容，請在此填寫..."></textarea>
-              </div>
-              <div class="bank-info">
-                  <h4>💰 匯款資訊</h4>
-                  <div class="bank-details">
-                      <div class="bank-detail">
-                          <strong>銀行：</strong>
-                          <span>土地銀行 - 內壢分行</span>
-                      </div>
-                      <div class="bank-detail">
-                          <strong>帳號：</strong>
-                          <span class="account-number">145-001-007228</span>
-                      </div>
-                      <div class="bank-detail">
-                          <strong>戶名：</strong>
-                          <span>桃園市威振關懷慈善協會</span>
-                      </div>
-                  </div>
-                  <p style="margin-top: 20px; color: #666; font-size: 0.96em;">
-                      ※ 匯款後請填寫此表單以便核對，感謝您的善心捐助
-                  </p>
-              </div>
-              <button type="submit" class="submit-btn" id="submitBtn">🙏 確認捐款</button>
-          </form>
-      </div>
-  </div>
-  <!-- 成功提交模態框 -->
-  <div id="successModal" class="modal">
-      <div class="modal-content">
-          <div class="success-icon">🙏</div>
-          <h3>感謝您的善心捐助！</h3>
-          <p>您的捐款資料已成功提交</p>
-          <p>功德無量，福慧雙修</p>
-          <button class="modal-btn" onclick="closeModal()">確定</button>
-      </div>
-  </div>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script>
-    // ===== LIFF 初始化與事件註冊 =====
-    document.addEventListener('DOMContentLoaded', function() {
-      const liffId = "2006113324-od69VN74"; // <-- 這裡填入你的 LIFF ID
-      liff.init({ liffId }).catch(err => {
-        alert('LIFF 初始化失敗: ' + err);
-      });
+<div class="container">
+    <div class="form-section">
+        <form id="donationForm" autocomplete="off">
+            <div class="form-group">
+                <label for="name">姓名 <span class="required">*</span></label>
+                <input type="text" id="name" name="name" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="phone">電話 <span class="required">*</span></label>
+                <input type="tel" id="phone" name="phone" required autocomplete="off" pattern="09\d{8}">
+            </div>
+            <div class="form-group">
+                <label for="amount">捐款金額 <span class="required">*</span></label>
+                <input type="number" id="amount" name="amount" min="100" required placeholder="請輸入捐款金額或點選下方按鍵">
+                <div class="amount-buttons">
+                    <button type="button" class="amount-btn" data-amount="1000">1仟元</button>
+                    <button type="button" class="amount-btn" data-amount="2000">2仟元</button>
+                    <button type="button" class="amount-btn" data-amount="5000">5仟元</button>
+                    <button type="button" class="amount-btn" data-amount="10000">1萬元</button>
+                    <button type="button" class="amount-btn" data-amount="20000">2萬元</button>
+                    <button type="button" class="amount-btn" data-amount="50000">5萬元</button>
+                    <button type="button" class="amount-btn" data-amount="100000">十萬元</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="remarks">備註</label>
+                <textarea id="remarks" name="remarks" placeholder="如有特殊需求或祈願內容，請在此填寫..."></textarea>
+            </div>
+            <div class="bank-info">
+                <h4>💰 匯款資訊</h4>
+                <div class="bank-details">
+                    <div class="bank-detail">
+                        <strong>銀行：</strong>
+                        <span>土地銀行 - 內壢分行</span>
+                    </div>
+                    <div class="bank-detail">
+                        <strong>帳號：</strong>
+                        <span class="account-number">145-001-007228</span>
+                    </div>
+                    <div class="bank-detail">
+                        <strong>戶名：</strong>
+                        <span>桃園市威振關懷慈善協會</span>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; color: #666; font-size: 0.96em;">
+                    ※ 匯款後請填寫此表單以便核對，感謝您的善心捐助
+                </p>
+            </div>
+            <button type="submit" class="submit-btn" id="submitBtn">🙏 確認捐款</button>
+        </form>
+    </div>
+</div>
 
-      let isSubmitting = false;
+<!-- 成功提交模態框 -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="success-icon">🙏</div>
+        <h3>感謝您的善心捐助！</h3>
+        <p>您的捐款資料已成功提交</p>
+        <p>功德無量，福慧雙修</p>
+        <button class="modal-btn" onclick="closeModal()">確定</button>
+    </div>
+</div>
 
-      // 金額按鍵點擊事件
-      document.querySelectorAll('.amount-btn').forEach(button => {
-        button.addEventListener('click', function() {
-          const amount = this.getAttribute('data-amount');
-          document.getElementById('amount').value = amount;
-          // 視覺回饋效果
-          this.style.background = 'linear-gradient(135deg, #DAA520, #FFD700)';
-          this.style.color = 'white';
-          this.style.borderColor = '#B8860B';
-          // 重置其他按鈕樣式
-          document.querySelectorAll('.amount-btn').forEach(btn => {
-            if (btn !== this) {
-              btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-              btn.style.color = '#333';
-              btn.style.borderColor = '#ddd';
-            }
-          });
-          setTimeout(() => {
-            this.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-            this.style.color = '#333';
-            this.style.borderColor = '#ddd';
-          }, 200);
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  // ===== LIFF 初始化與事件註冊 =====
+  document.addEventListener('DOMContentLoaded', function() {
+    const liffId = "2006113324-od69VN74"; // 您的 LIFF ID
+    
+    // 初始化 LIFF
+    liff.init({ liffId }).catch(err => {
+      console.error('LIFF 初始化失敗:', err);
+    });
+
+    let isSubmitting = false;
+
+    // 金額按鍵點擊事件
+    document.querySelectorAll('.amount-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const amount = this.getAttribute('data-amount');
+        document.getElementById('amount').value = amount;
+        
+        // 視覺回饋效果
+        this.style.background = 'linear-gradient(135deg, #DAA520, #FFD700)';
+        this.style.color = 'white';
+        this.style.borderColor = '#B8860B';
+        
+        // 重置其他按鈕樣式
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+          if (btn !== this) {
+            btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+            btn.style.color = '#333';
+            btn.style.borderColor = '#ddd';
+          }
         });
+        
+        setTimeout(() => {
+          this.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+          this.style.color = '#333';
+          this.style.borderColor = '#ddd';
+        }, 200);
       });
+    });
 
-      // 手動輸入金額時，重置所有按鈕樣式
-      document.getElementById('amount').addEventListener('input', function() {
+    // 手動輸入金額時，重置所有按鈕樣式
+    document.getElementById('amount').addEventListener('input', function() {
+      document.querySelectorAll('.amount-btn').forEach(btn => {
+        btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+        btn.style.color = '#333';
+        btn.style.borderColor = '#ddd';
+      });
+      // 限制只能數字
+      this.value = this.value.replace(/[^\d]/g, '');
+    });
+
+    // 表單提交處理
+    document.getElementById('donationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (isSubmitting) return;
+
+      // 驗證欄位
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const amount = document.getElementById('amount').value;
+      const remarks = document.getElementById('remarks').value.trim();
+
+      if (!name) { alert('請填寫姓名'); return; }
+      if (!phone) { alert('請填寫電話'); return; }
+      
+      // 台灣手機號碼格式驗證
+      if (!/^09\d{8}$/.test(phone)) {
+        alert('請輸入正確的手機號碼（09xxxxxxxx）');
+        return;
+      }
+      if (!amount || amount < 100) { 
+        alert('請填寫正確的捐款金額（最少100元）'); 
+        return; 
+      }
+
+      isSubmitting = true;
+      const submitBtn = document.getElementById('submitBtn');
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '提交中... <span class="loading"></span>';
+
+      // 收集表單資料
+      const formData = {
+        name: name,
+        phone: phone,
+        amount: parseInt(amount),
+        remarks: remarks,
+        timestamp: new Date().toLocaleString('zh-TW')
+      };
+
+      try {
+        // 送出到 Google Apps Script
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbzukLj_KDmVlDAZBuTwJmV1GTxgUTWYyEMubbBrq2yWt2YxfgXi2h4Ai8lQFddLafbz/exec';
+        
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        // 在 LINE 內發送訊息
+        if (liff.isInClient()) {
+          let message = `威振宮 捐款登記\n\n🙇‍♂️ 捐款人：${name}\n📞 電話：${phone}\n💰 金額：${amount} 元${remarks ? '\n📋 備註：' + remarks : ''}`;
+          
+          await liff.sendMessages([
+            { type: 'text', text: message }
+          ]);
+        } else {
+          console.log('非 LINE 環境，跳過訊息發送');
+        }
+
+        // 顯示成功訊息
+        showSuccessModal();
+        this.reset();
+        
+        // 重置按鈕樣式
         document.querySelectorAll('.amount-btn').forEach(btn => {
           btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
           btn.style.color = '#333';
           btn.style.borderColor = '#ddd';
         });
-        // 限制只能數字
-        this.value = this.value.replace(/[^\d]/g, '');
-      });
-
-      // 表單提交處理
-      document.getElementById('donationForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        if (isSubmitting) return;
-
-        // 驗證欄位
-        const name = document.getElementById('name').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const amount = document.getElementById('amount').value;
-        const remarks = document.getElementById('remarks').value.trim();
-
-        if (!name) { alert('請填寫姓名'); return; }
-        if (!phone) { alert('請填寫電話'); return; }
-        // 台灣手機號碼格式驗證
-        if (!/^09\d{8}$/.test(phone)) {
-          alert('請輸入正確的手機號碼（09xxxxxxxx）');
-          return;
-        }
-        if (!amount || amount < 100) { alert('請填寫正確的捐款金額（最少100元）'); return; }
-
-        isSubmitting = true;
-        const submitBtn = document.getElementById('submitBtn');
-        const originalBtnText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '提交中... <span class="loading"></span>';
-
-        // 收集表單資料
-        const formData = {
-          name: name,
-          phone: phone,
-          amount: parseInt(amount),
-          remarks: remarks,
-          timestamp: new Date().toLocaleString('zh-TW')
-        };
-
-        try {
-          // 送出到 GAS
-          await fetch('https://script.google.com/macros/s/AKfycbyzbh-MsOrrcvxamY3ghHd0TXrhNGMPVvUOQYYpB_-NrpoA79gd8Aw63m9xWY6q5NcW/exec', {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-
-          // ===== 送出成功後，主動以用戶身份發送訊息到聊天室 =====
-          if (liff.isInClient()) {
-            let message = `威振宮 捐款登記\n\n🙇‍♂️ 捐款人：${name}\n💰 金額：${amount} 元${remarks ? '\n📋 備註：' + remarks : ''}`;
-            await liff.sendMessages([
-              { type: 'text', text: message }
-            ]);
-            // 可選：liff.closeWindow();
-          } else {
-            alert('請於 LINE App 內開啟此頁面，以完成 LINE 訊息發送。');
-          }
-
-          showSuccessModal();
-          this.reset();
-          // 重置按鈕樣式
-          document.querySelectorAll('.amount-btn').forEach(btn => {
-            btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-            btn.style.color = '#333';
-            btn.style.borderColor = '#ddd';
-          });
-        } catch (error) {
-          alert('提交失敗，請稍後再試或直接聯繫廟方');
-          console.error('Error:', error);
-        } finally {
-          isSubmitting = false;
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalBtnText;
-        }
-      });
-
-      // 點擊模態框外部關閉
-      window.onclick = function(event) {
-        const modal = document.getElementById('successModal');
-        if (event.target === modal) {
-          closeModal();
-        }
+        
+      } catch (error) {
+        console.error('提交錯誤:', error);
+        alert('提交失敗，請稍後再試或直接聯繫廟方');
+      } finally {
+        isSubmitting = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
       }
-    }); // end DOMContentLoaded
+    });
 
-    // 顯示成功彈窗
-    function showSuccessModal() {
-      document.getElementById('successModal').style.display = 'block';
+    // 點擊模態框外部關閉
+    window.onclick = function(event) {
+      const modal = document.getElementById('successModal');
+      if (event.target === modal) {
+        closeModal();
+      }
     }
-    // 關閉彈窗
-    function closeModal() {
-      document.getElementById('successModal').style.display = 'none';
-    }
-  </script>
+  });
+
+  // 顯示成功彈窗
+  function showSuccessModal() {
+    document.getElementById('successModal').style.display = 'block';
+  }
+  
+  // 關閉彈窗
+  function closeModal() {
+    document.getElementById('successModal').style.display = 'none';
+  }
+</script>
 </body>
 </html>
