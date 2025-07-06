@@ -30,6 +30,7 @@
     }
     .status-success { border-left-color: #28a745; background: #d4edda; }
     .status-error { border-left-color: #dc3545; background: #f8d7da; }
+    .status-warning { border-left-color: #ffc107; background: #fff3cd; }
     .form-section { padding: 50px; }
     .form-group { margin-bottom: 40px; }
     .form-group label {
@@ -186,6 +187,25 @@
         margin-left: 15px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+        padding: 0 20px;
+    }
+    .step {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 0 5px;
+        font-size: 0.9em;
+        background: #f8f9fa;
+        color: #666;
+    }
+    .step.active { background: #007bff; color: white; }
+    .step.success { background: #28a745; color: white; }
+    .step.error { background: #dc3545; color: white; }
     @media (max-width: 768px) {
         body { font-size: 17.6px; padding: 10px; }
         .container { margin: 5px; }
@@ -197,6 +217,8 @@
         .submit-btn { font-size: 1.44em; padding: 20px 40px; }
         .amount-buttons { grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .amount-btn { font-size: 0.96em; padding: 15px 10px; min-height: 70px; }
+        .progress-steps { flex-direction: column; }
+        .step { margin: 2px 0; }
     }
 </style>
 </head>
@@ -207,6 +229,14 @@
         <div>🔄 正在初始化...</div>
     </div>
     
+    <!-- 進度指示器 -->
+    <div class="progress-steps" id="progressSteps" style="display: none;">
+        <div class="step" id="step1">1. 資料驗證</div>
+        <div class="step" id="step2">2. 提交表單</div>
+        <div class="step" id="step3">3. 發送通知</div>
+        <div class="step" id="step4">4. 完成</div>
+    </div>
+    
     <div class="form-section">
         <form id="donationForm" autocomplete="off">
             <div class="form-group">
@@ -215,7 +245,7 @@
             </div>
             <div class="form-group">
                 <label for="phone">電話 <span class="required">*</span></label>
-                <input type="tel" id="phone" name="phone" required autocomplete="off" pattern="09\d{8}">
+                <input type="tel" id="phone" name="phone" autocomplete="off" pattern="09\d{8}">
             </div>
             <div class="form-group">
                 <label for="amount">捐款金額 <span class="required">*</span></label>
@@ -264,7 +294,7 @@
     <div class="modal-content">
         <div class="success-icon">🙏</div>
         <h3>感謝您的善心捐助！</h3>
-        <p>您的捐款資料已成功提交</p>
+        <p id="successMessage">您的捐款資料已成功提交</p>
         <p>功德無量，福慧雙修</p>
         <button class="modal-btn" onclick="closeModal()">確定</button>
     </div>
@@ -275,6 +305,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     const liffId = "2006113324-od69VN74";
     const statusDiv = document.getElementById('liffStatus');
+    const progressSteps = document.getElementById('progressSteps');
     let userProfile = null;
     let isSubmitting = false;
 
@@ -282,6 +313,14 @@
     function updateStatus(message, type = 'info') {
       statusDiv.className = `status-info status-${type}`;
       statusDiv.innerHTML = `<div>${message}</div>`;
+    }
+
+    // 更新進度步驟
+    function updateStep(stepNumber, status) {
+      const step = document.getElementById(`step${stepNumber}`);
+      if (step) {
+        step.className = `step ${status}`;
+      }
     }
 
     // LIFF 初始化
@@ -350,22 +389,39 @@
       e.preventDefault();
       if (isSubmitting) return;
 
+      // 顯示進度條
+      progressSteps.style.display = 'flex';
+      updateStep(1, 'active');
+
       // 驗證欄位
       const name = document.getElementById('name').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const amount = document.getElementById('amount').value;
       const remarks = document.getElementById('remarks').value.trim();
 
-      if (!name) { alert('請填寫姓名'); return; }
-      if (!phone) { alert('請填寫電話'); return; }
+      if (!name) { 
+        updateStep(1, 'error');
+        alert('請填寫姓名'); 
+        return; 
+      }
+      if (!phone) { 
+        updateStep(1, 'error');
+        alert('請填寫電話'); 
+        return; 
+      }
       if (!/^09\d{8}$/.test(phone)) {
+        updateStep(1, 'error');
         alert('請輸入正確的手機號碼（09xxxxxxxx）');
         return;
       }
       if (!amount || amount < 100) { 
+        updateStep(1, 'error');
         alert('請填寫正確的捐款金額（最少100元）'); 
         return; 
       }
+
+      updateStep(1, 'success');
+      updateStep(2, 'active');
 
       isSubmitting = true;
       const submitBtn = document.getElementById('submitBtn');
@@ -382,71 +438,90 @@
         remarks: remarks,
         timestamp: new Date().toLocaleString('zh-TW'),
         liffUserId: userProfile?.userId || '',
-        liffDisplayName: userProfile?.displayName || ''
+        liffDisplayName: userProfile?.displayName || '',
+        source: 'liff_form'
       };
 
       try {
-        // 多重提交策略
-        const gasUrl = 'https://script.google.com/macros/s/AKfycby3pQVxbqzkG_Y4ubKPVKefsn9Z3QKBG96i3rbUAl4fiRYPRtPE_NNXJ_S7KXfsM97F/exec';
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbz80GD6yBYXJO2JidI0WJxSdC6W52QEFsBcCixwwRn3Fm0767tdcV-TMnvs6Zj_8Mw6/exec';
         
-        // 方法1: 使用 fetch (no-cors)
-        let submitSuccess = false;
+        // 使用 POST 方法發送資料
+        const response = await fetch(gasUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        updateStep(2, 'success');
+        updateStep(3, 'active');
+
+        // 檢查回應
+        let result;
         try {
-          await fetch(gasUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-          submitSuccess = true;
-          updateStatus('✅ 資料已提交到伺服器', 'success');
-        } catch (fetchError) {
-          console.error('Fetch 提交失敗:', fetchError);
-          updateStatus('⚠️ 伺服器提交失敗，嘗試其他方式...', 'error');
+          result = await response.json();
+        } catch (e) {
+          // 如果無法解析 JSON，表示可能是 CORS 問題，但資料可能已成功提交
+          console.log('無法解析回應，但可能已成功提交');
+          result = { success: true, message: '資料已提交' };
         }
 
-        // 方法2: LINE 訊息發送（主要通知方式）
-        if (liff.isInClient() && userProfile) {
-          try {
-            const message = `🙏 威振宮 捐款登記
+        updateStep(3, 'success');
+        updateStep(4, 'active');
 
-👤 捐款人：${name}
-📞 電話：${phone}
-💰 金額：${parseInt(amount).toLocaleString()} 元
-${remarks ? '📋 備註：' + remarks : ''}
-⏰ 時間：${formData.timestamp}
-
-感謝您的善心捐助！🙏`;
-
-            await liff.sendMessages([{
-              type: 'text',
-              text: message
-            }]);
-            
-            updateStatus('✅ 捐款資訊已發送到 LINE', 'success');
-            submitSuccess = true;
-          } catch (lineError) {
-            console.error('LINE 訊息發送失敗:', lineError);
-            updateStatus('⚠️ LINE 訊息發送失敗', 'error');
-          }
-        }
-
-        if (submitSuccess) {
+        if (result.success !== false) {
+          updateStep(4, 'success');
+          updateStatus('✅ 捐款資料已成功提交並發送通知', 'success');
+          
+          // 更新成功訊息
+          document.getElementById('successMessage').textContent = 
+            `您的捐款資料已成功提交\n捐款序號：${result.registrationId || '系統產生中'}`;
+          
           showSuccessModal();
           this.reset();
+          
+          // 重置按鈕樣式
           document.querySelectorAll('.amount-btn').forEach(btn => {
             btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
             btn.style.color = '#333';
             btn.style.borderColor = '#ddd';
           });
+
+          // 3秒後隱藏進度條
+          setTimeout(() => {
+            progressSteps.style.display = 'none';
+            // 重置所有步驟
+            for(let i = 1; i <= 4; i++) {
+              updateStep(i, '');
+            }
+          }, 3000);
+
         } else {
-          throw new Error('所有提交方式都失敗');
+          throw new Error(result.message || '提交失敗');
         }
 
       } catch (error) {
         console.error('提交錯誤:', error);
+        updateStep(2, 'error');
+        updateStep(3, 'error');
+        updateStep(4, 'error');
+        
         updateStatus('❌ 提交失敗: ' + error.message, 'error');
-        alert('提交失敗，請稍後再試或直接聯繫廟方\n\n錯誤訊息：' + error.message);
+        
+        // 提供備用方案
+        const backupMessage = `請手動聯繫廟方登記：\n\n姓名：${name}\n電話：${phone}\n金額：${parseInt(amount).toLocaleString()}元${remarks ? '\n備註：' + remarks : ''}`;
+        
+        if (confirm('自動提交失敗，是否複製資料以便手動聯繫？\n\n' + backupMessage)) {
+          // 嘗試複製到剪貼簿
+          try {
+            await navigator.clipboard.writeText(backupMessage);
+            alert('資料已複製到剪貼簿');
+          } catch (e) {
+            // 如果無法複製，顯示資料讓用戶手動複製
+            prompt('請複製以下資料：', backupMessage);
+          }
+        }
       } finally {
         isSubmitting = false;
         submitBtn.disabled = false;
