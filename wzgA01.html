@@ -156,26 +156,84 @@
         background: white;
         padding: 40px;
         border-radius: 20px;
+        max-width: 600px; width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .preview-modal .modal-content {
+        text-align: left;
+    }
+    .preview-message {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        font-family: monospace;
+        font-size: 1.1em;
+        line-height: 1.6;
+        white-space: pre-line;
+        color: #333;
+    }
+    .preview-header {
         text-align: center;
-        max-width: 500px; width: 90%;
+        margin-bottom: 20px;
+    }
+    .preview-header h3 {
+        color: #333;
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    .preview-note {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 20px 0;
+        font-size: 0.95em;
+        color: #856404;
+    }
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    .modal-btn {
+        flex: 1;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    .btn-confirm {
+        background: #28a745;
+        color: white;
+    }
+    .btn-confirm:hover {
+        background: #218838;
+    }
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-cancel:hover {
+        background: #5a6268;
+    }
+    .btn-edit {
+        background: #ffc107;
+        color: #212529;
+    }
+    .btn-edit:hover {
+        background: #e0a800;
     }
     .success-icon {
         font-size: 3.2em;
         color: #28a745;
         margin-bottom: 25px;
-    }
-    .modal-content h3 { font-size: 1.76em; margin-bottom: 20px; color: #333; }
-    .modal-content p { font-size: 1.28em; line-height: 1.5; margin-bottom: 15px; }
-    .modal-btn {
-        margin-top: 25px;
-        padding: 15px 40px;
-        background: #DAA520;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 1.28em;
-        font-weight: bold;
+        text-align: center;
     }
     .loading {
         display: inline-block;
@@ -187,25 +245,6 @@
         margin-left: 15px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .progress-steps {
-        display: flex;
-        justify-content: space-between;
-        margin: 20px 0;
-        padding: 0 20px;
-    }
-    .step {
-        flex: 1;
-        text-align: center;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 0 5px;
-        font-size: 0.9em;
-        background: #f8f9fa;
-        color: #666;
-    }
-    .step.active { background: #007bff; color: white; }
-    .step.success { background: #28a745; color: white; }
-    .step.error { background: #dc3545; color: white; }
     @media (max-width: 768px) {
         body { font-size: 17.6px; padding: 10px; }
         .container { margin: 5px; }
@@ -217,8 +256,8 @@
         .submit-btn { font-size: 1.44em; padding: 20px 40px; }
         .amount-buttons { grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .amount-btn { font-size: 0.96em; padding: 15px 10px; min-height: 70px; }
-        .progress-steps { flex-direction: column; }
-        .step { margin: 2px 0; }
+        .modal-buttons { flex-direction: column; }
+        .preview-message { font-size: 1em; }
     }
 </style>
 </head>
@@ -229,14 +268,6 @@
         <div>🔄 正在初始化...</div>
     </div>
     
-    <!-- 進度指示器 -->
-    <div class="progress-steps" id="progressSteps" style="display: none;">
-        <div class="step" id="step1">1. 資料驗證</div>
-        <div class="step" id="step2">2. 提交表單</div>
-        <div class="step" id="step3">3. 發送通知</div>
-        <div class="step" id="step4">4. 完成</div>
-    </div>
-    
     <div class="form-section">
         <form id="donationForm" autocomplete="off">
             <div class="form-group">
@@ -245,7 +276,7 @@
             </div>
             <div class="form-group">
                 <label for="phone">電話 <span class="required">*</span></label>
-                <input type="tel" id="phone" name="phone" autocomplete="off" pattern="09\d{8}">
+                <input type="tel" id="phone" name="phone" required autocomplete="off" pattern="09\d{8}">
             </div>
             <div class="form-group">
                 <label for="amount">捐款金額 <span class="required">*</span></label>
@@ -284,19 +315,45 @@
                     ※ 匯款後請填寫此表單以便核對，感謝您的善心捐助
                 </p>
             </div>
-            <button type="submit" class="submit-btn" id="submitBtn">🙏 確認捐款</button>
+            <button type="submit" class="submit-btn" id="submitBtn">🔍 預覽捐款訊息</button>
         </form>
+    </div>
+</div>
+
+<!-- 預覽確認模態框 -->
+<div id="previewModal" class="modal preview-modal">
+    <div class="modal-content">
+        <div class="preview-header">
+            <h3>📋 請確認捐款登記訊息</h3>
+            <p style="color: #666;">確認後將以您的名義發送到 LINE</p>
+        </div>
+        
+        <div class="preview-message" id="previewMessage">
+            <!-- 預覽訊息將在這裡顯示 -->
+        </div>
+        
+        <div class="preview-note">
+            <strong>📢 注意事項：</strong><br>
+            • 點選「確認送出」後，此訊息將以您的 LINE 帳號發送<br>
+            • 請確認所有資訊正確無誤<br>
+            • 發送後廟方將主動與您聯繫確認匯款
+        </div>
+        
+        <div class="modal-buttons">
+            <button class="modal-btn btn-edit" onclick="editForm()">✏️ 修改</button>
+            <button class="modal-btn btn-confirm" id="confirmSendBtn" onclick="confirmAndSend()">✅ 確認送出</button>
+        </div>
     </div>
 </div>
 
 <!-- 成功提交模態框 -->
 <div id="successModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="text-align: center;">
         <div class="success-icon">🙏</div>
         <h3>感謝您的善心捐助！</h3>
-        <p id="successMessage">您的捐款資料已成功提交</p>
+        <p id="successMessage">您的捐款登記訊息已成功發送</p>
         <p>功德無量，福慧雙修</p>
-        <button class="modal-btn" onclick="closeModal()">確定</button>
+        <button class="modal-btn btn-confirm" onclick="closeModal('successModal')" style="margin-top: 25px;">確定</button>
     </div>
 </div>
 
@@ -305,22 +362,14 @@
   document.addEventListener('DOMContentLoaded', function() {
     const liffId = "2006113324-od69VN74";
     const statusDiv = document.getElementById('liffStatus');
-    const progressSteps = document.getElementById('progressSteps');
     let userProfile = null;
     let isSubmitting = false;
+    let currentFormData = null;
 
     // 更新狀態顯示
     function updateStatus(message, type = 'info') {
       statusDiv.className = `status-info status-${type}`;
       statusDiv.innerHTML = `<div>${message}</div>`;
-    }
-
-    // 更新進度步驟
-    function updateStep(stepNumber, status) {
-      const step = document.getElementById(`step${stepNumber}`);
-      if (step) {
-        step.className = `step ${status}`;
-      }
     }
 
     // LIFF 初始化
@@ -384,166 +433,160 @@
       });
     });
 
-    // 表單提交
-    document.getElementById('donationForm').addEventListener('submit', async function(e) {
+    // 表單提交 - 顯示預覽
+    document.getElementById('donationForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      if (isSubmitting) return;
-
-      // 顯示進度條
-      progressSteps.style.display = 'flex';
-      updateStep(1, 'active');
-
+      
       // 驗證欄位
       const name = document.getElementById('name').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const amount = document.getElementById('amount').value;
       const remarks = document.getElementById('remarks').value.trim();
 
-      if (!name) { 
-        updateStep(1, 'error');
-        alert('請填寫姓名'); 
-        return; 
-      }
-      if (!phone) { 
-        updateStep(1, 'error');
-        alert('請填寫電話'); 
-        return; 
-      }
+      if (!name) { alert('請填寫姓名'); return; }
+      if (!phone) { alert('請填寫電話'); return; }
       if (!/^09\d{8}$/.test(phone)) {
-        updateStep(1, 'error');
         alert('請輸入正確的手機號碼（09xxxxxxxx）');
         return;
       }
       if (!amount || amount < 100) { 
-        updateStep(1, 'error');
         alert('請填寫正確的捐款金額（最少100元）'); 
         return; 
       }
 
-      updateStep(1, 'success');
-      updateStep(2, 'active');
-
-      isSubmitting = true;
-      const submitBtn = document.getElementById('submitBtn');
-      const originalBtnText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '提交中... <span class="loading"></span>';
-      
-      updateStatus('🔄 正在提交資料...', 'info');
-
-      const formData = {
+      // 儲存表單資料
+      currentFormData = {
         name: name,
         phone: phone,
         amount: parseInt(amount),
         remarks: remarks,
         timestamp: new Date().toLocaleString('zh-TW'),
         liffUserId: userProfile?.userId || '',
-        liffDisplayName: userProfile?.displayName || '',
-        source: 'liff_form'
+        liffDisplayName: userProfile?.displayName || ''
       };
 
-      try {
-        const gasUrl = 'https://script.google.com/macros/s/AKfycbz80GD6yBYXJO2JidI0WJxSdC6W52QEFsBcCixwwRn3Fm0767tdcV-TMnvs6Zj_8Mw6/exec';
-        
-        // 使用 POST 方法發送資料
-        const response = await fetch(gasUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData)
-        });
-
-        updateStep(2, 'success');
-        updateStep(3, 'active');
-
-        // 檢查回應
-        let result;
-        try {
-          result = await response.json();
-        } catch (e) {
-          // 如果無法解析 JSON，表示可能是 CORS 問題，但資料可能已成功提交
-          console.log('無法解析回應，但可能已成功提交');
-          result = { success: true, message: '資料已提交' };
-        }
-
-        updateStep(3, 'success');
-        updateStep(4, 'active');
-
-        if (result.success !== false) {
-          updateStep(4, 'success');
-          updateStatus('✅ 捐款資料已成功提交並發送通知', 'success');
-          
-          // 更新成功訊息
-          document.getElementById('successMessage').textContent = 
-            `您的捐款資料已成功提交\n捐款序號：${result.registrationId || '系統產生中'}`;
-          
-          showSuccessModal();
-          this.reset();
-          
-          // 重置按鈕樣式
-          document.querySelectorAll('.amount-btn').forEach(btn => {
-            btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-            btn.style.color = '#333';
-            btn.style.borderColor = '#ddd';
-          });
-
-          // 3秒後隱藏進度條
-          setTimeout(() => {
-            progressSteps.style.display = 'none';
-            // 重置所有步驟
-            for(let i = 1; i <= 4; i++) {
-              updateStep(i, '');
-            }
-          }, 3000);
-
-        } else {
-          throw new Error(result.message || '提交失敗');
-        }
-
-      } catch (error) {
-        console.error('提交錯誤:', error);
-        updateStep(2, 'error');
-        updateStep(3, 'error');
-        updateStep(4, 'error');
-        
-        updateStatus('❌ 提交失敗: ' + error.message, 'error');
-        
-        // 提供備用方案
-        const backupMessage = `請手動聯繫廟方登記：\n\n姓名：${name}\n電話：${phone}\n金額：${parseInt(amount).toLocaleString()}元${remarks ? '\n備註：' + remarks : ''}`;
-        
-        if (confirm('自動提交失敗，是否複製資料以便手動聯繫？\n\n' + backupMessage)) {
-          // 嘗試複製到剪貼簿
-          try {
-            await navigator.clipboard.writeText(backupMessage);
-            alert('資料已複製到剪貼簿');
-          } catch (e) {
-            // 如果無法複製，顯示資料讓用戶手動複製
-            prompt('請複製以下資料：', backupMessage);
-          }
-        }
-      } finally {
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-      }
+      // 生成預覽訊息
+      const previewMessage = generateDonationMessage(currentFormData);
+      document.getElementById('previewMessage').textContent = previewMessage;
+      
+      // 顯示預覽模態框
+      document.getElementById('previewModal').style.display = 'block';
     });
+
+    // 生成捐款登記訊息
+    function generateDonationMessage(data) {
+      return `🙏 威振宮 建廟基金捐款登記
+
+👤 捐款人：${data.name}
+📞 聯絡電話：${data.phone}
+💰 捐款金額：NT$ ${data.amount.toLocaleString()} 元
+${data.remarks ? '📝 備註：' + data.remarks : ''}
+⏰ 登記時間：${data.timestamp}
+
+🏦 匯款資訊：
+銀行：土地銀行 內壢分行
+帳號：145-001-007228
+戶名：桃園市威振關懷慈善協會
+
+已完成線上登記，將盡快匯款並聯繫廟方確認
+感謝威振宮提供此便民服務 🙏
+
+#威振宮建廟 #善心捐助 #功德無量`;
+    }
 
     // 點擊模態框外部關閉
     window.onclick = function(event) {
-      const modal = document.getElementById('successModal');
-      if (event.target === modal) {
-        closeModal();
+      const previewModal = document.getElementById('previewModal');
+      const successModal = document.getElementById('successModal');
+      
+      if (event.target === previewModal) {
+        previewModal.style.display = 'none';
+      }
+      if (event.target === successModal) {
+        successModal.style.display = 'none';
       }
     }
   });
 
-  function showSuccessModal() {
-    document.getElementById('successModal').style.display = 'block';
+  // 修改表單
+  function editForm() {
+    document.getElementById('previewModal').style.display = 'none';
   }
-  
-  function closeModal() {
-    document.getElementById('successModal').style.display = 'none';
+
+  // 確認並送出
+  async function confirmAndSend() {
+    if (isSubmitting) return;
+    
+    isSubmitting = true;
+    const confirmBtn = document.getElementById('confirmSendBtn');
+    const originalBtnText = confirmBtn.textContent;
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '發送中... <span class="loading"></span>';
+
+    try {
+      // 1. 發送 LINE 訊息（以用戶身份）
+      const message = document.getElementById('previewMessage').textContent;
+      
+      if (liff.isInClient()) {
+        try {
+          await liff.sendMessages([{
+            type: 'text',
+            text: message
+          }]);
+          console.log('LINE 訊息發送成功');
+        } catch (lineError) {
+          console.error('LINE 訊息發送失敗:', lineError);
+          throw new Error('LINE 訊息發送失敗，請確認您在 LINE 應用程式中開啟此頁面');
+        }
+      } else {
+        throw new Error('請在 LINE 應用程式中開啟此功能');
+      }
+
+      // 2. 提交到後端記錄
+      const gasUrl = 'https://script.google.com/macros/s/AKfycbz80GD6yBYXJO2JidI0WJxSdC6W52QEFsBcCixwwRn3Fm0767tdcV-TMnvs6Zj_8Mw6/exec';
+      
+      const submitData = {
+        ...currentFormData,
+        source: 'liff_form_with_message',
+        messageSent: true
+      };
+
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submitData)
+        });
+      } catch (backendError) {
+        console.log('後端記錄失敗，但訊息已發送:', backendError);
+      }
+
+      // 3. 顯示成功訊息
+      document.getElementById('previewModal').style.display = 'none';
+      document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE';
+      document.getElementById('successModal').style.display = 'block';
+      
+      // 重置表單
+      document.getElementById('donationForm').reset();
+      document.querySelectorAll('.amount-btn').forEach(btn => {
+        btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+        btn.style.color = '#333';
+        btn.style.borderColor = '#ddd';
+      });
+
+    } catch (error) {
+      console.error('發送錯誤:', error);
+      alert('發送失敗：' + error.message + '\n\n請確認：\n1. 在 LINE 應用程式中開啟\n2. 網路連線正常\n3. 已授權 LIFF 應用程式');
+    } finally {
+      isSubmitting = false;
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalBtnText;
+    }
+  }
+
+  // 關閉模態框
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
   }
 </script>
 </body>
