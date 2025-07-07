@@ -627,7 +627,7 @@ ${currentFormData.remarks ? `備註：${currentFormData.remarks}` : ''}`;
                 
                 // 顯示成功訊息
                 closeModal('previewModal');
-                document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統，LINE Bot 已收到通知';
+                document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統，威振宮 已收到通知';
                 openModal('successModal');
                 
                 updateStep(4, 'success');
@@ -699,7 +699,7 @@ ${currentFormData.remarks ? `備註：${currentFormData.remarks}` : ''}`;
                 
                 try {
                     // 發送到後端
-                    const gasUrl = 'https://script.google.com/macros/s/AKfycbz1Eb87VtZj1yCT1Agkbl-JX0_RsOuuOmnZ1Au12XbobNTToPVZw2bXPm3U4eNHKYs/exec';
+                    const gasUrl = 'https://script.google.com/macros/s/AKfycbyPt0DcY_FYjAbtiGFu33LZGMLeiaxAmTw-cdAlyE2Y7aZBb5kucAM7xm6UMP0qbKC8/exec';
                     
                     const response = await fetch(gasUrl, {
                         method: 'POST',
