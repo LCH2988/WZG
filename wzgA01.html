@@ -432,7 +432,7 @@
   let liffReady = false;
 
   // 全域變數
-  const gasUrl = 'https://script.google.com/macros/s/AKfycbwQFHlHBWF7Bi0VXJARhofBZTIXyIdsc_rNnqfuZmxZGJk9jUnvMd--01vLcPSikybP/exec';
+  const gasUrl = 'https://script.google.com/macros/s/AKfycbzODdqEs7ULVf4SwwAyCTLkNvwQGA0iAbiG-gxE072e-9KCCsyt1yub06j1e0lLhwnR/exec';
   const DEBUG_MODE = false; // 設為 false 隱藏除錯資訊
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -560,7 +560,8 @@
         remarks: remarks,
         timestamp: new Date().toLocaleString('zh-TW'),
         liffUserId: userProfile?.userId || '',
-        liffDisplayName: userProfile?.displayName || ''
+        liffDisplayName: userProfile?.displayName || '',
+        source: 'liff_form_with_preview'  // 添加來源標記
       };
 
       // 顯示預覽模態框
@@ -598,6 +599,13 @@
     window.autoSaveForm = autoSaveForm;
     window.restoreFormData = restoreFormData;
     window.clearSavedFormData = clearSavedFormData;
+    window.switchTab = switchTab;
+    window.confirmAndSend = confirmAndSend;
+    window.copyAndSubmit = copyAndSubmit;
+    window.submitOnly = submitOnly;
+    window.editForm = editForm;
+    window.closeModal = closeModal;
+    window.openModal = openModal;
   });
 
   // 生成登記訊息
@@ -680,7 +688,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
         </div>
         <div class="preview-message">${generateCompleteMessage(currentFormData)}</div>
       </div>
-      
+
       <div class="preview-note">
         <strong>📢 提交說明：</strong><br>
         • <strong>LINE 發送</strong>：以您的帳號發送到目前聊天（需在 LINE 中開啟）<br>
@@ -716,7 +724,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
     // 添加 active 類別到選中的選項卡
-    event.target.classList.add('active');
+    document.querySelector(`.tab-btn:nth-child(${tabName === 'registration' ? 1 : tabName === 'quick' ? 2 : 3})`).classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
     
     window.debugLog('切換到選項卡: ' + tabName);
@@ -733,15 +741,19 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     
     // 取得當前選中的選項卡
     const activeTab = document.querySelector('.tab-btn.active');
-    const tabId = activeTab.textContent.trim();
+    const tabName = activeTab.textContent.trim();
     let message;
+    let messageType;
     
-    if (tabId.includes('登記')) {
+    if (tabName.includes('登記')) {
       message = generateRegistrationMessage(currentFormData);
-    } else if (tabId.includes('快速')) {
+      messageType = 'registration';
+    } else if (tabName.includes('快速')) {
       message = `我要建廟捐款${currentFormData.amount}元`;
+      messageType = 'quick';
     } else {
       message = generateCompleteMessage(currentFormData);
+      messageType = 'complete';
     }
     
     // 發送訊息並提交表單
@@ -751,7 +763,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     }])
     .then(() => {
       window.debugLog('LINE 訊息發送成功');
-      submitToBackend('line_send', message);
+      submitToBackend('line_send', message, messageType);
     })
     .catch((error) => {
       console.error('LINE 訊息發送失敗:', error);
@@ -767,15 +779,19 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     
     // 取得當前選中的選項卡
     const activeTab = document.querySelector('.tab-btn.active');
-    const tabId = activeTab.textContent.trim();
+    const tabName = activeTab.textContent.trim();
     let message;
+    let messageType;
     
-    if (tabId.includes('登記')) {
+    if (tabName.includes('登記')) {
       message = generateRegistrationMessage(currentFormData);
-    } else if (tabId.includes('快速')) {
+      messageType = 'registration';
+    } else if (tabName.includes('快速')) {
       message = `我要建廟捐款${currentFormData.amount}元`;
+      messageType = 'quick';
     } else {
       message = generateCompleteMessage(currentFormData);
+      messageType = 'complete';
     }
     
     // 複製到剪貼簿
@@ -787,7 +803,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     document.body.removeChild(textarea);
     
     // 提交表單
-    submitToBackend('copy_message', message);
+    submitToBackend('copy_message', message, messageType);
     
     alert('訊息已複製到剪貼簿！');
   }
@@ -795,7 +811,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
   // 僅提交表單
   function submitOnly() {
     window.debugLog('僅提交表單');
-    submitToBackend('submit_only', generateRegistrationMessage(currentFormData));
+    submitToBackend('submit_only', generateRegistrationMessage(currentFormData), 'registration');
   }
 
   // 返回編輯表單
@@ -805,11 +821,11 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
   }
 
   // 提交表單到後端
-  function submitToBackend(action, message) {
+  function submitToBackend(sendMethod, message, messageType) {
     if (isSubmitting) return;
     
     isSubmitting = true;
-    window.debugLog('提交表單到後端，操作: ' + action);
+    window.debugLog('提交表單到後端，操作: ' + sendMethod);
     
     // 更新按鈕狀態
     const buttons = document.querySelectorAll('.modal-btn');
@@ -826,11 +842,13 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
       phone: currentFormData.phone,
       amount: currentFormData.amount,
       remarks: currentFormData.remarks || '',
-      action: action,
+      sendMethod: sendMethod,
+      messageType: messageType,
       message: message,
       liffUserId: currentFormData.liffUserId || '',
       liffDisplayName: currentFormData.liffDisplayName || '',
-      timestamp: currentFormData.timestamp
+      timestamp: currentFormData.timestamp,
+      source: currentFormData.source || 'liff_form'
     };
     
     // 發送到後端
@@ -845,7 +863,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     .then(data => {
       window.debugLog('後端回應: ' + JSON.stringify(data));
       
-      if (data.success) {
+      if (data.result === 'success' || data.success) {
         // 清除儲存的表單資料
         clearSavedFormData();
         
@@ -999,4 +1017,3 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
 </script>
 </body>
 </html>
-      
