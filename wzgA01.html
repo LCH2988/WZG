@@ -8,204 +8,151 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #8B0000, #CD853F);
-            min-height: 100vh;
-            padding: 20px;
-            font-size: 19.2px;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 60px;
         }
         .container {
-            max-width: 900px;
+            max-width: 600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .status-info {
-            background: #f0f8ff;
-            padding: 15px;
-            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-radius: 10px;
-            border-left: 5px solid #4169E1;
-        }
-        .status-success { border-left-color: #28a745; background: #d4edda; }
-        .status-error { border-left-color: #dc3545; background: #f8d7da; }
-        .status-warning { border-left-color: #ffc107; background: #fff3cd; }
-        .form-section { padding: 50px; }
-        .form-group { margin-bottom: 40px; }
-        .form-group label {
-            display: block;
-            margin-bottom: 15px;
-            font-weight: bold;
-            color: #333;
-            font-size: 1.44em;
-        }
-        .required { color: #DC143C; font-size: 0.96em; }
-        input[type="text"], input[type="tel"], input[type="number"], textarea {
-            width: 100%;
-            padding: 20px 25px;
-            border: 3px solid #ddd;
-            border-radius: 12px;
-            font-size: 1.28em;
-            transition: border-color 0.3s;
-            line-height: 1.4;
-            background: white;
-        }
-        input[type="text"]:focus, input[type="tel"]:focus, input[type="number"]:focus, textarea:focus {
-            outline: none;
-            border-color: #DAA520;
-            box-shadow: 0 0 10px rgba(218,165,32,0.3);
-        }
-        .amount-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
             margin-top: 20px;
         }
-        .amount-btn {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 3px solid #ddd;
-            border-radius: 12px;
-            padding: 20px 15px;
-            font-size: 1.12em;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-            transition: all 0.3s;
+        .header {
             text-align: center;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .amount-btn:hover {
-            background: linear-gradient(135deg, #e9ecef, #dee2e6);
-            border-color: #DAA520;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .amount-btn:active {
-            transform: translateY(0);
-            background: linear-gradient(135deg, #DAA520, #FFD700);
-            color: white;
-            border-color: #B8860B;
-        }
-        textarea { min-height: 120px; resize: vertical; }
-        .bank-info {
-            background: #f0f8ff;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 40px 0;
-            border-left: 8px solid #4169E1;
-        }
-        .bank-info h4 {
-            color: #4169E1;
             margin-bottom: 20px;
-            font-size: 1.6em;
+            padding: 10px;
+            background: linear-gradient(135deg, #d4af37 0%, #f9d423 100%);
+            border-radius: 8px;
+            color: #800000;
         }
-        .bank-details { display: grid; gap: 15px; }
-        .bank-detail {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 2px solid #e0e0e0;
-            font-size: 1.12em;
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
         }
-        .bank-detail:last-child { border-bottom: none; }
-        .bank-detail strong { color: #333; min-width: 120px; }
-        .account-number {
-            font-family: monospace;
-            font-size: 1.28em;
-            color: #DC143C;
+        .header p {
+            font-size: 16px;
+            color: #5a0000;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: #5a0000;
         }
-        .submit-btn {
-            background-color: #d32f2f;
-            color: #fff; 
-            padding: 25px 50px;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.6em;
-            font-weight: bold;
-            cursor: pointer;
+        .form-group input, .form-group textarea {
             width: 100%;
-            transition: all 0.3s;
-            box-shadow: 0 6px 20px rgba(218,165,32,0.3);
-            margin-top: 30px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
         }
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(218,165,32,0.4);
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #d4af37;
+            outline: none;
         }
-        .submit-btn:disabled {
-            background: #ccc;
+        .form-group .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #d4af37;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: #c19b2e;
+        }
+        .btn:disabled {
+            background-color: #cccccc;
             cursor: not-allowed;
-            transform: none;
         }
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
             z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
         }
         .modal-content {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 500px; width: 90%;
-        }
-        .success-icon {
-            font-size: 3.2em;
-            color: #28a745;
-            margin-bottom: 25px;
-        }
-        .modal-content h3 { font-size: 1.76em; margin-bottom: 20px; color: #333; }
-        .modal-content p { font-size: 1.28em; line-height: 1.5; margin-bottom: 15px; }
-        .modal-btn {
-            margin-top: 25px;
-            padding: 15px 40px;
-            background: #DAA520;
-            color: white;
-            border: none;
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
             border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.28em;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
             font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
         }
-        .loading {
-            display: inline-block;
-            width: 25px; height: 25px;
-            border: 4px solid rgba(255, 255, 255, .3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 15px;
+        .close:hover {
+            color: #333;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .progress-steps {
+        .modal-header {
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+        .modal-header h2 {
+            color: #5a0000;
+            font-size: 22px;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-footer {
             display: flex;
             justify-content: space-between;
-            margin: 20px 0;
-            padding: 0 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
         }
-        .step {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 0 5px;
-            font-size: 0.9em;
-            background: #f8f9fa;
-            color: #666;
+        .modal-footer .btn {
+            width: 48%;
         }
-        .step.active { background: #007bff; color: white; }
-        .step.success { background: #28a745; color: white; }
-        .step.error { background: #dc3545; color: white; }
+        .btn-cancel {
+            background-color: #95a5a6;
+        }
+        .btn-cancel:hover {
+            background-color: #7f8c8d;
+        }
+        .btn-copy {
+            background-color: #3498db;
+        }
+        .btn-copy:hover {
+            background-color: #2980b9;
+        }
         .preview-message {
             background-color: #f9f9f9;
             padding: 15px;
@@ -216,8 +163,75 @@
             line-height: 1.5;
             max-height: 300px;
             overflow-y: auto;
-            text-align: left;
+        }
+        .tab-container {
             margin-bottom: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        .tab-button {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-button.active {
+            background-color: #d4af37;
+            color: white;
+            border-color: #d4af37;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .status-info {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .status-info.status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-info.status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-info.status-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status-info.status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
         }
         #debugInfo {
             margin-top: 30px;
@@ -237,113 +251,82 @@
             background-color: #eee;
             border-radius: 3px;
         }
-        @media (max-width: 768px) {
-            body { font-size: 17.6px; padding: 10px; }
-            .container { margin: 5px; }
-            .form-section { padding: 25px; }
-            .form-group label { font-size: 1.28em; }
-            input[type="text"], input[type="tel"], input[type="number"], textarea {
-                font-size: 1.12em; padding: 18px 20px;
-            }
-            .submit-btn { font-size: 1.44em; padding: 20px 40px; }
-            .amount-buttons { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .amount-btn { font-size: 0.96em; padding: 15px 10px; min-height: 70px; }
-            .progress-steps { flex-direction: column; }
-            .step { margin: 2px 0; }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 狀態顯示區域 -->
-        <div id="liffStatus" class="status-info">
-            <div>🔄 正在初始化...</div>
+        <div class="header">
+            <h1>桃園威振宮</h1>
+            <p>行館喬遷建廟基金捐款登記</p>
         </div>
-        
-        <!-- 進度指示器 -->
-        <div class="progress-steps" id="progressSteps" style="display: none;">
-            <div class="step" id="step1">1. 資料驗證</div>
-            <div class="step" id="step2">2. 提交表單</div>
-            <div class="step" id="step3">3. 發送通知</div>
-            <div class="step" id="step4">4. 完成</div>
+
+        <div id="liffStatus" class="status-info status-info">
+            <div>載入中，請稍候...</div>
         </div>
-        
-        <div class="form-section">
-            <form id="donationForm" autocomplete="off">
-                <div class="form-group">
-                    <label for="name">姓名 <span class="required">*</span></label>
-                    <input type="text" id="name" name="name" required autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="phone">電話 <span class="required">*</span></label>
-                    <input type="tel" id="phone" name="phone" autocomplete="off" pattern="09\d{8}">
-                </div>
-                <div class="form-group">
-                    <label for="amount">捐款金額 <span class="required">*</span></label>
-                    <input type="number" id="amount" name="amount" min="100" required placeholder="請輸入捐款金額或點選下方按鍵">
-                    <div class="amount-buttons">
-                        <button type="button" class="amount-btn" data-amount="1000">1仟元</button>
-                        <button type="button" class="amount-btn" data-amount="2000">2仟元</button>
-                        <button type="button" class="amount-btn" data-amount="5000">5仟元</button>
-                        <button type="button" class="amount-btn" data-amount="10000">1萬元</button>
-                        <button type="button" class="amount-btn" data-amount="20000">2萬元</button>
-                        <button type="button" class="amount-btn" data-amount="50000">5萬元</button>
-                        <button type="button" class="amount-btn" data-amount="100000">十萬元</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="remarks">備註</label>
-                    <textarea id="remarks" name="remarks" placeholder="如有特殊需求或祈願內容，請在此填寫..."></textarea>
-                </div>
-                <div class="bank-info">
-                    <h4>💰 匯款資訊</h4>
-                    <div class="bank-details">
-                        <div class="bank-detail">
-                            <strong>銀行：</strong>
-                            <span>土地銀行 - 內壢分行</span>
-                        </div>
-                        <div class="bank-detail">
-                            <strong>帳號：</strong>
-                            <span class="account-number">145-001-007228</span>
-                        </div>
-                        <div class="bank-detail">
-                            <strong>戶名：</strong>
-                            <span>桃園市威振關懷慈善協會</span>
-                        </div>
-                    </div>
-                    <p style="margin-top: 20px; color: #666; font-size: 0.96em;">
-                        ※ 匯款後請填寫此表單以便核對，感謝您的善心捐助
-                    </p>
-                </div>
-                <button type="button" class="submit-btn" id="submitBtn" onclick="validateForm()">🙏 確認捐款</button>
-            </form>
-            
-            <!-- <div id="debugInfo">
-                <h3>除錯資訊</h3>
-                <div id="debugContent"></div>
-            </div> -->
-        </div>
+
+        <form id="donationForm">
+            <div class="form-group">
+                <label for="name">姓名 / 單位名稱</label>
+                <input type="text" id="name" name="name" placeholder="請輸入姓名或單位名稱" required>
+                <div class="error-message" id="name-error">請輸入姓名或單位名稱</div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">聯絡電話</label>
+                <input type="tel" id="phone" name="phone" placeholder="請輸入聯絡電話" required>
+                <div class="error-message" id="phone-error">請輸入有效的聯絡電話</div>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">捐款金額</label>
+                <input type="number" id="amount" name="amount" placeholder="請輸入捐款金額" min="100" required>
+                <div class="error-message" id="amount-error">請輸入有效的捐款金額</div>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">備註 (選填)</label>
+                <textarea id="remarks" name="remarks" rows="3" placeholder="如需特別註明用途或其他事項，請在此填寫"></textarea>
+            </div>
+
+            <button type="button" class="btn" onclick="validateForm()">確認送出</button>
+        </form>
+
+        <!-- <div id="debugInfo">
+            <h3>除錯資訊</h3>
+            <div id="debugContent"></div>
+        </div> -->
     </div>
 
-    <!-- 預覽訊息的彈窗 -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>確認捐款資訊</h3>
-            </div>
+<!-- 預覽訊息的彈窗 -->
+<div id="previewModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('previewModal')">&times;</span>
+        <div class="modal-header">
+            <h2>確認捐款資訊</h2>
+        </div>
+        <div class="modal-body">
             <div class="preview-message" id="simple-message"></div>
-            <button class="modal-btn" id="confirmSendBtn" onclick="confirmAndSend()">發送到LINE</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="confirmSendBtn" onclick="confirmAndSend()">發送到LINE</button>
         </div>
     </div>
+</div>
+
 
     <!-- 成功訊息的彈窗 -->
     <div id="successModal" class="modal">
         <div class="modal-content">
-            <div class="success-icon">🙏</div>
-            <h3>感謝您的善心捐助！</h3>
-            <p id="successMessage">您的捐款資料已成功提交</p>
-            <p>功德無量，福慧雙修</p>
-            <button class="modal-btn" onclick="closeModal('successModal')">確定</button>
+            <span class="close" onclick="closeModal('successModal')">&times;</span>
+            <div class="modal-header">
+                <h2>操作成功</h2>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage" style="text-align: center; font-size: 18px;"></p>
+            </div>
+            <div class="modal-footer" style="justify-content: center;">
+                <button class="btn" onclick="closeModal('successModal')" style="width: 100%;">確定</button>
+            </div>
         </div>
     </div>
 
@@ -361,7 +344,6 @@
             const statusDiv = document.getElementById('liffStatus');
             const debugDiv = document.getElementById('debugInfo');
             const debugContent = document.getElementById('debugContent');
-            const progressSteps = document.getElementById('progressSteps');
 
             // 設置除錯模式
             const DEBUG_MODE = true; // 設為 true 顯示除錯資訊
@@ -381,14 +363,6 @@
                 statusDiv.className = `status-info status-${type}`;
                 statusDiv.innerHTML = `<div>${message}</div>`;
                 debugLog('狀態更新: ' + message);
-            }
-
-            // 更新進度步驟
-            function updateStep(stepNumber, status) {
-                const step = document.getElementById(`step${stepNumber}`);
-                if (step) {
-                    step.className = `step ${status}`;
-                }
             }
 
             // LIFF 初始化
@@ -451,54 +425,23 @@
                 });
             }
 
-            // 金額按鍵事件
-            document.querySelectorAll('.amount-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const amount = this.getAttribute('data-amount');
-                    document.getElementById('amount').value = amount;
-                    
-                    // 重置所有按鈕樣式
-                    document.querySelectorAll('.amount-btn').forEach(btn => {
-                        btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-                        btn.style.color = '#333';
-                        btn.style.borderColor = '#ddd';
-                    });
-                    
-                    // 設定當前按鈕樣式
-                    this.style.background = 'linear-gradient(135deg, #DAA520, #FFD700)';
-                    this.style.color = 'white';
-                    this.style.borderColor = '#B8860B';
-                    
-                    setTimeout(() => {
-                        this.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-                        this.style.color = '#333';
-                        this.style.borderColor = '#ddd';
-                    }, 300);
-                });
-            });
-
-            // 手動輸入金額時重置按鈕
-            document.getElementById('amount').addEventListener('input', function() {
-                this.value = this.value.replace(/[^\d]/g, '');
-                document.querySelectorAll('.amount-btn').forEach(btn => {
-                    btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-                    btn.style.color = '#333';
-                    btn.style.borderColor = '#ddd';
-                });
-            });
-
             // 暴露函數到全域
             window.debugLog = debugLog;
             window.updateStatus = updateStatus;
-            window.updateStep = updateStep;
             window.showPreviewModal = showPreviewModal;
             window.validateForm = validateForm;
+            window.showFieldError = showFieldError;
+            window.clearAllFieldErrors = clearAllFieldErrors;
             window.submitToBackend = submitToBackend;
             window.resetForm = resetForm;
             window.autoSaveForm = autoSaveForm;
             window.restoreFormData = restoreFormData;
             window.clearSavedFormData = clearSavedFormData;
+            window.switchTab = switchTab;
             window.confirmAndSend = confirmAndSend;
+            window.copyAndSubmit = copyAndSubmit;
+            window.submitOnly = submitOnly;
+            window.editForm = editForm;
             window.closeModal = closeModal;
             window.openModal = openModal;
             window.checkNetworkStatus = checkNetworkStatus;
@@ -506,9 +449,7 @@
 
         // 表單驗證
         function validateForm() {
-            // 顯示進度條
-            document.getElementById('progressSteps').style.display = 'flex';
-            updateStep(1, 'active');
+            clearAllFieldErrors();
             
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -517,34 +458,27 @@
             let isValid = true;
             
             if (!name) {
-                updateStep(1, 'error');
-                alert('請填寫姓名');
+                showFieldError('name', '請輸入姓名或單位名稱');
                 isValid = false;
             }
             
             if (!phone) {
-                updateStep(1, 'error');
-                alert('請填寫電話');
+                showFieldError('phone', '請輸入聯絡電話');
                 isValid = false;
-            } else if (!/^09\d{8}$/.test(phone)) {
-                updateStep(1, 'error');
-                alert('請輸入正確的手機號碼（09xxxxxxxx）');
+            } else if (!/^[0-9]{8,10}$/.test(phone.replace(/[-\s]/g, ''))) {
+                showFieldError('phone', '請輸入有效的聯絡電話');
                 isValid = false;
             }
             
             if (!amount) {
-                updateStep(1, 'error');
-                alert('請填寫捐款金額');
+                showFieldError('amount', '請輸入捐款金額');
                 isValid = false;
             } else if (isNaN(amount) || parseInt(amount) < 100) {
-                updateStep(1, 'error');
-                alert('捐款金額必須大於或等於 100');
+                showFieldError('amount', '捐款金額必須大於或等於 100');
                 isValid = false;
             }
             
             if (isValid) {
-                updateStep(1, 'success');
-                
                 // 儲存當前表單資料
                 currentFormData = {
                     name: name,
@@ -561,16 +495,54 @@
                 
                 // 顯示預覽
                 showPreviewModal();
-            } else {
-                // 隱藏進度條
-                setTimeout(() => {
-                    document.getElementById('progressSteps').style.display = 'none';
-                    // 重置所有步驟
-                    for(let i = 1; i <= 4; i++) {
-                        updateStep(i, '');
-                    }
-                }, 2000);
             }
+        }
+
+        // 顯示欄位錯誤
+        function showFieldError(fieldId, message) {
+            const errorElement = document.getElementById(`${fieldId}-error`);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                document.getElementById(fieldId).classList.add('error');
+            }
+        }
+
+        // 清除所有欄位錯誤
+        function clearAllFieldErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.style.display = 'none';
+            });
+            
+            const inputElements = document.querySelectorAll('input, textarea');
+            inputElements.forEach(element => {
+                element.classList.remove('error');
+            });
+        }
+
+        
+        // 生成標準格式訊息
+        function generateStandardMessage() {
+            return `【桃園威振宮 - 行館喬遷建廟基金捐款登記】
+
+捐款人：${currentFormData.name}
+聯絡電話：${currentFormData.phone}
+捐款金額：${parseInt(currentFormData.amount).toLocaleString('zh-TW')} 元
+${currentFormData.remarks ? `備註：${currentFormData.remarks}\n` : ''}
+登記時間：${currentFormData.timestamp}
+
+感謝您對桃園威振宮的支持與護持，
+您的善心功德將永存於廟宇，
+福佑您與家人平安吉祥，萬事如意！
+
+匯款資訊：
+銀行：○○銀行 ○○分行
+戶名：財團法人桃園威振宮
+帳號：○○○○○○○○○○○○
+
+※ 匯款後請保留收據，以便核對。
+※ 如有任何問題，請聯繫廟方：03-12345678`;
         }
 
         // 生成簡易格式訊息
@@ -581,107 +553,194 @@
 ${currentFormData.remarks ? `備註：${currentFormData.remarks}` : ''}`;
         }
 
-        // 顯示預覽彈窗
-        function showPreviewModal() {
-            // 生成簡易格式訊息
-            const simpleMessage = generateSimpleMessage();
-            document.getElementById('simple-message').textContent = simpleMessage;
+        // 切換標籤
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
             
-            // 顯示彈窗
-            openModal('previewModal');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.querySelector(`.tab-button:nth-child(${tabId === 'standard' ? 1 : 2})`).classList.add('active');
         }
 
-        // 確認並發送到 LINE
-        async function confirmAndSend() {
+       // 顯示預覽彈窗
+function showPreviewModal() {
+    // 生成簡易格式訊息
+    const simpleMessage = generateSimpleMessage();
+    document.getElementById('simple-message').textContent = simpleMessage;
+    
+    // 顯示彈窗
+    openModal('previewModal');
+}
+
+// 確認並發送到 LINE
+async function confirmAndSend() {
+    if (isSubmitting) return;
+    
+    window.debugLog('開始 LINE 發送流程...');
+    isSubmitting = true;
+    const confirmBtn = document.getElementById('confirmSendBtn');
+    const originalBtnText = confirmBtn.textContent;
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '發送中... <span class="loading"></span>';
+
+    try {
+        // 檢查 LIFF 狀態
+        if (!liffReady) {
+            throw new Error('LIFF 尚未初始化完成');
+        }
+
+        if (!liff.isInClient()) {
+            throw new Error('請在 LINE 應用程式中開啟此功能');
+        }
+
+        // 取得簡易訊息
+        const message = document.getElementById('simple-message').textContent;
+        
+        window.debugLog(`準備發送訊息，長度: ${message.length}`);
+
+        // 先提交到後端，確保即使發送失敗也有記錄
+        await submitToBackend('line_send', message, 'simple');
+        
+        // 發送到 LINE
+        await liff.sendMessages([{
+            type: 'text',
+            text: message
+        }]);
+        
+        window.debugLog('LINE 訊息發送成功');
+        
+        // 顯示成功訊息
+        closeModal('previewModal');
+        document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統，LINE Bot 已收到通知';
+        openModal('successModal');
+        
+        resetForm();
+
+    } catch (error) {
+        window.debugLog('LINE 發送或提交失敗: ' + error.message);
+        console.error('發送錯誤:', error);
+        
+        // 提供詳細的錯誤說明
+        let errorMsg = '發送失敗：' + error.message;
+        
+        if (error.message.includes('LIFF')) {
+            errorMsg += '\n\n請確認：\n1. 在 LINE 應用程式中開啟\n2. 已授權 LIFF 應用程式';
+        } else if (error.message.includes('sendMessages')) {
+            errorMsg += '\n\n可能原因：\n1. 訊息太長\n2. 網路連線問題\n3. LINE API 限制';
+        }
+        
+        alert(errorMsg);
+    } finally {
+        isSubmitting = false;
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalBtnText;
+    }
+}
+
+
+        // 複製訊息並提交
+        async function copyAndSubmit() {
             if (isSubmitting) return;
             
-            updateStep(2, 'active');
-            window.debugLog('開始 LINE 發送流程...');
+            window.debugLog('開始複製訊息流程...');
             isSubmitting = true;
-            const confirmBtn = document.getElementById('confirmSendBtn');
-            const originalBtnText = confirmBtn.textContent;
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '發送中... <span class="loading"></span>';
-
+            const copyBtn = document.querySelector('.btn-copy');
+            const originalBtnText = copyBtn.textContent;
+            copyBtn.disabled = true;
+            copyBtn.innerHTML = '處理中... <span class="loading"></span>';
+            
             try {
-                // 檢查 LIFF 狀態
-                if (!liffReady) {
-                    throw new Error('LIFF 尚未初始化完成');
+                // 取得當前選中的訊息
+                const activeTab = document.querySelector('.tab-content.active');
+                const message = activeTab.querySelector('.preview-message').textContent;
+                const tabId = activeTab.id;
+                const messageType = tabId.replace('tab-', '');
+                
+                // 嘗試複製到剪貼簿
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(message);
+                    window.debugLog('訊息已複製到剪貼簿');
+                } else {
+                    // 備用複製方法
+                    const textArea = document.createElement('textarea');
+                    textArea.value = message;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    window.debugLog('使用備用方法複製訊息');
                 }
 
-                if (!liff.isInClient()) {
-                    throw new Error('請在 LINE 應用程式中開啟此功能');
-                }
-
-                // 取得簡易訊息
-                const message = document.getElementById('simple-message').textContent;
-                
-                window.debugLog(`準備發送訊息，長度: ${message.length}`);
-
-                // 先提交到後端，確保即使發送失敗也有記錄
-                updateStep(2, 'success');
-                updateStep(3, 'active');
-                
-                await submitToBackend('line_send', message, 'simple');
-                
-                // 發送到 LINE
-                await liff.sendMessages([{
-                    type: 'text',
-                    text: message
-                }]);
-                
-                updateStep(3, 'success');
-                updateStep(4, 'active');
-                
-                window.debugLog('LINE 訊息發送成功');
+                // 提交到後端
+                await submitToBackend('copy', message, messageType);
                 
                 // 顯示成功訊息
                 closeModal('previewModal');
-                document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統，LINE Bot 已收到通知';
+                document.getElementById('successMessage').textContent = '訊息已複製到剪貼簿，資料已記錄到系統，LINE Bot 已收到通知';
                 openModal('successModal');
                 
-                updateStep(4, 'success');
                 resetForm();
-                
-                // 3秒後隱藏進度條
-                setTimeout(() => {
-                    document.getElementById('progressSteps').style.display = 'none';
-                    // 重置所有步驟
-                    for(let i = 1; i <= 4; i++) {
-                        updateStep(i, '');
-                    }
-                }, 3000);
 
             } catch (error) {
-                window.debugLog('LINE 發送或提交失敗: ' + error.message);
-                console.error('發送錯誤:', error);
-                
-                updateStep(3, 'error');
-                updateStep(4, 'error');
-                
-                // 提供詳細的錯誤說明
-                let errorMsg = '發送失敗：' + error.message;
-                
-                if (error.message.includes('LIFF')) {
-                    errorMsg += '\n\n請確認：\n1. 在 LINE 應用程式中開啟\n2. 已授權 LIFF 應用程式';
-                } else if (error.message.includes('sendMessages')) {
-                    errorMsg += '\n\n可能原因：\n1. 訊息太長\n2. 網路連線問題\n3. LINE API 限制';
-                }
-                
-                alert(errorMsg);
-                
-                // 隱藏進度條
-                setTimeout(() => {
-                    document.getElementById('progressSteps').style.display = 'none';
-                    // 重置所有步驟
-                    for(let i = 1; i <= 4; i++) {
-                        updateStep(i, '');
-                    }
-                }, 3000);
+                window.debugLog('複製或提交失敗: ' + error.message);
+                console.error('複製錯誤:', error);
+                alert('操作失敗：' + error.message);
             } finally {
                 isSubmitting = false;
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = originalBtnText;
+                copyBtn.disabled = false;
+                copyBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        // 僅提交到系統
+        async function submitOnly() {
+            if (isSubmitting) return;
+            
+            window.debugLog('開始僅提交流程...');
+            isSubmitting = true;
+            const submitBtn = document.querySelector('.btn-cancel');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '處理中... <span class="loading"></span>';
+            
+            try {
+                // 取得當前選中的訊息類型
+                const activeTab = document.querySelector('.tab-content.active');
+                const tabId = activeTab.id;
+                const messageType = tabId.replace('tab-', '');
+                const message = activeTab.querySelector('.preview-message').textContent;
+                
+                // 提交到後端
+                await submitToBackend('submit_only', message, messageType);
+                
+        // 僅提交到系統 (續)
+                // 顯示成功訊息
+                closeModal('previewModal');
+                document.getElementById('successMessage').textContent = '您的捐款資料已成功記錄到系統，LINE Bot 已收到通知';
+                openModal('successModal');
+                
+                resetForm();
+
+            } catch (error) {
+                window.debugLog('提交失敗: ' + error.message);
+                console.error('提交錯誤:', error);
+                alert('提交失敗：' + error.message);
+            } finally {
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             }
         }
 
@@ -764,13 +823,11 @@ ${currentFormData.remarks ? `備註：${currentFormData.remarks}` : ''}`;
         function resetForm() {
             document.getElementById('donationForm').reset();
             clearSavedFormData();
-            
-            // 重置金額按鈕樣式
-            document.querySelectorAll('.amount-btn').forEach(btn => {
-                btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
-                btn.style.color = '#333';
-                btn.style.borderColor = '#ddd';
-            });
+        }
+
+        // 編輯表單
+        function editForm() {
+            closeModal('previewModal');
         }
 
         // 自動儲存表單資料
@@ -860,9 +917,7 @@ ${currentFormData.remarks ? `備註：${currentFormData.remarks}` : ''}`;
                 input.addEventListener('change', autoSaveForm);
             });
         });
-        
     </script>
 </body>
 </html>
 
-                
