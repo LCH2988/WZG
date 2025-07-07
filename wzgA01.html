@@ -587,6 +587,9 @@
       document.getElementById(id).addEventListener('input', autoSaveForm);
     });
 
+    // 檢查網路狀態
+    checkNetworkStatus();
+
     // 暴露函數到全域
     window.debugLog = debugLog;
     window.updateStatus = updateStatus;
@@ -606,6 +609,7 @@
     window.editForm = editForm;
     window.closeModal = closeModal;
     window.openModal = openModal;
+    window.checkNetworkStatus = checkNetworkStatus;
   });
 
   // 生成登記訊息
@@ -698,22 +702,22 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
       </div>
       
       <div class="send-options">
-        <button type="button" class="modal-btn btn-confirm" onclick="confirmAndSend()">
+        <button class="modal-btn btn-confirm" id="confirmSendBtn" onclick="confirmAndSend()">
           📱 LINE 發送 + 登記
         </button>
-        <button type="button" class="modal-btn btn-copy" onclick="copyAndSubmit()">
+        <button class="modal-btn btn-copy" onclick="copyAndSubmit()">
           📋 複製訊息 + 登記
         </button>
-        <button type="button" class="modal-btn btn-edit" onclick="submitOnly()">
-          💾 僅登記到系統
+        <button class="modal-btn btn-cancel" onclick="submitOnly()">
+          📝 僅登記到系統
         </button>
-        <button type="button" class="modal-btn btn-cancel" onclick="editForm()">
+        <button class="modal-btn btn-edit" onclick="editForm()">
           ✏️ 修改表單
         </button>
       </div>
     `;
     
-    modal.style.display = 'block';
+    openModal('previewModal');
     window.debugLog('顯示預覽模態框');
   }
 
@@ -724,104 +728,161 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
     // 添加 active 類別到選中的選項卡
-    document.querySelector(`.tab-btn:nth-child(${tabName === 'registration' ? 1 : tabName === 'quick' ? 2 : 3})`).classList.add('active');
+    const tabIndex = tabName === 'registration' ? 0 : tabName === 'quick' ? 1 : 2;
+    document.querySelectorAll('.tab-btn')[tabIndex].classList.add('active');
     document.getElementById(`tab-${tabName}`).classList.add('active');
     
     window.debugLog('切換到選項卡: ' + tabName);
   }
 
-  // 確認並發送訊息
-  function confirmAndSend() {
-    if (!liffReady || !liff.isInClient()) {
-      alert('此功能僅在 LINE App 中可用！');
-      return;
-    }
+  // 確認並發送到 LINE
+  async function confirmAndSend() {
+    if (isSubmitting) return;
     
-    window.debugLog('確認並發送訊息');
-    
-    // 取得當前選中的選項卡
-    const activeTab = document.querySelector('.tab-btn.active');
-    const tabName = activeTab.textContent.trim();
-    let message;
-    let messageType;
-    
-    if (tabName.includes('登記')) {
-      message = generateRegistrationMessage(currentFormData);
-      messageType = 'registration';
-    } else if (tabName.includes('快速')) {
-      message = `我要建廟捐款${currentFormData.amount}元`;
-      messageType = 'quick';
-    } else {
-      message = generateCompleteMessage(currentFormData);
-      messageType = 'complete';
-    }
-    
-    // 發送訊息並提交表單
-    liff.sendMessages([{
-      type: 'text',
-      text: message
-    }])
-    .then(() => {
+    window.debugLog('開始 LINE 發送流程...');
+    isSubmitting = true;
+    const confirmBtn = document.getElementById('confirmSendBtn');
+    const originalBtnText = confirmBtn.textContent;
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '發送中... <span class="loading"></span>';
+
+    try {
+      // 檢查 LIFF 狀態
+      if (!liffReady) {
+        throw new Error('LIFF 尚未初始化完成');
+      }
+
+      if (!liff.isInClient()) {
+        throw new Error('請在 LINE 應用程式中開啟此功能');
+      }
+
+      if (!liff.isLoggedIn()) {
+        throw new Error('請先登入 LINE');
+      }
+
+      // 取得當前選中的訊息
+      const activeTab = document.querySelector('.tab-content.active');
+      const message = activeTab.querySelector('.preview-message').textContent;
+      const tabId = activeTab.id;
+      const messageType = tabId.replace('tab-', '');
+      
+      window.debugLog(`準備發送訊息，選項卡: ${tabId}，長度: ${message.length}`);
+
+      await liff.sendMessages([{
+        type: 'text',
+        text: message
+      }]);
+      
       window.debugLog('LINE 訊息發送成功');
-      submitToBackend('line_send', message, messageType);
-    })
-    .catch((error) => {
-      console.error('LINE 訊息發送失敗:', error);
-      window.debugLog('LINE 訊息發送失敗: ' + error.message);
-      alert('訊息發送失敗，請稍後再試！');
+
+      // 提交到後端
+      await submitToBackend('line_send', message, messageType);
+      
+      // 顯示成功訊息
       closeModal('previewModal');
-    });
+      document.getElementById('successMessage').textContent = '您的捐款登記訊息已成功發送到 LINE 並記錄到系統，LINE Bot 已收到通知';
+      openModal('successModal');
+      
+      resetForm();
+
+    } catch (error) {
+      window.debugLog('LINE 發送失敗: ' + error.message);
+      console.error('發送錯誤:', error);
+      
+      // 提供詳細的錯誤說明
+      let errorMsg = '發送失敗：' + error.message;
+      
+      if (error.message.includes('LIFF')) {
+        errorMsg += '\n\n請確認：\n1. 在 LINE 應用程式中開啟\n2. 已授權 LIFF 應用程式';
+      } else if (error.message.includes('sendMessages')) {
+        errorMsg += '\n\n可能原因：\n1. 訊息太長\n2. 網路連線問題\n3. LINE API 限制';
+      }
+      
+      alert(errorMsg + '\n\n建議改用「複製訊息」功能');
+    } finally {
+      isSubmitting = false;
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = originalBtnText;
+    }
   }
 
   // 複製訊息並提交
-  function copyAndSubmit() {
-    window.debugLog('複製訊息並提交');
+  async function copyAndSubmit() {
+    window.debugLog('開始複製訊息流程...');
     
-    // 取得當前選中的選項卡
-    const activeTab = document.querySelector('.tab-btn.active');
-    const tabName = activeTab.textContent.trim();
-    let message;
-    let messageType;
-    
-    if (tabName.includes('登記')) {
-      message = generateRegistrationMessage(currentFormData);
-      messageType = 'registration';
-    } else if (tabName.includes('快速')) {
-      message = `我要建廟捐款${currentFormData.amount}元`;
-      messageType = 'quick';
-    } else {
-      message = generateCompleteMessage(currentFormData);
-      messageType = 'complete';
+    try {
+      // 取得當前選中的訊息
+      const activeTab = document.querySelector('.tab-content.active');
+      const message = activeTab.querySelector('.preview-message').textContent;
+      const tabId = activeTab.id;
+      const messageType = tabId.replace('tab-', '');
+      
+      // 嘗試複製到剪貼簿
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(message);
+        window.debugLog('訊息已複製到剪貼簿');
+      } else {
+        // 備用複製方法
+        const textArea = document.createElement('textarea');
+        textArea.value = message;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        window.debugLog('使用備用方法複製訊息');
+      }
+
+      // 提交到後端
+      await submitToBackend('copy', message, messageType);
+      
+      // 顯示成功訊息
+      closeModal('previewModal');
+      document.getElementById('successMessage').textContent = '訊息已複製到剪貼簿，資料已記錄到系統，LINE Bot 已收到通知';
+      openModal('successModal');
+      
+      resetForm();
+
+    } catch (error) {
+      window.debugLog('複製失敗: ' + error.message);
+      console.error('複製錯誤:', error);
+      alert('複製失敗：' + error.message + '\n\n請手動選取訊息內容複製');
     }
-    
-    // 複製到剪貼簿
-    const textarea = document.createElement('textarea');
-    textarea.value = message;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    
-    // 提交表單
-    submitToBackend('copy_message', message, messageType);
-    
-    alert('訊息已複製到剪貼簿！');
   }
 
-  // 僅提交表單
-  function submitOnly() {
-    window.debugLog('僅提交表單');
-    submitToBackend('submit_only', generateRegistrationMessage(currentFormData), 'registration');
+  // 僅提交到系統
+  async function submitOnly() {
+    window.debugLog('開始僅提交流程...');
+    
+    try {
+      // 取得當前選中的訊息類型
+      const activeTab = document.querySelector('.tab-content.active');
+      const tabId = activeTab.id;
+      const messageType = tabId.replace('tab-', '');
+      const message = activeTab.querySelector('.preview-message').textContent;
+      
+      // 提交到後端
+      await submitToBackend('submit_only', message, messageType);
+      
+      // 顯示成功訊息
+      closeModal('previewModal');
+      document.getElementById('successMessage').textContent = '您的捐款資料已成功記錄到系統，LINE Bot 已收到通知';
+      openModal('successModal');
+      
+      resetForm();
+
+    } catch (error) {
+      window.debugLog('提交失敗: ' + error.message);
+      console.error('提交錯誤:', error);
+      alert('提交失敗：' + error.message);
+    }
   }
 
-  // 返回編輯表單
-  function editForm() {
-    closeModal('previewModal');
-    window.debugLog('返回編輯表單');
-  }
-
-  // 提交表單到後端
-  function submitToBackend(sendMethod, message, messageType) {
+  // 提交到後端
+  async function submitToBackend(sendMethod, message, messageType) {
     if (isSubmitting) return;
     
     isSubmitting = true;
@@ -831,80 +892,73 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     const buttons = document.querySelectorAll('.modal-btn');
     buttons.forEach(btn => {
       btn.disabled = true;
-      if (btn.textContent.includes('登記')) {
+      if (btn.id === 'confirmSendBtn' && sendMethod === 'line_send') {
         btn.innerHTML = '處理中... <span class="loading"></span>';
       }
     });
     
     // 準備提交資料
     const formData = {
-      name: currentFormData.name,
-      phone: currentFormData.phone,
-      amount: currentFormData.amount,
-      remarks: currentFormData.remarks || '',
+      ...currentFormData,
       sendMethod: sendMethod,
       messageType: messageType,
-      message: message,
-      liffUserId: currentFormData.liffUserId || '',
-      liffDisplayName: currentFormData.liffDisplayName || '',
-      timestamp: currentFormData.timestamp,
-      source: currentFormData.source || 'liff_form'
+      message: message
     };
     
-    // 發送到後端
-    fetch(gasUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+      // 發送到後端
+      const response = await fetch(gasUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
       window.debugLog('後端回應: ' + JSON.stringify(data));
       
       if (data.result === 'success' || data.success) {
         // 清除儲存的表單資料
         clearSavedFormData();
-        
-        // 關閉預覽模態框
-        closeModal('previewModal');
-        
-        // 顯示成功訊息
-        document.getElementById('successMessage').textContent = '您的捐款資料已成功登記！';
-        openModal('successModal');
-        
-        // 重置表單
-        resetForm();
+        return true;
       } else {
-        alert('提交失敗: ' + (data.message || '未知錯誤'));
-        closeModal('previewModal');
+        throw new Error(data.message || '未知錯誤');
       }
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('提交錯誤:', error);
       window.debugLog('提交錯誤: ' + error.message);
-      alert('提交失敗，請稍後再試！');
-      closeModal('previewModal');
-    })
-    .finally(() => {
+      throw error;
+    } finally {
       isSubmitting = false;
       buttons.forEach(btn => {
         btn.disabled = false;
-        if (btn.textContent.includes('處理中')) {
-          if (btn.classList.contains('btn-confirm')) {
-            btn.innerHTML = '📱 LINE 發送 + 登記';
-          } else if (btn.classList.contains('btn-copy')) {
-            btn.innerHTML = '📋 複製訊息 + 登記';
-          } else if (btn.classList.contains('btn-edit')) {
-            btn.innerHTML = '💾 僅登記到系統';
-          }
+        if (btn.id === 'confirmSendBtn' && btn.innerHTML.includes('處理中')) {
+          btn.innerHTML = '📱 LINE 發送 + 登記';
         }
       });
-    });
+    }
   }
 
-  // 驗證表單
+  // 修改表單
+  function editForm() {
+    window.debugLog('用戶選擇修改表單');
+    closeModal('previewModal');
+  }
+
+  // 開啟模態框
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+    window.debugLog('開啟模態框: ' + modalId);
+  }
+
+  // 關閉模態框
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    window.debugLog('關閉模態框: ' + modalId);
+  }
+
+  // 表單驗證
   function validateForm() {
     clearAllFieldErrors();
     
@@ -916,6 +970,9 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     
     if (!name) {
       showFieldError('name', '請輸入姓名');
+      isValid = false;
+    } else if (name.length < 2) {
+      showFieldError('name', '姓名至少需要2個字元');
       isValid = false;
     }
     
@@ -933,6 +990,9 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     } else if (parseInt(amount) < 100) {
       showFieldError('amount', '捐款金額不得低於 100 元');
       isValid = false;
+    } else if (parseInt(amount) > 10000000) {
+      showFieldError('amount', '單筆捐款金額不可超過1000萬元');
+      isValid = false;
     }
     
     return isValid;
@@ -943,69 +1003,73 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     const field = document.getElementById(fieldId);
     field.style.borderColor = '#dc3545';
     
-    // 檢查是否已有錯誤訊息
-    let errorElement = field.parentNode.querySelector('.field-error');
-    if (!errorElement) {
-      errorElement = document.createElement('div');
-      errorElement.className = 'field-error';
-      field.parentNode.appendChild(errorElement);
+    // 移除舊的錯誤訊息
+    const oldError = field.parentNode.querySelector('.field-error');
+    if (oldError) {
+      oldError.remove();
     }
     
-    errorElement.textContent = message;
+    // 添加新的錯誤訊息
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error';
+    errorDiv.textContent = message;
+    field.parentNode.appendChild(errorDiv);
+    
+    // 滾動到錯誤欄位
+    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   // 清除所有欄位錯誤
   function clearAllFieldErrors() {
-    document.querySelectorAll('.field-error').forEach(el => el.remove());
-    document.querySelectorAll('input, textarea').forEach(el => {
-      el.style.borderColor = '#ddd';
+    document.querySelectorAll('.field-error').forEach(error => error.remove());
+    document.querySelectorAll('input, textarea').forEach(field => {
+      field.style.borderColor = '#ddd';
     });
   }
 
   // 重置表單
   function resetForm() {
     document.getElementById('donationForm').reset();
+    document.querySelectorAll('.amount-btn').forEach(btn => {
+      btn.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+      btn.style.color = '#333';
+      btn.style.borderColor = '#ddd';
+    });
     clearAllFieldErrors();
+    clearSavedFormData();
+    currentFormData = null;
   }
 
-  // 開啟模態框
-  function openModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
-  }
-
-  // 關閉模態框
-  function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-  }
-
-  // 自動儲存表單資料
+  // 自動儲存表單資料到 localStorage
   function autoSaveForm() {
     const formData = {
-      name: document.getElementById('name').value.trim(),
-      phone: document.getElementById('phone').value.trim(),
-      amount: document.getElementById('amount').value.trim(),
-      remarks: document.getElementById('remarks').value.trim()
+      name: document.getElementById('name').value,
+      phone: document.getElementById('phone').value,
+      amount: document.getElementById('amount').value,
+      remarks: document.getElementById('remarks').value
     };
     
-    localStorage.setItem('donationFormData', JSON.stringify(formData));
+    if (formData.name || formData.phone || formData.amount) {
+      localStorage.setItem('donationFormData', JSON.stringify(formData));
+      window.debugLog('自動儲存表單資料');
+    }
   }
 
   // 恢復表單資料
   function restoreFormData() {
-    const savedData = localStorage.getItem('donationFormData');
-    if (savedData) {
-      try {
+    try {
+      const savedData = localStorage.getItem('donationFormData');
+      if (savedData) {
         const formData = JSON.parse(savedData);
-        document.getElementById('name').value = formData.name || '';
-        document.getElementById('phone').value = formData.phone || '';
-        document.getElementById('amount').value = formData.amount || '';
-        document.getElementById('remarks').value = formData.remarks || '';
+        if (formData.name) document.getElementById('name').value = formData.name;
+        if (formData.phone) document.getElementById('phone').value = formData.phone;
+        if (formData.amount) document.getElementById('amount').value = formData.amount;
+        if (formData.remarks) document.getElementById('remarks').value = formData.remarks;
         
         window.debugLog('已恢復儲存的表單資料');
-      } catch (e) {
-        console.error('恢復表單資料失敗:', e);
-        window.debugLog('恢復表單資料失敗: ' + e.message);
       }
+    } catch (error) {
+      window.debugLog('恢復表單資料失敗: ' + error.message);
     }
   }
 
@@ -1014,6 +1078,68 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
     localStorage.removeItem('donationFormData');
     window.debugLog('已清除儲存的表單資料');
   }
+
+  // 網路狀態檢查
+  function checkNetworkStatus() {
+    if (!navigator.onLine) {
+      document.getElementById('liffStatus').className = 'status-info status-warning';
+      document.getElementById('liffStatus').innerHTML = '<div>⚠️ 網路連線中斷，請檢查網路設定</div>';
+      return false;
+    }
+    return true;
+  }
+
+  // 監聽網路狀態變化
+  window.addEventListener('online', function() {
+    window.debugLog('網路連線恢復');
+    if (liffReady && userProfile) {
+      document.getElementById('liffStatus').className = 'status-info status-success';
+      document.getElementById('liffStatus').innerHTML = `<div>✅ 使用者：${userProfile.displayName}</div>`;
+    }
+  });
+
+  window.addEventListener('offline', function() {
+    window.debugLog('網路連線中斷');
+    checkNetworkStatus();
+  });
+
+  // 點擊模態框外部關閉
+  window.onclick = function(event) {
+    const previewModal = document.getElementById('previewModal');
+    const successModal = document.getElementById('successModal');
+    
+    if (event.target === previewModal) {
+      previewModal.style.display = 'none';
+    }
+    if (event.target === successModal) {
+      successModal.style.display = 'none';
+    }
+  };
+
+  // 處理 ESC 鍵關閉模態框
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      const previewModal = document.getElementById('previewModal');
+      const successModal = document.getElementById('successModal');
+      
+      if (previewModal.style.display === 'block') {
+        previewModal.style.display = 'none';
+      }
+      if (successModal.style.display === 'block') {
+        successModal.style.display = 'none';
+      }
+    }
+  });
+
+  // 頁面離開前的確認
+  window.addEventListener('beforeunload', function(e) {
+    if (currentFormData && !document.getElementById('successModal').style.display === 'block') {
+      e.preventDefault();
+      e.returnValue = '';
+      return '您有未完成的捐款登記，確定要離開嗎？';
+    }
+  });
 </script>
 </body>
 </html>
+
