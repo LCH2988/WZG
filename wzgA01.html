@@ -347,11 +347,11 @@
         <div>🔄 正在初始化...</div>
     </div>
     
-    <!-- 除錯資訊 -->
+    <!-- 除錯資訊
     <div id="debugInfo" class="debug-info" style="display: none;">
         <strong>除錯資訊：</strong><br>
         <div id="debugContent"></div>
-    </div>
+    </div> -->
     
     <div class="form-section">
         <form id="donationForm" autocomplete="off">
@@ -627,15 +627,6 @@
           <button class="modal-btn btn-confirm" id="confirmSendBtn" onclick="confirmAndSend()">
             📱 LINE 發送 + 登記
           </button>
-          <button class="modal-btn btn-copy" onclick="copyAndSubmit()">
-            📋 複製訊息 + 登記
-          </button>
-          <button class="modal-btn btn-cancel" onclick="submitOnly()">
-            📝 僅登記到系統
-          </button>
-          <button class="modal-btn btn-edit" onclick="editForm()">
-            ✏️ 修改表單
-          </button>
         </div>
       `;
       
@@ -645,21 +636,13 @@
 
     // 生成登記訊息
     function generateRegistrationMessage(data) {
-      return `🙏 威振宮 建廟基金捐款登記
+      return `🙏 威振宮 捐款登記
 
 👤 捐款人：${data.name}
-📞 聯絡電話：${data.phone}
 💰 捐款金額：NT$ ${data.amount.toLocaleString()} 元
 ${data.remarks ? '📝 備註：' + data.remarks : ''}
-⏰ 登記時間：${data.timestamp}
 
-🏦 匯款資訊：
-銀行：土地銀行 內壢分行
-帳號：145-001-007228
-戶名：桃園市威振關懷慈善協會
-
-已完成線上登記，將盡快匯款並聯繫廟方確認
-感謝威振宮提供此便民服務 🙏`;
+已完成線上登記，請廟方確認🙏`;
     }
 
     // 生成完整訊息
@@ -690,7 +673,7 @@ ${data.remarks ? '📝 備註說明：' + data.remarks : ''}
 
     // 提交到後端
     async function submitToBackend(additionalData = {}) {
-      const gasUrl = 'https://script.google.com/macros/s/AKfycbyt_XlhGUqOHU8PLIQJox_QRpLKZA6XYUc9ZG-JAPFQrTgbn3OdDZ0dLfsSyMu2VvNl/exec';
+      const gasUrl = 'https://script.google.com/macros/s/AKfycbwobxnDcG10vEaY-qELLpfWIlLstJxwMcUkhrkBhmFmzmh2CYwFdgh2KSeNXMAFKqap/exec';
       
       const submitData = {
         ...currentFormData,
