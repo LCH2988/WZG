@@ -930,7 +930,7 @@
 <script>
   // ====== 全域變數 ====== 
   const CONFIG = {
-    API_BASE_URL: "https://script.google.com/macros/s/AKfycbyud5q1ReMYA_7yG7jffy8GUDHYK_K-lWkntN7nSgQxI0SLvDVbfTMng_JRt5xUlxsA/exec",
+    API_BASE_URL: "https://script.google.com/macros/s/AKfycbxW9E3mhbqx8V_wmytnwU21ClZ6H2V0zxGF_RUnQk9cZvTiH245tDbFx3IOCpSTBIoc/exec",
     LIFF_ID: "2007905012-o1yDNa92", 
     VERSION: "2.0.0"
   };
@@ -1013,34 +1013,208 @@
     }
   }
 
-  // ====== API 函數 ======
-  async function apiRequest(method, data) {
-    const url = CONFIG.API_BASE_URL;
-    const options = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    };
-
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('API 請求失敗:', error);
-      throw new Error('網路連線失敗，請檢查網路狀態');
-    }
+  // ====== 修正後的 API 函數 ======
+async function apiRequest(method, params = {}) {
+const url = CONFIG.API_BASE_URL;
+let requestUrl = url;
+let options = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
   }
+};
 
-  async function apiGet(params) {
-    return await apiRequest('GET', params);
-  }
+if (method === 'GET') {
+  // GET 請求：將參數加到 URL
+  const urlParams = new URLSearchParams(params);
+  requestUrl = `${url}?${urlParams.toString()}`;
+} else if (method === 'POST') {
+  // POST 請求：將參數放在 body
+  options.method = 'POST';
+  options.body = JSON.stringify(params);
+}
 
-  async function apiPost(action, data) {
-    return await apiRequest('POST', { action, ...data });
+try {
+  const response = await fetch(requestUrl, options);
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
+  
+  const result = await response.json();
+  return result;
+} catch (error) {
+  console.error('API 請求失敗:', error);
+  
+  // 如果是 CORS 錯誤，提供更明確的錯誤訊息
+  if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+    throw new Error('網路連線失敗，請確認 Google Apps Script 已正確部署並設定權限');
+  }
+  
+  throw new Error('網路連線失敗，請檢查網路狀態');
+}
+}
+
+async function apiGet(params) {
+return await apiRequest('GET', params);
+}
+
+async function apiPost(action, data) {
+return await apiRequest('POST', { action, ...data });
+}
+
+// ====== 修正後的活動載入函數 ======
+async function fetchAllEvents(activeOnly = true) {
+return await apiGet({ 
+  action: 'getAllEvents',
+  activeOnly: activeOnly.toString()
+});
+}
+
+async function fetchEventStats(eventId) {
+return await apiGet({
+  action: 'getEventStats',
+  eventId: eventId
+});
+}
+
+async function fetchSystemStats() {
+return await apiGet({
+  action: 'getSystemStats'
+});
+}
+
+// ====== 修正後的報名功能 ======
+async function handleRegisterSubmit(e) {
+e.preventDefault();
+
+const form = e.target;
+const submitBtn = form.querySelector('button[type="submit"]');
+const msgDiv = document.getElementById('registerMsg');
+
+setButtonLoading(submitBtn, true);
+msgDiv.innerHTML = '';
+
+try {
+  const formData = new FormData(form);
+  const registrationData = {
+    eventId: formData.get('eventId'),
+    name: formData.get('name').trim(),
+    phone: formData.get('phone').trim(),
+    note: formData.get('note').trim(),
+    userId: gProfile.userId || 'anonymous',
+    source: 'web'
+  };
+  
+  if (!registrationData.name) {
+    throw new Error('請輸入姓名');
+  }
+  
+  const result = await apiPost('singleRegister', registrationData);
+  
+  if (result.success) {
+    showMessage(msgDiv, 
+      `✅ 報名成功！\n狀態：${result.status}`, 
+      'success'
+    );
+    
+    setTimeout(() => {
+      closeModal();
+      refreshEvents();
+      showNotification('報名成功', 'success');
+    }, 2000);
+  } else {
+    showMessage(msgDiv, result.message, 'error');
+  }
+} catch (error) {
+  showMessage(msgDiv, '報名失敗：' + error.message, 'error');
+} finally {
+  setButtonLoading(submitBtn, false);
+}
+}
+
+// ====== 修正後的統計載入 ======
+async function loadRegistrationStats() {
+const container = document.getElementById('statsContainer');
+showLoading(container, '載入統計資料...');
+
+try {
+  const result = await fetchSystemStats();
+  
+  if (!result.success) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p>❌ 載入失敗</p>
+        <p>${htmlEscape(result.message)}</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const stats = result.stats;
+  
+  container.innerHTML = `
+    <div class="stats-overview">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">${stats.totalEvents || 0}</div>
+          <div class="stat-label">總活動數</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-number">${stats.activeEvents || 0}</div>
+          <div class="stat-label">啟用活動</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-number">${stats.totalRegistrations || 0}</div>
+          <div class="stat-label">總報名數</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-number">${stats.waitingList || 0}</div>
+          <div class="stat-label">候補人數</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="category-stats">
+      <h3>📊 分類統計</h3>
+      <div class="category-grid">
+        ${Object.entries(stats.categoryStats || {}).map(([category, data]) => `
+          <div class="category-stat-card">
+            <h4 class="badge ${category}">${category}</h4>
+            <div class="category-numbers">
+              <div class="number-item">
+                <span class="number">${data.events}</span>
+                <span class="label">活動</span>
+              </div>
+              <div class="number-item">
+                <span class="number">${data.registrations}</span>
+                <span class="label">報名</span>
+              </div>
+              <div class="number-item">
+                <span class="number">${data.capacity}</span>
+                <span class="label">總名額</span>
+              </div>
+            </div>
+            <div class="usage-bar">
+              <div class="usage-fill" style="width: ${Math.min(100, (data.registrations/Math.max(data.capacity, 1)*100))}%"></div>
+            </div>
+            <div class="usage-text">${Math.round(data.registrations/Math.max(data.capacity, 1)*100)}% 使用率</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+} catch (error) {
+  container.innerHTML = `
+    <div class="empty-state">
+      <p>❌ 載入失敗</p>
+      <p>${htmlEscape(error.message)}</p>
+      <button onclick="loadRegistrationStats()" style="margin-top: 16px;">重試</button>
+    </div>
+  `;
+}
+}
 
   // ====== LIFF 初始化 ======
   async function initLiffIfEnabled() {
@@ -1329,13 +1503,6 @@
     }
   }
 
-  async function fetchAllEvents(activeOnly = true) {
-    return await apiGet({ 
-      action: 'getAllEvents',
-      activeOnly: activeOnly
-    });
-  }
-
   function renderEventList() {
     const container = document.getElementById('eventsContainer');
     
@@ -1496,54 +1663,7 @@
     document.getElementById('registerForm').addEventListener('submit', handleRegisterSubmit);
   }
 
-  async function handleRegisterSubmit(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const msgDiv = document.getElementById('registerMsg');
-    
-    setButtonLoading(submitBtn, true);
-    msgDiv.innerHTML = '';
-    
-    try {
-      const formData = new FormData(form);
-      const registrationData = {
-        eventId: formData.get('eventId'),
-        name: formData.get('name').trim(),
-        phone: formData.get('phone').trim(),
-        note: formData.get('note').trim(),
-        userId: gProfile.userId
-      };
-      
-      if (!registrationData.name) {
-        throw new Error('請輸入姓名');
-      }
-      
-      const result = await apiPost('register', registrationData);
-      
-      if (result.success) {
-        const isWaiting = result.isWaiting;
-        showMessage(msgDiv, 
-          `✅ ${isWaiting ? '已加入候補名單' : '報名成功'}！\n報名序號：${result.registrationId}`, 
-          'success'
-        );
-        
-        setTimeout(() => {
-          closeModal();
-          refreshEvents();
-          showNotification(isWaiting ? '已加入候補名單' : '報名成功', 'success');
-        }, 2000);
-      } else {
-        showMessage(msgDiv, result.message, 'error');
-      }
-    } catch (error) {
-      showMessage(msgDiv, '報名失敗：' + error.message, 'error');
-    } finally {
-      setButtonLoading(submitBtn, false);
-    }
-  }
-
+  
   async function showEventStats(eventId) {
     const event = allEvents.find(e => e.eventId === eventId);
     if (!event) return;
@@ -2270,87 +2390,7 @@
     }
   }
 
-  async function loadRegistrationStats() {
-    const container = document.getElementById('statsContainer');
-    showLoading(container, '載入統計資料...');
-    
-    try {
-      const result = await apiGet({ action: 'getSystemStats' });
-      
-      if (!result.success) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <p>❌ 載入失敗</p>
-            <p>${htmlEscape(result.message)}</p>
-          </div>
-        `;
-        return;
-      }
-      
-      const stats = result.stats;
-      
-      container.innerHTML = `
-        <div class="stats-overview">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-number">${stats.totalEvents || 0}</div>
-              <div class="stat-label">總活動數</div>
-            </div>
-            <div class="stat-card success">
-              <div class="stat-number">${stats.activeEvents || 0}</div>
-              <div class="stat-label">啟用活動</div>
-            </div>
-            <div class="stat-card info">
-              <div class="stat-number">${stats.totalRegistrations || 0}</div>
-              <div class="stat-label">總報名數</div>
-            </div>
-            <div class="stat-card warning">
-              <div class="stat-number">${stats.waitingList || 0}</div>
-              <div class="stat-label">候補人數</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="category-stats">
-          <h3>📊 分類統計</h3>
-          <div class="category-grid">
-            ${Object.entries(stats.categoryStats || {}).map(([category, data]) => `
-              <div class="category-stat-card">
-                <h4 class="badge ${category}">${category}</h4>
-                <div class="category-numbers">
-                  <div class="number-item">
-                    <span class="number">${data.events}</span>
-                    <span class="label">活動</span>
-                  </div>
-                  <div class="number-item">
-                    <span class="number">${data.registrations}</span>
-                    <span class="label">報名</span>
-                  </div>
-                  <div class="number-item">
-                    <span class="number">${data.capacity}</span>
-                    <span class="label">總名額</span>
-                  </div>
-                </div>
-                <div class="usage-bar">
-                  <div class="usage-fill" style="width: ${(data.registrations/data.capacity*100)}%"></div>
-                </div>
-                <div class="usage-text">${Math.round(data.registrations/data.capacity*100)}% 使用率</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-      
-    } catch (error) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <p>❌ 載入失敗</p>
-          <p>${htmlEscape(error.message)}</p>
-        </div>
-      `;
-    }
-  }
-
+  
   async function initializeSystem() {
     if (!confirm('確定要初始化系統嗎？')) return;
     
