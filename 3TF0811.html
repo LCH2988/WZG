@@ -1,1451 +1,306 @@
+<!-- 
+=========================
+前端 LIFF 頁面（HTML）
+========================= -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>三鐵活動報名系統</title>
-<meta name="description" content="三鐵活動多分類報名系統 - 登山組、單車組、慢跑組、水上組">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏃‍♂️</text></svg>">
-<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<style>
-  :root {
-    --primary-color:#1565c0;--secondary-color:#42a5f5;--success-color:#4caf50;--warning-color:#ff9800;--error-color:#f44336;--info-color:#2196f3;
-    --text-color:#333;--bg-color:#f5f7fa;--card-shadow:0 2px 8px rgba(0,0,0,.1);--border-radius:8px;--transition:.3s ease;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Noto Sans TC',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg-color);color:var(--text-color);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
-  header{background:#fff;box-shadow:var(--card-shadow);position:sticky;top:0;z-index:100}
-  .header-content{max-width:1200px;margin:0 auto;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-  header h1{font-size:24px;font-weight:600;color:var(--primary-color)}
-  .liff-status{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:2px solid}
-  .liff-status.connecting{background:#fff3e0;color:#ef6c00;border-color:#ff9800}
-  .liff-status.connected{background:#e8f5e8;color:#2e7d32;border-color:#4caf50}
-  .liff-status.disconnected,.liff-status.error{background:#ffebee;color:#c62828;border-color:#f44336}
-  .user-info{display:flex;align-items:center;gap:12px;padding:8px 16px;background:#f8f9fa;border-radius:var(--border-radius);border:2px solid #e0e0e0}
-  .user-info.logged-in{background:#e8f5e8;border-color:#4caf50}
-  .user-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.1)}
-  .user-details{display:flex;flex-direction:column;gap:2px}
-  .user-name{font-weight:600;font-size:14px}
-  .user-id{font-size:11px;color:#666;font-family:monospace}
-  .login-btn{padding:6px 12px;font-size:12px;min-width:80px;background:#06c755;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:500}
-  .login-btn:hover{background:#05b04a}
-  .logout-btn{background:#666;font-size:11px;padding:4px 8px;min-width:60px;color:#fff;border:none;border-radius:4px;cursor:pointer}
-  nav{background:var(--primary-color);padding:0 20px}
-  nav a{display:inline-block;padding:12px 20px;color:#fff;text-decoration:none;transition:var(--transition);border-radius:4px 4px 0 0;margin-right:4px}
-  nav a:hover,nav a.nav-active{background:rgba(255,255,255,.2)}
-  .container{max-width:1200px;margin:0 auto;padding:20px;flex:1}
-  footer{background:#333;color:#fff;text-align:center;padding:20px;margin-top:auto}
-  .btn,button{background:var(--primary-color);color:#fff;border:none;padding:12px 24px;border-radius:var(--border-radius);cursor:pointer;font-size:14px;font-weight:500;transition:var(--transition);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:100px}
-  .btn:hover,button:hover{background:#0d47a1;transform:translateY(-1px)}
-  .btn.secondary,button.secondary{background:#6c757d}
-  .btn.success,button.success{background:var(--success-color)}
-  .btn.warning,button.warning{background:var(--warning-color)}
-  .btn.danger,button.danger{background:var(--error-color)}
-  .btn:disabled,button:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .btn.loading,button.loading{position:relative;color:transparent}
-  .btn.loading::after,button.loading::after{content:"";position:absolute;width:16px;height:16px;border:2px solid #fff;border-top:2px solid transparent;border-radius:50%;animation:spin 1s linear infinite}
-  @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-  .form-group{margin-bottom:20px}
-  .form-row{display:grid;gap:16px;grid-template-columns:1fr 1fr}
-  label{display:block;margin-bottom:6px;font-weight:500}
-  input,select,textarea{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:var(--border-radius);font-size:14px;font-family:inherit;transition:var(--transition)}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(21,101,192,.1)}
-  input.auto-filled{background:linear-gradient(135deg,#e8f5e8,#f1f8e9);border-color:var(--success-color);font-weight:500}
-  .auto-fill-indicator{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:var(--success-color);font-weight:500}
-  small{display:block;margin-top:4px;font-size:12px;color:#666}
-  .form-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
-  .card{background:#fff;border-radius:var(--border-radius);box-shadow:var(--card-shadow);padding:20px;transition:var(--transition);border:1px solid #e0e0e0}
-  .card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.15)}
-  .grid{display:grid;gap:20px}
-  .cols-3{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-  .badge{display:inline-block;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:500;text-align:center}
-  .badge.登山組{background:#e8f5e8;color:#2e7d32}
-  .badge.單車組{background:#e3f2fd;color:#1565c0}
-  .badge.慢跑組{background:#fff3e0;color:#ef6c00}
-  .badge.水上組{background:#e0f2f1;color:#00695c}
-  .status-indicator{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-  .status-indicator.active{background:var(--success-color)}
-  .status-indicator.inactive{background:var(--error-color)}
-  .filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-  .chip{padding:8px 16px;background:#fff;border:2px solid #e0e0e0;border-radius:20px;cursor:pointer;transition:var(--transition);font-size:14px;font-weight:500;white-space:nowrap}
-  .chip:hover,.chip.active{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-  .msg{padding:12px 16px;border-radius:var(--border-radius);margin:16px 0;border-left:4px solid}
-  .msg.success{background:#e8f5e8;color:#2e7d32;border-color:var(--success-color)}
-  .msg.error{background:#ffebee;color:#c62828;border-color:var(--error-color)}
-  .msg.warning{background:#fff3e0;color:#ef6c00;border-color:var(--warning-color)}
-  .msg.info{background:#e3f2fd;color:#1565c0;border-color:var(--info-color)}
-  .notification{position:fixed;top:20px;right:20px;padding:16px 20px;border-radius:var(--border-radius);box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1000;transform:translateX(400px);transition:.4s ease;max-width:350px;display:flex;align-items:center;gap:12px}
-  .notification.show{transform:translateX(0)}
-  .notification.success{background:var(--success-color);color:#fff}
-  .notification.error{background:var(--error-color);color:#fff}
-  .notification.warning{background:var(--warning-color);color:#fff}
-  .notification.info{background:var(--info-color);color:#fff}
-  .modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
-  .modal-backdrop.show{display:flex}
-  .modal{background:#fff;border-radius:var(--border-radius);max-width:600px;width:100%;max-height:90vh;overflow-y:auto;position:relative;animation:modalSlideIn .3s ease}
-  @keyframes modalSlideIn{from{opacity:0;transform:scale(.9) translateY(-20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-  .modal h2{background:var(--primary-color);color:#fff;padding:20px;margin:0;border-radius:var(--border-radius) var(--border-radius) 0 0}
-  .modal-content{padding:20px}
-  .close-btn{position:absolute;top:15px;right:20px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0;min-width:auto;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-  .close-btn:hover{background:rgba(255,255,255,.2)}
-  .loading-container{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:#666}
-  .spinner{width:40px;height:40px;border:4px solid #e0e0e0;border-top:4px solid var(--primary-color);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
-  .empty-state{text-align:center;padding:60px 20px;color:#666}
-  .empty-state .small{font-size:14px;color:#999}
-  .event-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-  .event-title h3{margin:0 0 8px;color:#333;font-size:18px;line-height:1.3}
-  .event-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .event-id{font-family:Courier New,monospace;font-size:12px;color:#666;background:#f0f0f0;padding:2px 6px;border-radius:4px}
-  .quota-info{margin:16px 0}
-  .quota-bar{background:#e0e0e0;height:8px;border-radius:4px;overflow:hidden;margin:8px 0}
-  .quota-fill{height:100%;background:linear-gradient(90deg,var(--success-color),var(--warning-color));transition:width .3s ease}
-  .quota-text{font-size:14px;color:#666;display:flex;justify-content:space-between}
-  .remain{font-weight:600}
-  .remain.ok{color:var(--success-color)}
-  .remain.low{color:var(--warning-color)}
-  .remain.full{color:var(--error-color)}
-  .event-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-  .event-actions button{flex:1;min-width:100px;font-size:13px;padding:10px 16px}
-  .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:16px}
-  .title-section h2{margin:0;font-size:24px}
-  .event-count{font-size:14px;color:#666;margin-top:4px}
-  .toolbar{display:flex;gap:12px;align-items:center}
-  .search-box{position:relative;min-width:250px}
-  .search-box input{width:100%;padding:10px 16px;border:2px solid #e0e0e0;border-radius:25px;font-size:14px}
-  .refresh-btn{white-space:nowrap;min-width:120px}
-  .batch-info{background:#f8f9fa;padding:16px;border-radius:var(--border-radius);margin-bottom:20px}
-  .info-grid{display:grid;gap:8px;margin-bottom:16px}
-  .batch-tips{border-top:1px solid #e0e0e0;padding-top:12px}
-  .batch-tips ul{margin:8px 0 0 20px;font-size:14px;color:#555}
-  .counter{font-size:12px;color:#666;float:right}
-  .batch-preview{background:#f8f9fa;padding:16px;border-radius:var(--border-radius);margin:16px 0}
-  .preview-list{max-height:200px;overflow-y:auto;display:grid;gap:4px}
-  .preview-item{padding:4px 8px;background:#fff;border-radius:4px;font-size:14px}
-  .stats-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:20px 0}
-  .stat-card{background:#f8f9fa;padding:20px;border-radius:var(--border-radius);text-align:center;border-left:4px solid var(--info-color)}
-  .stat-card.success{border-color:var(--success-color)}
-  .stat-card.warning{border-color:var(--warning-color)}
-  .stat-card.error{border-color:var(--error-color)}
-  .stat-number{font-size:32px;font-weight:700;margin-bottom:4px}
-  .stat-label{font-size:14px;color:#666}
-  .admin-menu{margin-bottom:40px}
-  .menu-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-  .menu-card{background:#fff;padding:24px;border-radius:var(--border-radius);box-shadow:var(--card-shadow);text-align:center;cursor:pointer;transition:var(--transition);border:2px solid transparent}
-  .menu-card:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.15);border-color:var(--primary-color)}
-  .menu-icon{font-size:48px;margin-bottom:16px}
-  .admin-section{background:#fff;border-radius:var(--border-radius);box-shadow:var(--card-shadow);margin-bottom:24px;overflow:hidden;display:none}
-  .section-header{background:#f8f9fa;padding:20px 24px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center}
-  .admin-form{padding:24px}
-  @media (max-width:768px){
-    .header-content{flex-direction:column;align-items:stretch}
-    .container{padding:16px}
-    .form-row{grid-template-columns:1fr}
-    .page-header{flex-direction:column;align-items:stretch}
-    .toolbar{flex-direction:column;gap:12px}
-    .search-box{min-width:auto}
-    .event-actions{flex-direction:column}
-    .event-actions button{flex:none}
-    nav a{display:block;margin:0;border-radius:0}
-    .stats-grid{grid-template-columns:repeat(2,1fr)}
-    .menu-grid{grid-template-columns:1fr}
-  }
-  @media (max-width:480px){
-    .header-content{padding:12px 16px}
-    header h1{font-size:20px}
-    .stats-grid{grid-template-columns:1fr}
-    .form-actions{flex-direction:column}
-    .notification{left:16px;right:16px;max-width:none;transform:translateY(-100px)}
-    .notification.show{transform:translateY(0)}
-  }
-  .fade-in{animation:fadeIn .5s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-</style>
+  <meta charset="UTF-8">
+  <title>三鐵飛翔好 - 活動報名</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: 'Microsoft JhengHei', Arial, sans-serif; background: linear-gradient(135deg,#0d47a1,#26a69a); margin:0; padding:20px; }
+    .container { max-width:880px; margin:0 auto; background:#fff; border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.25); overflow:hidden; }
+    h1 { text-align:center; background:#1565c0; color:#fff; padding:25px 15px; margin:0; font-size:1.8rem; letter-spacing:.05em; }
+    .status { padding:15px 20px; background:#e3f2fd; border-left:6px solid #1976d2; font-size:.95rem; }
+    form { padding:40px 45px 55px; }
+    label { font-weight:bold; display:block; margin:25px 0 10px; }
+    input, select, textarea {
+      width:100%; padding:16px 18px; font-size:1.05rem;
+      border:2px solid #cfd8dc; border-radius:12px; transition:.25s;
+      background:#fafafa;
+    }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:#1976d2; box-shadow:0 0 0 4px rgba(25,118,210,.15); background:#fff; }
+    .grid { display:grid; gap:22px; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); margin-top:10px; }
+    .group-card {
+      background:linear-gradient(135deg,#ffffff,#f5f5f5);
+      border:2px solid #ddd; border-radius:14px; padding:15px 18px; cursor:pointer;
+      transition:.3s; position:relative; min-height:115px; display:flex; flex-direction:column; justify-content:center;
+    }
+    .group-card.active { border-color:#1976d2; background:linear-gradient(135deg,#1976d2,#42a5f5); color:#fff; box-shadow:0 6px 18px rgba(25,118,210,.35); }
+    .group-card span { font-size:.85rem; opacity:.85; margin-top:6px; }
+    .people-box { display:flex; gap:10px; align-items:center; margin-top:10px; }
+    .people-box button {
+      width:48px; height:48px; border:none; background:#1976d2; color:#fff;
+      border-radius:12px; font-size:1.4rem; cursor:pointer; transition:.25s;
+    }
+    .people-box button:active { transform:scale(.92); }
+    .people-display {
+      flex:1; background:#eceff1; border-radius:12px; text-align:center;
+      font-size:1.4rem; padding:10px 0; font-weight:bold; letter-spacing:.05em;
+    }
+    .submit-btn {
+      margin-top:45px; width:100%; background:linear-gradient(90deg,#1976d2,#26a69a);
+      border:none; color:#fff; padding:22px 10px; font-size:1.4rem; border-radius:16px;
+      cursor:pointer; font-weight:bold; letter-spacing:.1em; box-shadow:0 8px 24px rgba(0,0,0,.25); transition:.35s;
+    }
+    .submit-btn:hover { transform:translateY(-4px); box-shadow:0 14px 32px rgba(0,0,0,.35); }
+    .submit-btn:active { transform:translateY(0); }
+    textarea { min-height:130px; resize:vertical; }
+    .footer-note { margin-top:40px; font-size:.82rem; color:#607d8b; text-align:center; line-height:1.5; }
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; }
+    .modal-content {
+      background:#fff; width:92%; max-width:520px; border-radius:20px; padding:40px 35px;
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      box-shadow:0 18px 44px rgba(0,0,0,.35);
+    }
+    .modal-content h2 { margin:0 0 20px; font-size:1.5rem; text-align:center; }
+    .preview-box {
+      background:#f5f5f5; padding:18px 20px; border-radius:14px; font-size:.95rem; white-space:pre-wrap; line-height:1.55;
+      max-height:320px; overflow:auto; border:1px solid #e0e0e0;
+    }
+    .modal-actions { margin-top:25px; display:flex; gap:15px; }
+    .modal-actions button {
+      flex:1; padding:15px 10px; font-size:1.05rem; border:none; border-radius:12px; cursor:pointer; font-weight:bold;
+    }
+    .btn-cancel { background:#b0bec5; color:#fff; }
+    .btn-confirm { background:#1976d2; color:#fff; }
+    .success-icon { font-size:3rem; text-align:center; margin-bottom:15px; }
+    @media (max-width:720px) {
+      form { padding:32px 28px 45px; }
+      h1 { font-size:1.5rem; padding:20px 10px; }
+      .group-card { min-height:105px; }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="header-content">
-      <h1 id="pageTitle">🏃‍♂️ 三鐵活動報名</h1>
-      <div id="liffStatus" class="liff-status disconnected">
-        <span id="liffStatusIcon">❌</span><span id="liffStatusText">LIFF 未連接</span>
-      </div>
-      <div id="userInfo" class="user-info" style="display:none;">
-        <img id="userAvatar" class="user-avatar" src="" alt="使用者頭像" style="display:none;">
-        <div class="user-details">
-          <div id="userName" class="user-name">未登入</div>
-          <div id="userId" class="user-id"></div>
-        </div>
-        <button id="authBtn" class="login-btn" onclick="handleAuth()">LINE 登入</button>
-      </div>
-    </div>
-    <nav id="mainNav">
-      <a href="#" onclick="showPage('home')" class="nav-active">🏠 活動列表</a>
-      <a href="#" onclick="showPage('batch')">📝 批次報名</a>
-      <a href="#" onclick="showPage('admin')">⚙️ 管理後台</a>
-    </nav>
-  </header>
   <div class="container">
-    <div id="mainContent"></div>
+    <h1>三鐵飛翔好 活動報名</h1>
+    <div id="status" class="status">正在初始化 LIFF...</div>
+    <form id="regForm" autocomplete="off">
+      <label>姓名 *</label>
+      <input type="text" id="name" required placeholder="請輸入您的姓名">
+
+      <label>手機（聯絡用） *</label>
+      <input type="tel" id="phone" pattern="09\\d{8}" required placeholder="例：09xxxxxxxx">
+
+      <label>選擇活動組別 *</label>
+      <div class="grid" id="groupGrid">
+        <!-- 組別卡片（JS動態建立） -->
+      </div>
+      <input type="hidden" id="group" required>
+
+      <label>報名人數 *</label>
+      <div class="people-box">
+        <button type="button" onclick="adjPeople(-1)">-</button>
+          <div class="people-display" id="peopleDisplay">1</div>
+        <button type="button" onclick="adjPeople(1)">+</button>
+      </div>
+      <input type="hidden" id="people" value="1">
+
+      <label>備註（選填）</label>
+      <textarea id="remarks" placeholder="可填寫隊名 / 特殊需求 / 衣服尺寸等"></textarea>
+
+      <button type="button" class="submit-btn" onclick="openPreview()">送出報名</button>
+      <div class="footer-note">
+        資料送出後系統將同步通知管理員。<br>
+        若需修改請使用指令：改名 / 改人數 或 聯繫主辦。<br>
+        主辦單位：三鐵飛翔好
+      </div>
+    </form>
   </div>
-  <div id="modalBackdrop" class="modal-backdrop"><div class="modal" id="modalContent"></div></div>
-  <footer><p>© 2025 三鐵活動報名系統 v2.0 - LIFF 整合版 (JSONP 模式)</p></footer>
 
-<script>
-// ===================== 基本設定 =====================
-const CONFIG = {
-  // 若使用 JSONP：填入 GAS /exec URL
-  // 若使用 Proxy：填入 Proxy URL (Cloudflare Worker 等) 並把 API_MODE 改 'proxy'
-  API_BASE_URL: "https://script.google.com/macros/s/AKfycbx-wE-tLGX-Csx1S-K5Rot6IHDhFYz-j0pGw9_JEGuNkO0hzUOdB86T3PP1mkxOXxpv/exec",
-  API_MODE: "jsonp", // jsonp | proxy
-  PROXY_BASE_URL: "", // 當 API_MODE = 'proxy' 時使用
-  LIFF_ID: "2007905012-o1yDNa92",
-  VERSION: "2.1.0-jsonp"
-};
-
-let gProfile = { isLoggedIn:false,userId:null,displayName:null,pictureUrl:null,statusMessage:null };
-let gSystemInfo = { categories:["登山組","單車組","慢跑組","水上組"], lastRefresh:0 };
-let currentPage = 'home';
-let allEvents = [];
-let filteredEvents = [];
-let liffInitialized = false;
-
-// ===================== LIFF =====================
-async function initializeLiff() {
-  updateLiffStatus('connecting','連接中...');
-  try {
-    if (typeof liff === 'undefined') throw new Error('LIFF SDK 未載入');
-    if (!CONFIG.LIFF_ID) throw new Error('LIFF_ID 未設定');
-    await liff.init({ liffId: CONFIG.LIFF_ID, withLoginOnExternalBrowser:true });
-    liffInitialized = true;
-    if (liff.isLoggedIn()) {
-      await loadUserProfile();
-      updateLiffStatus('connected','已連接並登入');
-    } else {
-      updateLiffStatus('connected','已連接但未登入');
-      showUserInfo(false);
-    }
-  } catch(err){
-    console.error(err);
-    liffInitialized=false;
-    updateLiffStatus('error','初始化失敗: '+err.message);
-    showUserInfo(false);
-  }
-}
-
-async function loadUserProfile(){
-  try{
-    const profile = await liff.getProfile();
-    gProfile = {
-      isLoggedIn:true,
-      userId:profile.userId,
-      displayName:profile.displayName,
-      pictureUrl:profile.pictureUrl,
-      statusMessage:profile.statusMessage||null
-    };
-    showUserInfo(true);
-  }catch(err){
-    showNotification('取得使用者資料失敗: '+err.message,'error');
-    throw err;
-  }
-}
-
-function updateLiffStatus(status,msg){
-  const e=document.getElementById('liffStatus');
-  const i=document.getElementById('liffStatusIcon');
-  const t=document.getElementById('liffStatusText');
-  if(!e||!i||!t)return;
-  switch(status){
-    case 'connecting': i.textContent='🔄'; e.className='liff-status connecting'; break;
-    case 'connected': i.textContent='✅'; e.className='liff-status connected'; break;
-    case 'disconnected': i.textContent='❌'; e.className='liff-status disconnected'; break;
-    case 'error': i.textContent='⚠️'; e.className='liff-status error'; break;
-  }
-  t.textContent=msg;
-}
-
-function showUserInfo(isLoggedIn){
-  const u=document.getElementById('userInfo'), a=document.getElementById('userAvatar'),
-        n=document.getElementById('userName'), id=document.getElementById('userId'),
-        btn=document.getElementById('authBtn');
-  if(!u)return;
-  u.style.display='flex';
-  if(isLoggedIn&&gProfile.isLoggedIn){
-    u.className='user-info logged-in';
-    if(gProfile.pictureUrl){ a.src=gProfile.pictureUrl; a.style.display='block'; } else a.style.display='none';
-    n.textContent=gProfile.displayName||'未知使用者';
-    id.textContent = gProfile.userId ? 'ID: '+gProfile.userId.substring(0,8)+'...' : '';
-    btn.textContent='登出'; btn.className='logout-btn';
-  } else {
-    u.className='user-info';
-    a.style.display='none';
-    n.textContent='未登入';
-    id.textContent='';
-    btn.textContent='LINE 登入'; btn.className='login-btn';
-  }
-}
-
-async function handleAuth(){
-  if(!liffInitialized){ showNotification('LIFF 尚未初始化，重新嘗試','warning'); await initializeLiff(); return;}
-  try{
-    if(gProfile.isLoggedIn){
-      liff.logout();
-      gProfile={isLoggedIn:false,userId:null,displayName:null,pictureUrl:null,statusMessage:null};
-      showUserInfo(false);
-      updateLiffStatus('connected','已連接但未登入');
-      showNotification('已登出','info');
-    }else{
-      if(liff.isInClient()) liff.login(); else liff.login({ redirectUri:window.location.href });
-    }
-  }catch(err){
-    showNotification('操作失敗: '+err.message,'error');
-  }
-}
-
-function autoFillUserName(input){
-  if(!gProfile.isLoggedIn||!gProfile.displayName) return false;
-  input.value=gProfile.displayName;
-  input.classList.add('auto-filled');
-  let ind=input.parentNode.querySelector('.auto-fill-indicator');
-  if(!ind){ ind=document.createElement('div'); ind.className='auto-fill-indicator'; ind.textContent='✅ 已從 LINE 自動填入'; input.parentNode.appendChild(ind);}
-  ind.style.display='flex';
-  return true;
-}
-
-// ===================== 通用工具 =====================
-function htmlEscape(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function formatDateTime(str){ if(!str)return '-'; try{ const d=new Date(str); return d.toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{ return str; } }
-function truncateText(t,m){ if(!t||t.length<=m) return t; return t.substring(0,m)+'...';}
-function debounce(fn,wait){ let tm; return (...a)=>{clearTimeout(tm); tm=setTimeout(()=>fn(...a),wait);} }
-function saveToLocalStorage(k,v){ try{ localStorage.setItem('triathlon_'+k,JSON.stringify(v)); }catch(e){} }
-function loadFromLocalStorage(k,d=null){ try{ const it=localStorage.getItem('triathlon_'+k);return it?JSON.parse(it):d;}catch(e){ return d; } }
-
-function showNotification(msg,type='info',dur=3000){
-  const n=document.createElement('div');
-  n.className='notification '+type;
-  n.innerHTML=`<span>${htmlEscape(msg)}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;font-size:18px;cursor:pointer;padding:0;margin-left:auto;">✕</button>`;
-  document.body.appendChild(n);
-  setTimeout(()=>n.classList.add('show'),50);
-  setTimeout(()=>{ n.classList.remove('show'); setTimeout(()=>n.remove(),300); },dur);
-}
-function showMessage(container,msg,type='info'){ container.innerHTML=`<div class="msg ${type}">${htmlEscape(msg)}</div>`; }
-function showLoading(container,msg='載入中...'){ container.innerHTML=`<div class="loading-container"><div class="spinner"></div><span>${htmlEscape(msg)}</span></div>`; }
-function setButtonLoading(btn,flag){ if(!btn)return; if(flag){btn.classList.add('loading');btn.disabled=true;} else {btn.classList.remove('loading');btn.disabled=false;} }
-
-function openModal(content){
-  const b=document.getElementById('modalBackdrop'), m=document.getElementById('modalContent');
-  m.innerHTML=content; b.classList.add('show');
-  const c=m.querySelector('.close-btn'); if(c) c.onclick=closeModal;
-  b.onclick=e=>{ if(e.target===b) closeModal(); };
-  const nameInput=m.querySelector('input[name="name"], input[name="userName"]');
-  if(nameInput&&gProfile.isLoggedIn){ setTimeout(()=>autoFillUserName(nameInput),50); }
-}
-function closeModal(){ document.getElementById('modalBackdrop').classList.remove('show'); }
-
-// ===================== JSONP / Proxy API 核心 =====================
-// 警示：JSONP 會把所有請求轉成 GET，如批次資料過長請改用 Proxy。
-function buildQueryString(params){
-  const usp=new URLSearchParams();
-  Object.keys(params).forEach(k=>{
-    let v=params[k];
-    if(v===undefined || v===null) return;
-    if(typeof v === 'object') v = JSON.stringify(v);
-    usp.append(k,v);
-  });
-  return usp.toString();
-}
-
-function jsonpRequest(baseUrl, params, timeoutMs=15000){
-  return new Promise((resolve,reject)=>{
-    const cbName='jsonp_cb_'+Date.now()+'_'+Math.floor(Math.random()*100000);
-    params.callback = cbName;
-    const qs = buildQueryString(params);
-    const fullUrl = baseUrl + '?' + qs;
-
-    // URL 長度檢查
-    if(fullUrl.length > 1900){
-      reject(new Error('請求字串過長，請改用 Proxy 模式或縮短輸入內容(目前長度:'+fullUrl.length+')'));
-      return;
-    }
-
-    const script=document.createElement('script');
-    let timeoutId=setTimeout(()=>{
-      cleanup();
-      reject(new Error('JSONP 請求逾時'));
-    },timeoutMs);
-
-    function cleanup(){
-      if(window[cbName]) delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      if(timeoutId){ clearTimeout(timeoutId); timeoutId=null; }
-    }
-
-    window[cbName]=data=>{
-      cleanup();
-      resolve(data);
-    };
-    script.onerror=()=>{
-      cleanup();
-      reject(new Error('JSONP 載入失敗'));
-    };
-    script.src=fullUrl;
-    document.head.appendChild(script);
-  });
-}
-
-async function proxyFetch(action, params){
-  // 以 fetch Form-UrlEncoded 送出 (Proxy 必須補 CORS 標頭)
-  const url = CONFIG.PROXY_BASE_URL || CONFIG.API_BASE_URL;
-  const form = new URLSearchParams();
-  form.append('action', action);
-  Object.keys(params||{}).forEach(k=>{
-    let v = params[k];
-    if(typeof v === 'object') v = JSON.stringify(v);
-    form.append(k,v);
-  });
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body: form.toString()
-  });
-  if(!resp.ok) throw new Error('HTTP '+resp.status);
-  return await resp.json();
-}
-
-async function apiAction(action, params={}){
-  try{
-    if(CONFIG.API_MODE === 'jsonp'){
-      const data = await jsonpRequest(CONFIG.API_BASE_URL, { action, ...params });
-      if(!data || data.success === false){
-        throw new Error(data && data.message ? data.message : 'API 回傳失敗');
-      }
-      return data;
-    } else {
-      const data = await proxyFetch(action, params);
-      if(!data || data.success === false){
-        throw new Error(data && data.message ? data.message : 'API 回傳失敗');
-      }
-      return data;
-    }
-  }catch(err){
-    console.error('API 錯誤:', action, err);
-    throw err;
-  }
-}
-
-// 舊呼叫別名
-const fetchAllEvents = (activeOnly=true)=> apiAction('getAllEvents',{ activeOnly: activeOnly.toString() });
-const fetchEventStats = (eventId)=> apiAction('getEventStats',{ eventId });
-const fetchSystemStats = ()=> apiAction('getSystemStats',{});
-
-// ===================== 頁面路由 =====================
-function showPage(page){
-  currentPage = page;
-  document.querySelectorAll('#mainNav a').forEach(a=>a.classList.remove('nav-active'));
-  const map={home:0,batch:1,admin:2};
-  if(map[page]!==undefined) document.querySelectorAll('#mainNav a')[map[page]].classList.add('nav-active');
-  switch(page){
-    case 'home': loadHomePage(); break;
-    case 'batch': loadBatchPage(); break;
-    case 'admin': loadAdminPage(); break;
-    default: loadHomePage();
-  }
-}
-
-// ===================== 活動列表頁 =====================
-function updateHomeStatus(){
-  const ls=document.getElementById('homeLiffStatus'),
-        lg=document.getElementById('homeLoginStatus'),
-        un=document.getElementById('homeUserName');
-  if(ls){ ls.textContent = liffInitialized? '✅ 已連接':'❌ 未連接'; ls.style.color = liffInitialized? '#2e7d32':'#c62828';}
-  if(lg){ lg.textContent = gProfile.isLoggedIn? '✅ 已登入':'❌ 未登入'; lg.style.color = gProfile.isLoggedIn? '#2e7d32':'#c62828';}
-  if(un){ un.textContent = gProfile.isLoggedIn? gProfile.displayName : '未登入'; }
-}
-
-async function loadHomePage(){
-  document.getElementById('pageTitle').textContent='🏃‍♂️ 三鐵活動報名';
-  const html = `
-    <div class="page-header">
-      <div class="title-section">
-        <h2>🏃‍♂️ 活動列表</h2>
-        <div class="event-count">載入中...</div>
-      </div>
-      <div class="toolbar">
-        <div class="search-box">
-          <input type="text" id="eventSearch" placeholder="🔍 搜尋活動..." onkeyup="searchEvents(this.value)">
-        </div>
-        <button onclick="refreshEvents()" class="refresh-btn">🔄 重新載入</button>
-      </div>
-    </div>
-    <div class="filter-section">
-      <div class="filter-bar" id="categoryFilter">
-        <div class="chip active" data-category="">全部活動</div>
-        <div class="chip" data-category="登山組">🏔️ 登山組</div>
-          <div class="chip" data-category="單車組">🚴‍♂️ 單車組</div>
-          <div class="chip" data-category="慢跑組">🏃‍♀️ 慢跑組</div>
-          <div class="chip" data-category="水上組">🏊‍♂️ 水上組</div>
-      </div>
-    </div>
-    <div id="eventsContainer">
-      <div class="loading-container">
-        <div class="spinner"></div><span>載入活動列表...</span>
-      </div>
-    </div>
-    <div class="card" style="margin-top:24px;">
-      <h3>📱 LINE 整合功能</h3>
-      <div style="margin-top:16px;">
-        <div class="msg info">
-          <strong>✨ 自動填入功能：</strong><br>登入 LINE 後，報名表單會自動填入您的姓名。
-        </div>
-        <div style="margin-top:16px;">
-          <h4>🎯 使用步驟：</h4>
-          <ol style="margin:8px 0 0 24px;line-height:1.8;">
-            <li>點擊右上角「LINE 登入」</li>
-            <li>完成授權</li>
-            <li>選擇活動</li>
-            <li>表單自動填入姓名</li>
-            <li>送出報名</li>
-          </ol>
-        </div>
-        <div style="margin-top:16px;">
-          <h4>🔧 目前狀態：</h4>
-          <div style="display:grid;gap:8px;margin-top:8px;">
-            <div>LIFF 連接：<span id="homeLiffStatus">檢查中...</span></div>
-            <div>登入狀態：<span id="homeLoginStatus">檢查中...</span></div>
-            <div>使用者名稱：<span id="homeUserName">未登入</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:20px;">
-      <h3>📱 快速報名指令</h3>
-      <div class="instruction-card">
-        <p><strong>LINE 快速報名格式：</strong></p>
-        <div style="display:grid;gap:8px;margin:12px 0;font-family:monospace;">
-          <div style="display:flex;justify-content:space-between;padding:8px;background:#f8f9fa;border-radius:4px;"><code>登山組+姓名</code><span style="color:#666;">單人報名</span></div>
-          <div style="display:flex;justify-content:space-between;padding:8px;background:#f8f9fa;border-radius:4px;"><code>登山組+姓名1+姓名2</code><span style="color:#666;">多人報名</span></div>
-          <div style="display:flex;justify-content:space-between;padding:8px;background:#f8f9fa;border-radius:4px;"><code>報+活動ID+姓名</code><span style="color:#666;">指定活動報名</span></div>
-        </div>
-        <div style="margin-top:12px;font-size:14px;color:#666;">💡 可直接點活動卡報名，支援批次報名。</div>
-      </div>
-    </div>
-  `;
-  document.getElementById('mainContent').innerHTML=html;
-  document.querySelectorAll('#categoryFilter .chip').forEach(ch=>{
-    ch.onclick=()=>filterByCategory(ch.dataset.category);
-  });
-  updateHomeStatus();
-  await refreshEvents();
-}
-
-async function refreshEvents(){
-  const container=document.getElementById('eventsContainer');
-  const countEl=document.querySelector('.event-count');
-  showLoading(container,'載入活動列表...');
-  try{
-    const result = await fetchAllEvents();
-    allEvents = result.events || [];
-    filteredEvents=[...allEvents];
-    renderEventList();
-    if(countEl) countEl.textContent='共 '+allEvents.length+' 個活動';
-    gSystemInfo.lastRefresh=Date.now();
-    saveToLocalStorage('lastRefresh',gSystemInfo.lastRefresh);
-  }catch(err){
-    container.innerHTML=`<div class="empty-state"><p>❌ 載入失敗</p><p class="small">${htmlEscape(err.message)}</p><button onclick="refreshEvents()" style="margin-top:16px;">重試</button></div>`;
-  }
-}
-
-function renderEventList(){
-  const c=document.getElementById('eventsContainer');
-  if(!filteredEvents.length){
-    c.innerHTML=`<div class="empty-state"><p>📅 沒有符合條件的活動</p><p class="small">請調整搜尋或篩選</p></div>`;
-    return;
-  }
-  c.innerHTML=`<div class="grid cols-3">${filteredEvents.map(e=>createEventCard(e)).join('')}</div>`;
-}
-
-function createEventCard(e){
-  const remainClass = e.remain>10?'ok': e.remain>0?'low':'full';
-  const usage = e.capacity>0? Math.round((e.used/e.capacity)*100):0;
-  return `
-    <div class="card event-card fade-in">
-      <div class="event-header">
-        <div class="event-title">
-          <h3>${htmlEscape(e.name)}</h3>
-          <div class="event-meta">
-            <span class="badge ${e.category}">${e.category}</span>
-            <span class="event-id">${e.eventId}</span>
-          </div>
-        </div>
-      </div>
-      ${e.date?`<div style="margin-bottom:12px;color:#666;font-size:14px;">📅 ${htmlEscape(e.date)}</div>`:''}
-      ${e.location?`<div style="margin-bottom:12px;color:#666;font-size:14px;">📍 ${htmlEscape(e.location)}</div>`:''}
-      <div class="quota-info">
-        <div class="quota-text"><span>👥 ${e.used}/${e.capacity}</span><span class="remain ${remainClass}">剩餘 ${e.remain}</span></div>
-        <div class="quota-bar"><div class="quota-fill" style="width:${usage}%"></div></div>
-      </div>
-      ${e.description?`<div style="margin-bottom:16px;font-size:14px;color:#555;line-height:1.5;">${htmlEscape(truncateText(e.description,100))}</div>`:''}
-      <div class="event-actions">
-        <button onclick="registerForEvent('${e.eventId}')" ${e.remain<=0?'class="warning"':''}>${e.remain>0?'📝 立即報名':'📋 候補報名'}</button>
-        <button onclick="showEventStats('${e.eventId}')" class="secondary">📊 統計</button>
-      </div>
-    </div>
-  `;
-}
-
-const searchEvents = debounce(q=>{
-  const term=q.toLowerCase().trim();
-  filteredEvents = term? allEvents.filter(e =>
-    (e.name&&e.name.toLowerCase().includes(term)) ||
-    e.eventId.toLowerCase().includes(term) ||
-    e.category.includes(term) ||
-    (e.description && e.description.toLowerCase().includes(term))
-  ) : [...allEvents];
-  renderEventList();
-  const countEl=document.querySelector('.event-count');
-  if(countEl) countEl.textContent=`顯示 ${filteredEvents.length} / ${allEvents.length} 個活動`;
-},300);
-
-function filterByCategory(cat){
-  document.querySelectorAll('#categoryFilter .chip').forEach(c=>c.classList.remove('active'));
-  const sel = document.querySelector(`#categoryFilter .chip[data-category="${cat||''}"]`);
-  if(sel) sel.classList.add('active');
-  filteredEvents = cat? allEvents.filter(e=>e.category===cat) : [...allEvents];
-  renderEventList();
-  const countEl=document.querySelector('.event-count');
-  if(countEl) countEl.textContent=`顯示 ${filteredEvents.length} / ${allEvents.length} 個活動`;
-}
-
-// ===================== 報名 =====================
-function registerForEvent(eventId){
-  const ev = allEvents.find(e=>e.eventId===eventId);
-  if(!ev){ showNotification('找不到指定活動','error'); return; }
-  openModal(`
-    <button class="close-btn">✕</button>
-    <h2>📝 活動報名 - ${htmlEscape(ev.name)}</h2>
+  <!-- 預覽 Modal -->
+  <div class="modal" id="previewModal">
     <div class="modal-content">
-      <div class="batch-info">
-        <div class="info-grid">
-          <div><strong>活動分類：</strong>${ev.category}</div>
-          <div><strong>活動ID：</strong>${ev.eventId}</div>
-          <div><strong>名額狀況：</strong>${ev.used}/${ev.capacity} (剩餘 ${ev.remain})</div>
-          ${ev.date?`<div><strong>活動日期：</strong>${ev.date}</div>`:''}
-          ${ev.location?`<div><strong>活動地點：</strong>${ev.location}</div>`:''}
-        </div>
-      </div>
-      ${gProfile.isLoggedIn?`
-        <div class="msg success">✅ 已登入 LINE，將自動填入姓名：${htmlEscape(gProfile.displayName)}</div>
-      `:`
-        <div class="msg info">
-          💡 建議先登入 LINE，自動填入姓名
-          <button onclick="handleAuth()" style="margin-left:12px;padding:4px 8px;font-size:12px;">立即登入</button>
-        </div>
-      `}
-      <form id="registerForm">
-        <input type="hidden" name="eventId" value="${ev.eventId}">
-        <div class="form-group">
-          <label>姓名 *</label>
-          <input type="text" name="name" required placeholder="請輸入姓名">
-          <small>登入後會自動帶入 LINE 名稱</small>
-        </div>
-        <div class="form-group">
-          <label>電話</label>
-          <input type="tel" name="phone" placeholder="聯絡電話">
-        </div>
-          <div class="form-group">
-            <label>備註</label>
-            <textarea name="note" rows="3" placeholder="其他備註"></textarea>
-          </div>
-          ${ev.remain<=0?'<div class="msg warning">⚠️ 名額已滿，將列入候補</div>':''}
-          <div class="form-actions">
-            <button type="submit">${ev.remain>0?'確認報名':'加入候補'}</button>
-            <button type="button" class="secondary" onclick="closeModal()">取消</button>
-          </div>
-      </form>
-      <div id="registerMsg"></div>
-    </div>
-  `);
-  document.getElementById('registerForm').addEventListener('submit',handleRegisterSubmit);
-}
-
-async function handleRegisterSubmit(e){
-  e.preventDefault();
-  const form=e.target;
-  const btn=form.querySelector('button[type="submit"]');
-  const msgDiv=document.getElementById('registerMsg');
-  setButtonLoading(btn,true);
-  msgDiv.innerHTML='';
-  try{
-    const fd=new FormData(form);
-    const payload={
-      eventId: fd.get('eventId'),
-      name: fd.get('name').trim(),
-      phone: fd.get('phone').trim(),
-      note: fd.get('note').trim(),
-      userId: gProfile.userId || 'anonymous',
-      source: 'web_liff'
-    };
-    if(!payload.name) throw new Error('請輸入姓名');
-    const result = await apiAction('registerEvent', payload);
-    showMessage(msgDiv, `✅ 報名成功！狀態：${result.status==='confirmed'?'正選':'候補'}`,'success');
-    setTimeout(()=>{ closeModal(); refreshEvents(); showNotification('報名成功','success'); },1500);
-  }catch(err){
-    showMessage(msgDiv,'報名失敗：'+err.message,'error');
-  }finally{
-    setButtonLoading(btn,false);
-  }
-}
-
-async function showEventStats(eventId){
-  try{
-    const result = await fetchEventStats(eventId);
-    if(!result.success){ showNotification('載入統計失敗','error'); return; }
-    const stats=result.stats;
-    const ev=allEvents.find(e=>e.eventId===eventId);
-    openModal(`
-      <button class="close-btn">✕</button>
-      <h2>📊 活動統計 - ${htmlEscape(ev?ev.name:eventId)}</h2>
-      <div class="modal-content">
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-number">${stats.total||0}</div><div class="stat-label">總報名</div></div>
-          <div class="stat-card success"><div class="stat-number">${stats.confirmed||0}</div><div class="stat-label">正選</div></div>
-          <div class="stat-card warning"><div class="stat-number">${stats.waiting||0}</div><div class="stat-label">候補</div></div>
-          <div class="stat-card error"><div class="stat-number">${stats.cancelled||0}</div><div class="stat-label">取消</div></div>
-        </div>
-        ${stats.registrations&&stats.registrations.length?`
-          <div style="margin-top:24px;">
-            <h4>📋 報名名單</h4>
-            <div style="max-height:300px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:4px;">
-              <table style="width:100%;border-collapse:collapse;">
-                <thead style="background:#f8f9fa;position:sticky;top:0;">
-                  <tr>
-                    <th style="padding:8px;border-bottom:1px solid #e0e0e0;text-align:left;">姓名</th>
-                    <th style="padding:8px;border-bottom:1px solid #e0e0e0;text-align:left;">狀態</th>
-                    <th style="padding:8px;border-bottom:1px solid #e0e0e0;text-align:left;">報名時間</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${stats.registrations.map(r=>`
-                    <tr>
-                      <td style="padding:8px;border-bottom:1px solid #f0f0f0;">${htmlEscape(r.name)}</td>
-                      <td style="padding:8px;border-bottom:1px solid #f0f0f0;"><span class="badge ${r.status==='confirmed'?'success':r.status==='waiting'?'warning':'error'}">${r.status==='confirmed'?'正選':r.status==='waiting'?'候補':'取消'}</span></td>
-                      <td style="padding:8px;border-bottom:1px solid #f0f0f0;font-size:12px;">${formatDateTime(r.registrationTime)}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `:''}
-        <div class="form-actions" style="margin-top:24px;">
-          <button onclick="closeModal()" class="secondary">關閉</button>
-        </div>
-      </div>
-    `);
-  }catch(err){
-    showNotification('載入統計失敗：'+err.message,'error');
-  }
-}
-
-// ===================== 批次報名 =====================
-async function loadBatchPage(){
-  document.getElementById('pageTitle').textContent='📝 批次報名';
-  const html=`
-    <div class="page-header">
-      <div class="title-section">
-        <h2>📝 批次報名</h2>
-        <div class="event-count">選擇活動</div>
+      <h2>確認報名資料</h2>
+      <div class="preview-box" id="previewBox"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('previewModal')">返回修改</button>
+        <button class="btn-confirm" id="confirmBtn" onclick="submitForm()">確認送出</button>
       </div>
     </div>
-    <div class="card">
-      <h3>ℹ️ 說明</h3>
-      <p>一次為多人報名同一活動。</p>
-      ${gProfile.isLoggedIn?`<div class="msg success" style="margin-top:16px;">✅ 已登入 (${htmlEscape(gProfile.displayName)})</div>`:
-        `<div class="msg info" style="margin-top:16px;">💡 建議登入 LINE
-          <button onclick="handleAuth()" style="margin-left:12px;padding:4px 8px;font-size:12px;">登入</button>
-        </div>`
-      }
-    </div>
-    <div class="card">
-      <h3>🎯 選擇活動</h3>
-      <div id="batchEventSelector">
-        <div class="loading-container"><div class="spinner"></div><span>載入活動列表...</span></div>
-      </div>
-    </div>
-    <div id="batchFormContainer" style="display:none;">
-      <div class="card">
-        <h3>👥 批次報名表單</h3>
-        <div id="selectedEventInfo"></div>
-        <form id="batchRegisterForm">
-          <input type="hidden" name="eventId" id="batchEventId">
-          <div class="form-group">
-            <label>報名人員清單 *</label>
-            <textarea name="nameList" id="batchNameList" rows="8" placeholder="每行一個姓名或用逗號分隔"></textarea>
-            <small>系統會自動去除重複與空白行（JSONP 模式請注意不要一次貼過長，建議 < 80 人）</small>
-            <div class="counter"><span id="nameCounter">0 人</span></div>
-          </div>
-          <div class="form-group">
-            <label>聯絡電話</label>
-            <input type="tel" name="contactPhone" placeholder="代表人聯絡電話">
-          </div>
-          <div class="form-group">
-            <label>備註</label>
-            <textarea name="batchNote" rows="3" placeholder="批次備註"></textarea>
-          </div>
-          <div id="batchPreview" class="batch-preview" style="display:none;">
-            <h4>📋 預覽</h4>
-            <div id="batchPreviewList" class="preview-list"></div>
-          </div>
-          <div class="form-actions">
-            <button type="submit" id="batchSubmitBtn">確認批次報名</button>
-            <button type="button" class="secondary" onclick="resetBatchForm()">重設</button>
-          </div>
-        </form>
-        <div id="batchMsg"></div>
-      </div>
-    </div>
-  `;
-  document.getElementById('mainContent').innerHTML=html;
-  await loadBatchEventSelector();
-  setupBatchForm();
-}
+  </div>
 
-async function loadBatchEventSelector(){
-  const c=document.getElementById('batchEventSelector');
-  try{
-    if(allEvents.length===0) await refreshEvents();
-    const available=allEvents.filter(e=>e.remain>0);
-    if(!available.length){
-      c.innerHTML=`<div class="empty-state"><p>📅 無可報名活動</p><p class="small">名額已滿或已截止</p></div>`;
-      return;
-    }
-    c.innerHTML=`
-      <div class="grid cols-3">
-        ${available.map(e=>`
-          <div class="card event-card" onclick="selectBatchEvent('${e.eventId}')" style="cursor:pointer;">
-            <div class="event-header">
-              <div class="event-title">
-                <h4>${htmlEscape(e.name)}</h4>
-                <div class="event-meta">
-                  <span class="badge ${e.category}">${e.category}</span>
-                  <span class="event-id">${e.eventId}</span>
-                </div>
-              </div>
-            </div>
-            <div class="quota-info">
-              <div class="quota-text"><span>👥 ${e.used}/${e.capacity}</span><span class="remain ok">剩餘 ${e.remain}</span></div>
-            </div>
-            <div style="margin-top:12px;text-align:center;">
-              <button type="button" style="width:100%;">選擇此活動</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }catch(err){
-    c.innerHTML=`<div class="empty-state"><p>❌ 載入失敗</p><p class="small">${htmlEscape(err.message)}</p><button onclick="loadBatchEventSelector()" style="margin-top:16px;">重試</button></div>`;
-  }
-}
-
-function selectBatchEvent(eventId){
-  const ev=allEvents.find(e=>e.eventId===eventId);
-  if(!ev)return;
-  document.getElementById('batchEventId').value=eventId;
-  document.getElementById('selectedEventInfo').innerHTML=`
-    <div class="batch-info">
-      <h4>已選擇活動：${htmlEscape(ev.name)}</h4>
-      <div class="info-grid">
-        <div><strong>分類：</strong>${ev.category}</div>
-        <div><strong>ID：</strong>${ev.eventId}</div>
-        <div><strong>剩餘：</strong>${ev.remain} 人</div>
-        ${ev.date?`<div><strong>日期：</strong>${ev.date}</div>`:''}
-      </div>
-    </div>
-  `;
-  document.getElementById('batchFormContainer').style.display='block';
-  document.getElementById('batchFormContainer').scrollIntoView({behavior:'smooth'});
-}
-
-function setupBatchForm(){
-  const textarea=document.getElementById('batchNameList');
-  const counter=document.getElementById('nameCounter');
-  const form=document.getElementById('batchRegisterForm');
-  if(textarea){
-    textarea.addEventListener('input',function(){
-      const names=parseNameList(this.value);
-      counter.textContent=names.length+' 人';
-      if(names.length){
-        showBatchPreview(names);
-      }else{
-        document.getElementById('batchPreview').style.display='none';
-      }
-    });
-  }
-  if(form) form.addEventListener('submit',handleBatchSubmit);
-}
-
-function parseNameList(text){
-  if(!text.trim()) return [];
-  let names = text.includes(',')? text.split(','): text.split('\n');
-  names = names.map(n=>n.trim()).filter(n=>n);
-  return [...new Set(names)];
-}
-
-function showBatchPreview(names){
-  const box=document.getElementById('batchPreview');
-  const list=document.getElementById('batchPreviewList');
-  list.innerHTML = names.map((n,i)=>`<div class="preview-item">${i+1}. ${htmlEscape(n)}</div>`).join('');
-  box.style.display='block';
-}
-
-async function handleBatchSubmit(e){
-  e.preventDefault();
-  const form=e.target;
-  const btn=document.getElementById('batchSubmitBtn');
-  const msgDiv=document.getElementById('batchMsg');
-  setButtonLoading(btn,true);
-  msgDiv.innerHTML='';
-  try{
-    const fd=new FormData(form);
-    const names=parseNameList(fd.get('nameList'));
-    if(!names.length) throw new Error('請輸入至少一個姓名');
-    if(CONFIG.API_MODE==='jsonp' && names.join(',').length>1500){
-      throw new Error('名單過長，JSONP URL 可能超限，請分批或改用 Proxy 模式');
-    }
-    const data={
-      eventId: fd.get('eventId'),
-      names: names,
-      contactPhone: fd.get('contactPhone').trim(),
-      note: fd.get('batchNote').trim(),
-      userId: gProfile.userId || 'anonymous',
-      source: 'web_liff_batch'
-    };
-    const result = await apiAction('batchRegister', data);
-    showMessage(msgDiv, `✅ 批次完成！成功：${result.successful||0} 人，候補：${result.waiting||0} 人`,'success');
-    setTimeout(()=>{
-      resetBatchForm();
-      showPage('home');
-      showNotification(`批次報名完成，共 ${names.length} 人`,'success');
-    },2500);
-  }catch(err){
-    showMessage(msgDiv,'批次報名失敗：'+err.message,'error');
-  }finally{
-    setButtonLoading(btn,false);
-  }
-}
-
-function resetBatchForm(){
-  const f=document.getElementById('batchRegisterForm');
-  if(f) f.reset();
-  document.getElementById('batchFormContainer').style.display='none';
-  document.getElementById('batchPreview').style.display='none';
-  document.getElementById('nameCounter').textContent='0 人';
-  document.getElementById('batchMsg').innerHTML='';
-}
-
-// ===================== 管理後台 =====================
-async function loadAdminPage(){
-  document.getElementById('pageTitle').textContent='⚙️ 管理後台';
-  const html=`
-    <div class="page-header">
-      <div class="title-section">
-        <h2>⚙️ 系統管理</h2>
-        <div class="event-count">管理員功能</div>
-      </div>
-    </div>
-    <div class="admin-menu">
-      <div class="menu-grid">
-        <div class="menu-card" onclick="showAdminSection('events')">
-          <div class="menu-icon">📅</div><h3>活動管理</h3><p>新增 / 編輯 / 停用</p>
-        </div>
-        <div class="menu-card" onclick="showAdminSection('registrations')">
-          <div class="menu-icon">👥</div><h3>報名管理</h3><p>檢視與狀態修改</p>
-        </div>
-        <div class="menu-card" onclick="showAdminSection('stats')">
-          <div class="menu-icon">📊</div><h3>統計報表</h3><p>系統統計</p>
-        </div>
-        <div class="menu-card" onclick="showAdminSection('settings')">
-          <div class="menu-icon">⚙️</div><h3>系統設定</h3><p>本地設定保存</p>
-        </div>
-      </div>
-    </div>
-    <div id="adminEvents" class="admin-section">
-      <div class="section-header">
-        <h3>📅 活動管理</h3>
-        <button onclick="showCreateEventForm()" class="btn">➕ 新增活動</button>
-      </div>
-      <div id="adminEventsContent" class="admin-form">
-        <div class="loading-container"><div class="spinner"></div><span>載入活動資料...</span></div>
-      </div>
-    </div>
-    <div id="adminRegistrations" class="admin-section">
-      <div class="section-header">
-        <h3>👥 報名管理</h3>
-        <div>
-          <select id="regEventFilter" onchange="filterRegistrations()">
-            <option value="">所有活動</option>
-          </select>
-          <button onclick="exportRegistrations()" class="btn secondary">📤 匯出資料</button>
-        </div>
-      </div>
-      <div id="adminRegistrationsContent" class="admin-form">
-        <div class="loading-container"><div class="spinner"></div><span>載入報名資料...</span></div>
-      </div>
-    </div>
-    <div id="adminStats" class="admin-section">
-      <div class="section-header">
-        <h3>📊 統計報表</h3>
-        <button onclick="refreshStats()" class="btn secondary">🔄 重新載入</button>
-      </div>
-      <div id="adminStatsContent" class="admin-form">
-        <div class="loading-container"><div class="spinner"></div><span>載入統計資料...</span></div>
-      </div>
-    </div>
-    <div id="adminSettings" class="admin-section">
-      <div class="section-header">
-        <h3>⚙️ 系統設定 (本地)</h3>
-        <button onclick="saveSettings()" class="btn">💾 儲存</button>
-      </div>
-      <div id="adminSettingsContent" class="admin-form">
-        <div class="form-group">
-          <label>系統名稱</label>
-          <input type="text" id="systemName" value="三鐵活動報名系統">
-        </div>
-        <div class="form-group">
-          <label>預設活動分類</label>
-          <input type="text" id="defaultCategories" value="登山組,單車組,慢跑組,水上組">
-          <small>以逗號分隔</small>
-        </div>
-        <div class="form-group">
-          <label>LIFF ID</label>
-          <input type="text" id="liffIdSetting" value="${CONFIG.LIFF_ID}">
-        </div>
-        <div class="form-group">
-          <label>API 模式</label>
-          <input type="text" value="${CONFIG.API_MODE}" disabled>
-          <small>切換請修改原始碼 CONFIG.API_MODE</small>
-        </div>
-        <div class="form-group">
-          <label>API 端點</label>
-          <input type="url" id="apiEndpoint" value="${CONFIG.API_BASE_URL}">
-          <small>JSONP = GAS URL；Proxy = Worker URL</small>
-        </div>
-      </div>
-    </div>
-  `;
-  document.getElementById('mainContent').innerHTML=html;
-}
-
-function showAdminSection(section){
-  document.querySelectorAll('.admin-section').forEach(el=>el.style.display='none');
-  const id = 'admin'+section.charAt(0).toUpperCase()+section.slice(1);
-  const target=document.getElementById(id);
-  if(!target) return;
-  target.style.display='block';
-  target.scrollIntoView({behavior:'smooth'});
-  switch(section){
-    case 'events': loadAdminEvents(); break;
-    case 'registrations': loadAdminRegistrations(); break;
-    case 'stats': loadAdminStats(); break;
-    case 'settings': break;
-  }
-}
-
-async function loadAdminEvents(){
-  const c=document.getElementById('adminEventsContent');
-  try{
-    const result = await fetchAllEvents(false);
-    const events = result.events || [];
-    c.innerHTML=`
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead style="background:#f8f9fa;">
-            <tr>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">ID</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">名稱</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">分類</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">名額</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">狀態</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${events.map(ev=>`
-              <tr>
-                <td style="padding:12px;border:1px solid #e0e0e0;font-family:monospace;">${ev.eventId}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">${htmlEscape(ev.name)}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;"><span class="badge ${ev.category}">${ev.category}</span></td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">${ev.used}/${ev.capacity}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;"><span class="status-indicator ${ev.active?'active':'inactive'}"></span>${ev.active?'進行中':'已結束'}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">
-                  <button onclick="editEvent('${ev.eventId}')" style="margin-right:6px;padding:4px 8px;font-size:12px;">編輯</button>
-                  <button onclick="toggleEventStatus('${ev.eventId}', ${!ev.active})" class="${ev.active?'warning':'success'}" style="padding:4px 8px;font-size:12px;">${ev.active?'停用':'啟用'}</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }catch(err){
-    c.innerHTML=`<div class="msg error">載入失敗：${htmlEscape(err.message)}</div>`;
-  }
-}
-
-async function loadAdminRegistrations(){
-  const c=document.getElementById('adminRegistrationsContent');
-  const eventFilter=document.getElementById('regEventFilter');
-  try{
-    const result = await apiAction('getAllRegistrations',{});
-    const regs = result.registrations || [];
-    if(eventFilter && allEvents.length){
-      eventFilter.innerHTML='<option value="">所有活動</option>' + allEvents.map(e=>`<option value="${e.eventId}">${htmlEscape(e.name)}</option>`).join('');
-    }
-    c.innerHTML=`
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead style="background:#f8f9fa;">
-            <tr>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">活動</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">姓名</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">電話</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">狀態</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">時間</th>
-              <th style="padding:12px;border:1px solid #e0e0e0;text-align:left;">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${regs.map(r=>`
-              <tr>
-                <td style="padding:12px;border:1px solid #e0e0e0;font-size:12px;">${htmlEscape(r.eventName||r.eventId)}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">${htmlEscape(r.name)}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">${htmlEscape(r.phone||'-')}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">
-                  <span class="badge ${r.status==='confirmed'?'success':r.status==='waiting'?'warning':'error'}">
-                    ${r.status==='confirmed'?'正選':r.status==='waiting'?'候補':'取消'}
-                  </span>
-                </td>
-                <td style="padding:12px;border:1px solid #e0e0e0;font-size:12px;">${formatDateTime(r.registrationTime)}</td>
-                <td style="padding:12px;border:1px solid #e0e0e0;">
-                  <button onclick="changeRegistrationStatus('${r.id}','confirmed')" style="margin-right:4px;padding:4px 8px;font-size:11px;" class="success">正選</button>
-                  <button onclick="changeRegistrationStatus('${r.id}','waiting')" style="margin-right:4px;padding:4px 8px;font-size:11px;" class="warning">候補</button>
-                  <button onclick="changeRegistrationStatus('${r.id}','cancelled')" style="padding:4px 8px;font-size:11px;" class="danger">取消</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }catch(err){
-    c.innerHTML=`<div class="msg error">載入失敗：${htmlEscape(err.message)}</div>`;
-  }
-}
-
-async function loadAdminStats(){
-  const c=document.getElementById('adminStatsContent');
-  try{
-    const result = await fetchSystemStats();
-    if(!result.success) throw new Error(result.message || '未知錯誤');
-    const stats=result.stats;
-    c.innerHTML=`
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-number">${stats.totalEvents||0}</div><div class="stat-label">總活動數</div></div>
-        <div class="stat-card success"><div class="stat-number">${stats.activeEvents||0}</div><div class="stat-label">進行中</div></div>
-        <div class="stat-card warning"><div class="stat-number">${stats.totalRegistrations||0}</div><div class="stat-label">總報名數</div></div>
-        <div class="stat-card error"><div class="stat-number">${stats.totalCapacity||0}</div><div class="stat-label">總名額</div></div>
-      </div>
-      ${stats.categoryStats?`
-        <div style="margin-top:24px;">
-          <h4>📊 分類統計</h4>
-          <div class="grid cols-3">
-            ${Object.entries(stats.categoryStats).map(([cat,d])=>`
-              <div class="card">
-                <h5>${cat}</h5>
-                <div style="display:grid;gap:8px;margin-top:12px;">
-                  <div>活動數：${d.events||0}</div>
-                  <div>報名數：${d.registrations||0}</div>
-                  <div>使用率：${d.utilization?Math.round(d.utilization*100):0}%</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `:''}
-    `;
-  }catch(err){
-    c.innerHTML=`<div class="msg error">載入失敗：${htmlEscape(err.message)}</div>`;
-  }
-}
-
-function refreshStats(){ loadAdminStats(); }
-
-function filterRegistrations(){
-  const filter=document.getElementById('regEventFilter').value;
-  const rows=document.querySelectorAll('#adminRegistrationsContent tbody tr');
-  rows.forEach(r=>{
-    if(!filter || r.cells[0].textContent.includes(filter)) r.style.display=''; else r.style.display='none';
-  });
-}
-
-async function exportRegistrations(){
-  try{
-    const result = await apiAction('exportRegistrations',{});
-    if(result.success && result.data){
-      const blob=new Blob([result.data],{type:'text/csv;charset=utf-8;'});
-      const link=document.createElement('a');
-      link.href=URL.createObjectURL(blob);
-      link.download='registrations_'+new Date().toISOString().split('T')[0]+'.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showNotification('匯出成功','success');
-    }else{
-      showNotification('匯出失敗：'+(result.message||'未知'),'error');
-    }
-  }catch(err){
-    showNotification('匯出失敗：'+err.message,'error');
-  }
-}
-
-function saveSettings(){
-  const settings={
-    systemName: document.getElementById('systemName').value,
-    defaultCategories: document.getElementById('defaultCategories').value,
-    liffId: document.getElementById('liffIdSetting').value,
-    apiEndpoint: document.getElementById('apiEndpoint').value
-  };
-  saveToLocalStorage('settings',settings);
-  showNotification('設定已儲存(僅本地)','success');
-}
-
-// ===================== 活動 CRUD (Admin) =====================
-function showCreateEventForm(){
-  openModal(`
-    <button class="close-btn">✕</button>
-    <h2>➕ 新增活動</h2>
+  <!-- 成功 Modal -->
+  <div class="modal" id="successModal">
     <div class="modal-content">
-      <form id="createEventForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>活動ID *</label>
-            <input type="text" name="eventId" required placeholder="例：HIKE001">
-            <small>唯一識別碼 (英文+數字)</small>
-          </div>
-          <div class="form-group">
-            <label>分類 *</label>
-            <select name="category" required>
-              <option value="">選擇分類</option>
-              <option value="登山組">登山組</option>
-              <option value="單車組">單車組</option>
-              <option value="慢跑組">慢跑組</option>
-              <option value="水上組">水上組</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>活動名稱 *</label>
-          <input type="text" name="name" required placeholder="請輸入活動名稱">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>活動日期</label>
-            <input type="date" name="date">
-          </div>
-          <div class="form-group">
-            <label>名額 *</label>
-            <input type="number" name="capacity" required min="1" placeholder="50">
-          </div>
-        </div>
-          <div class="form-group">
-            <label>活動地點</label>
-            <input type="text" name="location" placeholder="活動地點">
-          </div>
-          <div class="form-group">
-            <label>活動說明</label>
-            <textarea name="description" rows="4" placeholder="活動詳細說明..."></textarea>
-          </div>
-          <div class="form-actions">
-            <button type="submit">建立</button>
-            <button type="button" class="secondary" onclick="closeModal()">取消</button>
-          </div>
-      </form>
-      <div id="createEventMsg"></div>
+      <div class="success-icon">✅</div>
+      <h2>報名成功</h2>
+      <p style="text-align:center; line-height:1.6" id="successMsg">您的資料已提交。</p>
+      <div class="modal-actions">
+        <button class="btn-confirm" onclick="closeModal('successModal')">完成</button>
+      </div>
     </div>
-  `);
-  document.getElementById('createEventForm').addEventListener('submit',handleCreateEvent);
-}
+  </div>
 
-async function handleCreateEvent(e){
-  e.preventDefault();
-  const form=e.target;
-  const btn=form.querySelector('button[type="submit"]');
-  const msg=document.getElementById('createEventMsg');
-  setButtonLoading(btn,true);
-  msg.innerHTML='';
-  try{
-    const fd=new FormData(form);
-    const data={
-      eventId: fd.get('eventId').trim(),
-      name: fd.get('name').trim(),
-      category: fd.get('category'),
-      capacity: parseInt(fd.get('capacity')),
-      date: fd.get('date'),
-      location: fd.get('location').trim(),
-      description: fd.get('description').trim()
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    const liffId = "2007905012-o1yDNa92";
+    let userProfile = null;
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzQ_mwjwU5hUC7fbqMiOeZZCttXvNBWlMdsKhyz5xd1uYi0xXNXTpqv44sZlsBv8HmA/exec"; // 需替換
+    const groupDefinitions = [
+      { code: "體驗組", title: "體驗組", desc: "入門友善 / 輕鬆交流" },
+      { code: "挑戰組", title: "挑戰組", desc: "標準距離 / 訓練檢驗" },
+      { code: "菁英組", title: "菁英組", desc: "進階要求 / 競速挑戰" },
+      { code: "接力組", title: "接力組", desc: "2-3人分工 / 團隊合作" },
+      { code: "親子樂活", title: "親子樂活", desc: "家庭同樂 / 氣氛休閒" }
+    ];
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      renderGroups();
+      updateStatus("初始化 LIFF 中...");
+      try {
+        await liff.init({ liffId });
+        updateStatus("LIFF 初始化成功");
+        if (!liff.isLoggedIn()) {
+          updateStatus("導向登入...");
+          liff.login();
+          return;
+        }
+        userProfile = await liff.getProfile();
+        updateStatus("您好，" + userProfile.displayName);
+      } catch (e) {
+        updateStatus("LIFF 初始化失敗：" + e.message, true);
+      }
+    }
+
+    function renderGroups() {
+      const grid = document.getElementById('groupGrid');
+      grid.innerHTML = '';
+      groupDefinitions.forEach(g => {
+        const div = document.createElement('div');
+          div.className = 'group-card';
+          div.dataset.code = g.code;
+          div.innerHTML = `<strong>${g.title}</strong><span>${g.desc}</span>`;
+          div.onclick = () => selectGroup(div, g.code);
+          grid.appendChild(div);
+      });
+    }
+    function selectGroup(el, code) {
+      document.querySelectorAll('.group-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('group').value = code;
+    }
+    function adjPeople(delta) {
+      const hidden = document.getElementById('people');
+      let val = parseInt(hidden.value) || 1;
+      val += delta;
+      if (val < 1) val = 1;
+      if (val > 99) val = 99;
+      hidden.value = val;
+      document.getElementById('peopleDisplay').textContent = val;
+    }
+    function updateStatus(msg, error=false) {
+      const s = document.getElementById('status');
+      s.textContent = msg;
+      s.style.background = error ? '#ffebee' : '#e3f2fd';
+      s.style.borderLeftColor = error ? '#c62828' : '#1976d2';
+    }
+    function openPreview() {
+      const name = v('name'), phone = v('phone'), group = v('group'), people = v('people');
+      if (!name || !phone || !group || !people) return alert("請完整填寫必填欄位");
+      if (!/^09\\d{8}$/.test(phone)) return alert("手機格式錯誤");
+      const remarks = v('remarks');
+      const preview =
+          `三鐵飛翔好 活動報名確認
+          姓名：${name}
+          手機：${phone}
+          組別：${group}
+          人數：${people}
+          ${remarks ? "備註：" + remarks : ""}`;
+          qs('#previewBox').textContent = preview;
+          openModal('previewModal');
+    }
+    function v(id){ return document.getElementById(id).value.trim(); }
+    function qs(sel){ return document.querySelector(sel); }
+    function openModal(id){ document.getElementById(id).style.display='block'; }
+    function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+    async function submitForm() {
+      const btn = document.getElementById('confirmBtn');
+      btn.disabled = true;
+      btn.textContent = '傳送中...';
+      const payload = {
+        source: 'liff_form',
+        name: v('name'),
+        phone: v('phone'),
+        group: v('group'),
+        people: parseInt(v('people')),
+        remarks: v('remarks'),
+        timestamp: new Date().toLocaleString('zh-TW'),
+        liffUserId: userProfile?.userId || '',
+        liffDisplayName: userProfile?.displayName || '',
+        sendMethod: 'line_send'
+      };
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        closeModal('previewModal');
+        qs('#successMsg').textContent = '報名已成功提交，謝謝參與！';
+        openModal('successModal');
+        resetForm();
+        // 回傳一則訊息到聊天（可選）
+        if (liff.isInClient()) {
+          const msg = 
+            `✅ 已完成報名\n${payload.name} - ${payload.group} (${payload.people}人)`;
+          try { await liff.sendMessages([{ type:'text', text: msg }]); } catch(e){}
+        }
+      } catch (e) {
+        alert('提交失敗：' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '確認送出';
+      }
+    }
+
+    function resetForm() {
+      ['name','phone','group','people','remarks'].forEach(id => {
+        if (id === 'people') {
+          document.getElementById('people').value = '1';
+          document.getElementById('peopleDisplay').textContent = '1';
+        } else {
+          document.getElementById(id).value = '';
+        }
+      });
+      document.querySelectorAll('.group-card').forEach(c=>c.classList.remove('active'));
+    }
+
+    window.onclick = function(e){
+      if (e.target.classList.contains('modal')) e.target.style.display='none';
     };
-    const result = await apiAction('createEvent', data);
-    showMessage(msg,'✅ 建立成功！','success');
-    setTimeout(()=>{ closeModal(); loadAdminEvents(); refreshEvents(); showNotification('活動建立成功','success'); },1200);
-  }catch(err){
-    showMessage(msg,'建立失敗：'+err.message,'error');
-  }finally{
-    setButtonLoading(btn,false);
-  }
-}
-
-function editEvent(eventId){
-  const ev=allEvents.find(e=>e.eventId===eventId);
-  if(!ev){ showNotification('找不到活動','error'); return; }
-  openModal(`
-    <button class="close-btn">✕</button>
-    <h2>✏️ 編輯活動 - ${htmlEscape(ev.name)}</h2>
-    <div class="modal-content">
-      <form id="editEventForm">
-        <input type="hidden" name="eventId" value="${ev.eventId}">
-        <div class="form-row">
-          <div class="form-group">
-            <label>活動ID</label>
-            <input type="text" value="${ev.eventId}" disabled>
-            <small>ID 不可修改</small>
-          </div>
-          <div class="form-group">
-            <label>分類 *</label>
-            <select name="category" required>
-              <option value="登山組" ${ev.category==='登山組'?'selected':''}>登山組</option>
-              <option value="單車組" ${ev.category==='單車組'?'selected':''}>單車組</option>
-              <option value="慢跑組" ${ev.category==='慢跑組'?'selected':''}>慢跑組</option>
-              <option value="水上組" ${ev.category==='水上組'?'selected':''}>水上組</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>名稱 *</label>
-          <input type="text" name="name" required value="${htmlEscape(ev.name)}">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>日期</label>
-            <input type="date" name="date" value="${ev.date||''}">
-          </div>
-          <div class="form-group">
-            <label>名額 *</label>
-            <input type="number" name="capacity" required min="1" value="${ev.capacity}">
-            <small>已報名：${ev.used} 人</small>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>地點</label>
-          <input type="text" name="location" value="${htmlEscape(ev.location||'')}">
-        </div>
-        <div class="form-group">
-          <label>說明</label>
-          <textarea name="description" rows="4">${htmlEscape(ev.description||'')}</textarea>
-        </div>
-        <div class="form-actions">
-          <button type="submit">儲存</button>
-          <button type="button" class="secondary" onclick="closeModal()">取消</button>
-        </div>
-      </form>
-      <div id="editEventMsg"></div>
-    </div>
-  `);
-  document.getElementById('editEventForm').addEventListener('submit',handleEditEvent);
-}
-
-async function handleEditEvent(e){
-  e.preventDefault();
-  const form=e.target;
-  const btn=form.querySelector('button[type="submit"]');
-  const msg=document.getElementById('editEventMsg');
-  setButtonLoading(btn,true);
-  msg.innerHTML='';
-  try{
-    const fd=new FormData(form);
-    const data={
-      eventId: fd.get('eventId'),
-      name: fd.get('name').trim(),
-      category: fd.get('category'),
-      capacity: parseInt(fd.get('capacity')),
-      date: fd.get('date'),
-      location: fd.get('location').trim(),
-      description: fd.get('description').trim()
-    };
-    const result = await apiAction('updateEvent', data);
-    showMessage(msg,'✅ 更新成功！','success');
-    setTimeout(()=>{ closeModal(); loadAdminEvents(); refreshEvents(); showNotification('活動已更新','success'); },1200);
-  }catch(err){
-    showMessage(msg,'更新失敗：'+err.message,'error');
-  }finally{
-    setButtonLoading(btn,false);
-  }
-}
-
-async function toggleEventStatus(eventId,newStatus){
-  try{
-    const result = await apiAction('toggleEventStatus',{ eventId, active:newStatus });
-    if(result.success){
-      showNotification(`活動已${newStatus?'啟用':'停用'}`,'success');
-      loadAdminEvents(); refreshEvents();
-    }else{
-      showNotification('操作失敗：'+(result.message||'未知'),'error');
-    }
-  }catch(err){
-    showNotification('操作失敗：'+err.message,'error');
-  }
-}
-
-async function changeRegistrationStatus(regId,status){
-  try{
-    const result = await apiAction('updateRegistrationStatus',{ registrationId:regId, status });
-    if(result.success){
-      showNotification('狀態已更新','success');
-      loadAdminRegistrations(); refreshEvents();
-    }else{
-      showNotification('更新失敗：'+(result.message||'未知'),'error');
-    }
-  }catch(err){
-    showNotification('更新失敗：'+err.message,'error');
-  }
-}
-
-// ===================== 初始化 =====================
-document.addEventListener('DOMContentLoaded', async ()=>{
-  try{
-    const saved = loadFromLocalStorage('settings');
-    if(saved){
-      if(saved.liffId && saved.liffId !== CONFIG.LIFF_ID) CONFIG.LIFF_ID = saved.liffId;
-      if(saved.apiEndpoint && saved.apiEndpoint !== CONFIG.API_BASE_URL) CONFIG.API_BASE_URL = saved.apiEndpoint;
-    }
-    await initializeLiff();
-    showPage('home');
-  }catch(err){
-    showNotification('初始化失敗：'+err.message,'error');
-    showPage('home');
-  }
-});
-
-window.addEventListener('error', e=>{
-  console.error('全域錯誤:', e.error);
-  showNotification('系統發生錯誤','error');
-});
-window.addEventListener('unhandledrejection', e=>{
-  console.error('未處理 Promise:', e.reason);
-  showNotification('操作失敗，請稍後再試','error');
-});
-
-console.log('🎯 三鐵活動報名系統 v'+CONFIG.VERSION+' 已載入 (模式:'+CONFIG.API_MODE+')');
-</script>
+  </script>
 </body>
 </html>
+<!-- 
+=========================
+使用與設定說明
+=========================
+1. 在試算表 #A1_主檔設定 中維持原本第 3~22 欄位配置，第 11 筆 (index 10) 為 LINE 群組 ID。  
+2. 將 REGISTRATION_SHEET_NAME 改為你想要的報名表名稱亦可（需同步前端文案）。  
+3. 將前端 HTML 中的：
+   - liffId 換成實際 LIFF ID  
+   - GAS_URL 換成部署後的 Web App URL（需設定 Anyone, even anonymous 或對應權限）  
+4. 若要保留「指令報名」：於群組輸入例：報+王小明+挑戰組+2  
+5. 權限控制：若需限制修改功能，可在 PDpass 表中放入允許 userId，並於函式加驗證（此範例已簡化，若需要再加）。  
+6. 若想新增欄位（Email / 緊急聯絡人）：  
+   - (1) 試算表增加欄  
+   - (2) 伺服端：initRegistrationSheet() 標題列 & saveRegistrationToSheet() appendRow  
+   - (3) 前端：表單欄位 + payload  
+7. 若要推播卡片樣式，可擴充 sendRegistrationNotification 成 Flex Message。  
+
+=========================
+後續可擴充方向
+=========================
+- 報到（check-in）欄：增加「報到時間 / 是否報到」  
+- 多梯次：增加欄位「場次 / 日期」  
+- 限制名額：報名前先讀取總人數判斷是否額滿  
+- 匯出報名 PDF 或自動寄信確認  
+- LINE Flex 名單分頁顯示  
+
+若您需要上述任何進階功能，隨時再告訴我，我可在此基礎快速擴充。祝開發順利！ -->
