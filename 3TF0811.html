@@ -930,7 +930,7 @@
 <script>
   // ====== 全域變數 ====== 
   const CONFIG = {
-    API_BASE_URL: "https://script.google.com/macros/s/AKfycbxPFa3n4R7KChhHKUAZhr4Rbywb5HcyIhAOYhRZOQEJ4VVWNsT47qop4eJWVZQwk7_u/exec",
+    API_BASE_URL: "https://script.google.com/macros/s/AKfycbxdSWNjtioLiJ7wv6kpwRgqeUoRSiEiXMCGcJsjMeyM2CbePptLYDcOVt7SAgy-_EKy/exec",
     LIFF_ID: "2007905012-o1yDNa92", 
     VERSION: "2.0.0"
   };
@@ -1015,53 +1015,96 @@
 
   // ====== 修正後的 API 函數 ======
 async function apiRequest(method, params = {}) {
-const url = CONFIG.API_BASE_URL;
-let requestUrl = url;
-let options = {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
+  const url = CONFIG.API_BASE_URL;
+  
+  try {
+    let response;
+    
+    if (method === 'GET') {
+      // GET 請求：將參數加到 URL
+      const urlParams = new URLSearchParams(params);
+      const requestUrl = `${url}?${urlParams.toString()}`;
+      
+      response = await fetch(requestUrl, {
+        method: 'GET',
+        mode: 'cors', // 明確指定 CORS 模式
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+    } else if (method === 'POST') {
+      // POST 請求：使用表單數據格式（GAS 更容易處理）
+      const formData = new URLSearchParams();
+      Object.keys(params).forEach(key => {
+        if (typeof params[key] === 'object') {
+          formData.append(key, JSON.stringify(params[key]));
+        } else {
+          formData.append(key, params[key]);
+        }
+      });
+      
+      response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+      });
+    }
+    
+    // 檢查回應是否為 HTML（通常表示需要登入）
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('text/html')) {
+      throw new Error('API 未正確部署，請檢查 Google Apps Script 部署設定');
+    }
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result;
+    
+  } catch (error) {
+    console.error('API 請求失敗:', error);
+    
+    // 提供更具體的錯誤訊息
+    if (error.message.includes('CORS')) {
+      throw new Error('跨域請求被阻擋，請確認 Google Apps Script 已正確部署並設定為「任何人」可存取');
+    } else if (error.message.includes('Failed to fetch')) {
+      throw new Error('網路連線失敗，請檢查網路狀態或 API 部署狀態');
+    }
+    
+    throw error;
   }
-};
-
-if (method === 'GET') {
-  // GET 請求：將參數加到 URL
-  const urlParams = new URLSearchParams(params);
-  requestUrl = `${url}?${urlParams.toString()}`;
-} else if (method === 'POST') {
-  // POST 請求：將參數放在 body
-  options.method = 'POST';
-  options.body = JSON.stringify(params);
 }
 
-try {
-  const response = await fetch(requestUrl, options);
-  
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
-  
-  const result = await response.json();
-  return result;
-} catch (error) {
-  console.error('API 請求失敗:', error);
-  
-  // 如果是 CORS 錯誤，提供更明確的錯誤訊息
-  if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-    throw new Error('網路連線失敗，請確認 Google Apps Script 已正確部署並設定權限');
-  }
-  
-  throw new Error('網路連線失敗，請檢查網路狀態');
+// 修正後的 POST 處理（適用於 Google Apps Script）
+async function apiPost(action, data) {
+  return await apiRequest('POST', { action, ...data });
 }
+
+// 新增測試連線函數
+async function testApiConnection() {
+  try {
+    const result = await apiGet({ action: 'testConnection' });
+    console.log('API 連線測試成功:', result);
+    return true;
+  } catch (error) {
+    console.error('API 連線測試失敗:', error);
+    return false;
+  }
 }
+
 
 async function apiGet(params) {
 return await apiRequest('GET', params);
 }
 
-async function apiPost(action, data) {
-return await apiRequest('POST', { action, ...data });
-}
+
 
 // ====== 修正後的活動載入函數 ======
 async function fetchAllEvents(activeOnly = true) {
