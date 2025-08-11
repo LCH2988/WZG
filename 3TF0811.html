@@ -75,10 +75,7 @@
     <div id="status" class="status">正在初始化 LIFF...</div>
     <form id="regForm" autocomplete="off">
       <label>姓名 *</label>
-      <input type="text" id="name" required placeholder="請輸入您的姓名">
-
-      <label>手機（聯絡用） *</label>
-      <input type="tel" id="phone" pattern="09\\d{8}" required placeholder="例：09xxxxxxxx">
+      <input type="text" id="name" required placeholder="請輸入您的姓名">     
 
       <label>選擇活動組別 *</label>
       <div class="grid" id="groupGrid">
@@ -197,13 +194,11 @@
     }
     function openPreview() {
       const name = v('name'), phone = v('phone'), group = v('group'), people = v('people');
-      if (!name || !phone || !group || !people) return alert("請完整填寫必填欄位");
-      if (!/^09\\d{8}$/.test(phone)) return alert("手機格式錯誤");
+      if (!name || !phone || !group || !people) return alert("請完整填寫必填欄位");      
       const remarks = v('remarks');
       const preview =
           `三鐵飛翔好 活動報名確認
-          姓名：${name}
-          手機：${phone}
+          姓名：${name}      
           組別：${group}
           人數：${people}
           ${remarks ? "備註：" + remarks : ""}`;
