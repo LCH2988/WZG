@@ -1054,7 +1054,7 @@
 <script>
     // ====== 全域變數 ====== 
     const CONFIG = {
-      API_BASE_URL: "https://script.google.com/macros/s/AKfycby5zTSxm7XczaVeDm4jxrZIJOg1LdWKy2PPc99PMc72AtLpy2TSFPdEaITTCcdmP_id/exec",
+      API_BASE_URL: "https://script.google.com/macros/s/AKfycbx81_zN8eIVi4qjLwTKUbZIw94Z7gUa_SWlTAFR5f3rjZ8ZvnM4Yz2W4tZyUAsCXXHo/exec",
       LIFF_ID: "2007905012-o1yDNa92", 
       VERSION: "2.0.0"
     };
@@ -1425,9 +1425,11 @@
             method: 'GET',
             mode: 'cors',
             cache: 'no-cache',
-            headers: {
-              'Content-Type': 'application/json',
-            }
+            // headers: {
+            //   'Content-Type': 'application/json',
+            // }
+            // 不要加 headers (或最多加 Accept)
+            // headers: { 'Accept': 'application/json' } // 可選，正常不必
           });
         } else if (method === 'POST') {
           const formData = new URLSearchParams();
