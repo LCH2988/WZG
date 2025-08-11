@@ -1,270 +1,294 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>三鐵飛翔好 - 活動報名</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body { font-family: 'Microsoft JhengHei', Arial, sans-serif; background: linear-gradient(135deg,#0d47a1,#26a69a); margin:0; padding:20px; }
-    .container { max-width:880px; margin:0 auto; background:#fff; border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.25); overflow:hidden; }
-    h1 { text-align:center; background:#1565c0; color:#fff; padding:25px 15px; margin:0; font-size:1.8rem; letter-spacing:.05em; }
-    .status { padding:15px 20px; background:#e3f2fd; border-left:6px solid #1976d2; font-size:.95rem; }
-    form { padding:40px 45px 55px; }
-    label { font-weight:bold; display:block; margin:25px 0 10px; }
-    input, select, textarea {
-      width:100%; padding:16px 18px; font-size:1.05rem;
-      border:2px solid #cfd8dc; border-radius:12px; transition:.25s;
-      background:#fafafa;
-    }
-    input:focus, select:focus, textarea:focus { outline:none; border-color:#1976d2; box-shadow:0 0 0 4px rgba(25,118,210,.15); background:#fff; }
-    .grid { display:grid; gap:22px; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); margin-top:10px; }
-    .group-card {
-      background:linear-gradient(135deg,#ffffff,#f5f5f5);
-      border:2px solid #ddd; border-radius:14px; padding:15px 18px; cursor:pointer;
-      transition:.3s; position:relative; min-height:115px; display:flex; flex-direction:column; justify-content:center;
-    }
-    .group-card.active { border-color:#1976d2; background:linear-gradient(135deg,#1976d2,#42a5f5); color:#fff; box-shadow:0 6px 18px rgba(25,118,210,.35); }
-    .group-card span { font-size:.85rem; opacity:.85; margin-top:6px; }
-    .people-box { display:flex; gap:10px; align-items:center; margin-top:10px; }
-    .people-box button {
-      width:48px; height:48px; border:none; background:#1976d2; color:#fff;
-      border-radius:12px; font-size:1.4rem; cursor:pointer; transition:.25s;
-    }
-    .people-box button:active { transform:scale(.92); }
-    .people-display {
-      flex:1; background:#eceff1; border-radius:12px; text-align:center;
-      font-size:1.4rem; padding:10px 0; font-weight:bold; letter-spacing:.05em;
-    }
-    .submit-btn {
-      margin-top:45px; width:100%; background:linear-gradient(90deg,#1976d2,#26a69a);
-      border:none; color:#fff; padding:22px 10px; font-size:1.4rem; border-radius:16px;
-      cursor:pointer; font-weight:bold; letter-spacing:.1em; box-shadow:0 8px 24px rgba(0,0,0,.25); transition:.35s;
-    }
-    .submit-btn:hover { transform:translateY(-4px); box-shadow:0 14px 32px rgba(0,0,0,.35); }
-    .submit-btn:active { transform:translateY(0); }
-    textarea { min-height:130px; resize:vertical; }
-    .footer-note { margin-top:40px; font-size:.82rem; color:#607d8b; text-align:center; line-height:1.5; }
-    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; }
-    .modal-content {
-      background:#fff; width:92%; max-width:520px; border-radius:20px; padding:40px 35px;
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      box-shadow:0 18px 44px rgba(0,0,0,.35);
-    }
-    .modal-content h2 { margin:0 0 20px; font-size:1.5rem; text-align:center; }
-    .preview-box {
-      background:#f5f5f5; padding:18px 20px; border-radius:14px; font-size:.95rem; white-space:pre-wrap; line-height:1.55;
-      max-height:320px; overflow:auto; border:1px solid #e0e0e0;
-    }
-    .modal-actions { margin-top:25px; display:flex; gap:15px; }
-    .modal-actions button {
-      flex:1; padding:15px 10px; font-size:1.05rem; border:none; border-radius:12px; cursor:pointer; font-weight:bold;
-    }
-    .btn-cancel { background:#b0bec5; color:#fff; }
-    .btn-confirm { background:#1976d2; color:#fff; }
-    .success-icon { font-size:3rem; text-align:center; margin-bottom:15px; }
-    @media (max-width:720px) {
-      form { padding:32px 28px 45px; }
-      h1 { font-size:1.5rem; padding:20px 10px; }
-      .group-card { min-height:105px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>多活動報名</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body { font-family:'Microsoft JhengHei', Arial; background:#f0f4f8; margin:0; padding:20px;}
+  .wrap { max-width:900px; margin:0 auto; background:#fff; padding:28px 32px 60px; border-radius:18px; box-shadow:0 8px 26px rgba(0,0,0,.1);}
+  h1 { margin:0 0 10px; font-size:1.7rem; color:#0d47a1;}
+  .row { margin-top:20px;}
+  label { font-weight:bold; display:block; margin-bottom:8px;}
+  select, input, textarea { width:100%; padding:14px 15px; border:2px solid #cfd8dc; border-radius:10px; font-size:1rem; background:#fafafa; transition:.25s;}
+  select:focus, input:focus, textarea:focus { outline:none; border-color:#1976d2; background:#fff;}
+  .groups { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-top:10px;}
+  .gcard { background:#f5f7f9; border:2px solid #ddd; border-radius:12px; padding:16px; cursor:pointer; text-align:center; position:relative; }
+  .gcard.disabled { opacity:.35; cursor:not-allowed; }
+  .gcard.active { border-color:#1976d2; background:#1976d2; color:#fff; box-shadow:0 4px 16px rgba(25,118,210,.4);}
+  .people-box { display:flex; gap:10px; align-items:center; margin-top:10px;}
+  .people-box button { width:48px; height:48px; background:#1976d2; color:#fff; border:none; font-size:1.4rem; border-radius:12px; cursor:pointer;}
+  .people-display { flex:1; background:#eceff1; text-align:center; font-size:1.4rem; border-radius:12px; padding:10px 0; font-weight:bold;}
+  .toggle-batch { margin-top:18px; display:flex; align-items:center; gap:10px;}
+  .submit-btn { margin-top:38px; width:100%; padding:18px; font-size:1.3rem; border:none; border-radius:14px; background:linear-gradient(90deg,#1976d2,#26a69a); color:#fff; cursor:pointer; font-weight:bold;}
+  .status-bar { padding:10px 14px; background:#e3f2fd; border-left:6px solid #1976d2; border-radius:8px; font-size:.9rem;}
+  .hint { font-size:.8rem; color:#607d8b; margin-top:6px; line-height:1.4;}
+  .note { background:#fffde7; padding:10px 14px; border-left:6px solid #fbc02d; border-radius:6px; font-size:.85rem; margin-top:20px;}
+  .inline { display:inline-block; margin-right:12px; font-size:.85rem;}
+  .result { margin-top:20px; padding:14px 16px; border-radius:10px; background:#f1f8e9; color:#33691e; display:none; white-space:pre-line;}
+  .danger { color:#d32f2f;}
+  .badge { position:absolute; top:8px; right:8px; background:#0d47a1; color:#fff; padding:2px 8px; border-radius:12px; font-size:.65rem;}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>三鐵飛翔好 活動報名</h1>
-    <div id="status" class="status">正在初始化 LIFF...</div>
-    <form id="regForm" autocomplete="off">
-      <label>姓名 *</label>
-      <input type="text" id="name" required placeholder="請輸入您的姓名">     
+  <div class="wrap">
+    <h1>多活動報名</h1>
+    <div id="status" class="status-bar">初始化中...</div>
 
-      <label>選擇活動組別 *</label>
-      <div class="grid" id="groupGrid">
-        <!-- 組別卡片（JS動態建立） -->
+    <div class="row">
+      <label>選擇活動 *</label>
+      <select id="eventSelect" onchange="onSelectEvent()">
+        <option value="">載入中...</option>
+      </select>
+      <div class="hint" id="eventInfo"></div>
+    </div>
+
+    <div class="row">
+      <label>選擇組別 *</label>
+      <div class="groups" id="groupWrap"></div>
+      <input type="hidden" id="group">
+      <div class="hint" id="quotaHint"></div>
+    </div>
+
+    <div class="toggle-batch">
+      <input type="checkbox" id="batchMode" onchange="toggleBatch()"> 批次報名
+    </div>
+
+    <div id="singleArea">
+      <div class="row">
+        <label>姓名 *</label>
+        <input type="text" id="name" placeholder="輸入姓名">
       </div>
-      <input type="hidden" id="group" required>
-
-      <label>報名人數 *</label>
-      <div class="people-box">
-        <button type="button" onclick="adjPeople(-1)">-</button>
+      <div class="row">
+        <label>人數 *</label>
+        <div class="people-box">
+          <button type="button" onclick="adjPeople(-1)">-</button>
           <div class="people-display" id="peopleDisplay">1</div>
-        <button type="button" onclick="adjPeople(1)">+</button>
-      </div>
-      <input type="hidden" id="people" value="1">
-
-      <label>備註（選填）</label>
-      <textarea id="remarks" placeholder="可填寫隊名 / 特殊需求 / 衣服尺寸等"></textarea>
-
-      <button type="button" class="submit-btn" onclick="openPreview()">送出報名</button>
-      <div class="footer-note">
-        資料送出後系統將同步通知管理員。<br>
-        若需修改請使用指令：改名 / 改人數 或 聯繫主辦。<br>
-        主辦單位：三鐵飛翔好
-      </div>
-    </form>
-  </div>
-
-  <!-- 預覽 Modal -->
-  <div class="modal" id="previewModal">
-    <div class="modal-content">
-      <h2>確認報名資料</h2>
-      <div class="preview-box" id="previewBox"></div>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeModal('previewModal')">返回修改</button>
-        <button class="btn-confirm" id="confirmBtn" onclick="submitForm()">確認送出</button>
+          <button type="button" onclick="adjPeople(1)">+</button>
+        </div>
+        <input type="hidden" id="people" value="1">
       </div>
     </div>
-  </div>
 
-  <!-- 成功 Modal -->
-  <div class="modal" id="successModal">
-    <div class="modal-content">
-      <div class="success-icon">✅</div>
-      <h2>報名成功</h2>
-      <p style="text-align:center; line-height:1.6" id="successMsg">您的資料已提交。</p>
-      <div class="modal-actions">
-        <button class="btn-confirm" onclick="closeModal('successModal')">完成</button>
+    <div id="batchArea" style="display:none;">
+      <div class="row">
+        <label>批次姓名清單 *</label>
+        <textarea id="namesBatch" placeholder="每行一筆，可加 *2 或 x2 表示人數，例如：&#10;王小明&#10;李小華*2&#10;張三 x3"></textarea>
       </div>
     </div>
+
+    <div class="row">
+      <label>備註</label>
+      <textarea id="remarks" placeholder="可填寫隊名 / 特殊需求..."></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="submitForm()">送出報名</button>
+
+    <div class="note">
+      若正選名額不足，系統將自動列入候補。<br>
+      批次報名整批同一狀態（無拆分），需要拆分可再告知我擴充。
+    </div>
+
+    <div id="resultBox" class="result"></div>
   </div>
 
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script>
-    const liffId = "2007905012-o1yDNa92";
-    let userProfile = null;
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxBykeovSoFB3vTmLWpidwi6yxsAER9ax1v-pepwIxroS_1Gc8uJ0imRrfbN673uXd8/exec"; // 需替換
-    const groupDefinitions = [
-      { code: "體驗組", title: "體驗組", desc: "入門友善 / 輕鬆交流" },
-      { code: "挑戰組", title: "挑戰組", desc: "標準距離 / 訓練檢驗" },
-      { code: "菁英組", title: "菁英組", desc: "進階要求 / 競速挑戰" },
-      { code: "接力組", title: "接力組", desc: "2-3人分工 / 團隊合作" },
-      { code: "親子樂活", title: "親子樂活", desc: "家庭同樂 / 氣氛休閒" }
-    ];
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const liffId = "2007905012-o1yDNa92";
+const GAS_BASE = "https://script.google.com/macros/s/AKfycbya7ojH0_3gVG1-U15ReawAixNhheJ0swR70sAG-rigdCsNj1WxgFXDVbKJ6rGFq_b0/exec";
+let events = [];
+let currentEvent = null;
+let userProfile = null;
 
-    document.addEventListener('DOMContentLoaded', init);
+const GROUPS = ["登山組","單車組","慢跑組","水上組"];
 
-    async function init() {
-      renderGroups();
-      updateStatus("初始化 LIFF 中...");
-      try {
-        await liff.init({ liffId });
-        updateStatus("LIFF 初始化成功");
-        if (!liff.isLoggedIn()) {
-          updateStatus("導向登入...");
-          liff.login();
-          return;
-        }
-        userProfile = await liff.getProfile();
-        updateStatus("您好，" + userProfile.displayName);
-      } catch (e) {
-        updateStatus("LIFF 初始化失敗：" + e.message, true);
-      }
-    }
+document.addEventListener("DOMContentLoaded", init);
 
-    function renderGroups() {
-      const grid = document.getElementById('groupGrid');
-      grid.innerHTML = '';
-      groupDefinitions.forEach(g => {
-        const div = document.createElement('div');
-          div.className = 'group-card';
-          div.dataset.code = g.code;
-          div.innerHTML = `<strong>${g.title}</strong><span>${g.desc}</span>`;
-          div.onclick = () => selectGroup(div, g.code);
-          grid.appendChild(div);
-      });
-    }
-    function selectGroup(el, code) {
-      document.querySelectorAll('.group-card').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      document.getElementById('group').value = code;
-    }
-    function adjPeople(delta) {
-      const hidden = document.getElementById('people');
-      let val = parseInt(hidden.value) || 1;
-      val += delta;
-      if (val < 1) val = 1;
-      if (val > 99) val = 99;
-      hidden.value = val;
-      document.getElementById('peopleDisplay').textContent = val;
-    }
-    function updateStatus(msg, error=false) {
-      const s = document.getElementById('status');
-      s.textContent = msg;
-      s.style.background = error ? '#ffebee' : '#e3f2fd';
-      s.style.borderLeftColor = error ? '#c62828' : '#1976d2';
-    }
-    function openPreview() {
-      const name = v('name'), phone = v('phone'), group = v('group'), people = v('people');
-      if (!name || !phone || !group || !people) return alert("請完整填寫必填欄位");      
-      const remarks = v('remarks');
-      const preview =
-          `三鐵飛翔好 活動報名確認
-          姓名：${name}      
-          組別：${group}
-          人數：${people}
-          ${remarks ? "備註：" + remarks : ""}`;
-          qs('#previewBox').textContent = preview;
-          openModal('previewModal');
-    }
-    function v(id){ return document.getElementById(id).value.trim(); }
-    function qs(sel){ return document.querySelector(sel); }
-    function openModal(id){ document.getElementById(id).style.display='block'; }
-    function closeModal(id){ document.getElementById(id).style.display='none'; }
+async function init(){
+  updateStatus("初始化 LIFF...");
+  try{
+    await liff.init({liffId});
+    if(!liff.isLoggedIn()){ liff.login(); return; }
+    userProfile = await liff.getProfile();
+    updateStatus("歡迎，"+userProfile.displayName);
+  }catch(e){
+    updateStatus("LIFF 初始化失敗："+e.message, true);
+  }
+  await loadEvents();
+  renderGroups();
+}
 
-    async function submitForm() {
-      const btn = document.getElementById('confirmBtn');
-      btn.disabled = true;
-      btn.textContent = '傳送中...';
-      const payload = {
-        source: 'liff_form',
-        name: v('name'),
-        phone: v('phone'),
-        group: v('group'),
-        people: parseInt(v('people')),
-        remarks: v('remarks'),
-        timestamp: new Date().toLocaleString('zh-TW'),
-        liffUserId: userProfile?.userId || '',
-        liffDisplayName: userProfile?.displayName || '',
-        sendMethod: 'line_send'
-      };
-      try {
-        await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        closeModal('previewModal');
-        qs('#successMsg').textContent = '報名已成功提交，謝謝參與！';
-        openModal('successModal');
-        resetForm();
-        // 回傳一則訊息到聊天（可選）
-        if (liff.isInClient()) {
-          const msg = 
-            `✅ 已完成報名\n${payload.name} - ${payload.group} (${payload.people}人)`;
-          try { await liff.sendMessages([{ type:'text', text: msg }]); } catch(e){}
-        }
-      } catch (e) {
-        alert('提交失敗：' + e.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '確認送出';
-      }
-    }
+function updateStatus(msg, err=false){
+  const s = document.getElementById('status');
+  s.textContent = msg;
+  s.style.background = err ? "#ffebee" : "#e3f2fd";
+  s.style.borderLeftColor = err ? "#c62828" : "#1976d2";
+}
 
-    function resetForm() {
-      ['name','phone','group','people','remarks'].forEach(id => {
-        if (id === 'people') {
-          document.getElementById('people').value = '1';
-          document.getElementById('peopleDisplay').textContent = '1';
-        } else {
-          document.getElementById(id).value = '';
-        }
-      });
-      document.querySelectorAll('.group-card').forEach(c=>c.classList.remove('active'));
-    }
+async function loadEvents(){
+  try{
+    const res = await fetch(GAS_BASE+"?action=getEvents");
+    const data = await res.json();
+    events = data.events || [];
+    const sel = document.getElementById('eventSelect');
+    sel.innerHTML = '<option value="">請選擇活動</option>';
+    events.forEach(ev=>{
+      const opt = document.createElement('option');
+      opt.value = ev.eventId;
+      opt.textContent = `${ev.name} (${ev.date || ''})`;
+      sel.appendChild(opt);
+    });
+  }catch(e){
+    updateStatus("載入活動失敗:"+e.message,true);
+  }
+}
 
-    window.onclick = function(e){
-      if (e.target.classList.contains('modal')) e.target.style.display='none';
+function onSelectEvent(){
+  const id = document.getElementById('eventSelect').value;
+  currentEvent = events.find(e=>e.eventId===id);
+  const info = document.getElementById('eventInfo');
+  if(!currentEvent){
+    info.textContent = "";
+    return;
+  }
+  info.textContent = currentEvent.description || "";
+  renderGroups();
+  document.getElementById('group').value = "";
+  document.getElementById('quotaHint').textContent="";
+}
+
+function renderGroups(){
+  const wrap = document.getElementById('groupWrap');
+  wrap.innerHTML = "";
+  GROUPS.forEach(g=>{
+    const div = document.createElement('div');
+    div.className = 'gcard';
+    div.dataset.group = g;
+    let remain = currentEvent ? currentEvent.remain[g] : "-";
+    let cap = currentEvent ? currentEvent.capacity[g] : "-";
+    if(currentEvent && cap <=0){
+      div.classList.add('disabled');
+      div.innerHTML = `<strong>${g}</strong><div class="badge">未開放</div>`;
+    }else{
+      div.innerHTML = `<strong>${g}</strong><div style="margin-top:6px;font-size:.8rem;">剩餘：${remain}</div>`;
+      div.onclick = ()=> selectGroup(g, div);
+    }
+    wrap.appendChild(div);
+  });
+}
+
+function selectGroup(g, el){
+  if(el.classList.contains('disabled')) return;
+  document.querySelectorAll('.gcard').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('group').value = g;
+  updateQuotaHint();
+}
+
+function updateQuotaHint(){
+  const g = document.getElementById('group').value;
+  if(!g || !currentEvent){ document.getElementById('quotaHint').textContent = ""; return; }
+  const remain = currentEvent.remain[g];
+  const ppl = parseInt(document.getElementById('people').value)||1;
+  document.getElementById('quotaHint').textContent =
+    remain >= ppl ? `預估 正選 (剩餘 ${remain})` : `預估 候補 (剩餘 ${remain})`;
+}
+
+function adjPeople(d){
+  const hidden = document.getElementById('people');
+  let v = parseInt(hidden.value)||1;
+  v += d;
+  if(v<1) v=1;
+  if(v>99) v=99;
+  hidden.value = v;
+  document.getElementById('peopleDisplay').textContent = v;
+  updateQuotaHint();
+}
+
+function toggleBatch(){
+  const batch = document.getElementById('batchMode').checked;
+  document.getElementById('singleArea').style.display = batch ? 'none':'block';
+  document.getElementById('batchArea').style.display = batch ? 'block':'none';
+  document.getElementById('quotaHint').textContent="";
+}
+
+async function submitForm(){
+  const eventId = document.getElementById('eventSelect').value;
+  const group = document.getElementById('group').value;
+  if(!eventId) return alert("請選擇活動");
+  if(!group) return alert("請選擇組別");
+  const batch = document.getElementById('batchMode').checked;
+  let payload;
+  if(batch){
+    const namesText = document.getElementById('namesBatch').value.trim();
+    if(!namesText) return alert("請輸入批次姓名");
+    payload = {
+      action:"batchRegister",
+      eventId,
+      group,
+      namesText,
+      remarks: document.getElementById('remarks').value.trim(),
+      source:"liff_form",
+      liffUserId:userProfile?.userId || "",
+      liffDisplayName:userProfile?.displayName || "",
+      sendMethod:"line_send"
     };
-  </script>
+  }else{
+    const name = document.getElementById('name').value.trim();
+    if(!name) return alert("請輸入姓名");
+    const people = parseInt(document.getElementById('people').value)||1;
+    payload = {
+      action:"singleRegister",
+      eventId,
+      group,
+      name,
+      people,
+      remarks: document.getElementById('remarks').value.trim(),
+      source:"liff_form",
+      liffUserId:userProfile?.userId || "",
+      liffDisplayName:userProfile?.displayName || "",
+      sendMethod:"line_send"
+    };
+  }
+  updateStatus("送出中...");
+  try{
+    const res = await fetch(GAS_BASE,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(!data.success){
+      updateStatus("失敗："+data.message,true);
+      return;
+    }
+    showResult(data);
+    updateStatus("完成");
+    if(liff.isInClient()){
+      try{
+        await liff.sendMessages([{
+          type:'text',
+          text: batch
+            ? `✅ 批次報名完成\n活動:${data.eventName}\n狀態:${data.status||''}\n筆數:${data.totalEntries||''} 人數:${data.totalPeople||''}`
+            : `✅ 報名完成\n活動:${data.eventName}\n姓名:${payload.name}\n組別:${payload.group}\n狀態:${data.status}`
+        }]);
+      }catch(e){}
+    }
+    // 重新載入活動以更新剩餘
+    await loadEvents();
+    currentEvent = events.find(e=>e.eventId===eventId);
+    renderGroups();
+  }catch(e){
+    updateStatus("錯誤："+e.message,true);
+  }
+}
+
+function showResult(data){
+  const box = document.getElementById('resultBox');
+  box.style.display='block';
+  box.textContent = JSON.stringify(data, null, 2);
+}
+</script>
 </body>
 </html>
