@@ -425,26 +425,26 @@
               }
           }
           
-          // 驗證手機格式
-          const phone = document.getElementById('phone').value;
-          if (!/^09\d{8}$/.test(phone)) {
-              alert('請輸入正確的手機號碼格式（09xxxxxxxx）');
-              return;
-          }
+          // // 驗證手機格式
+          // const phone = document.getElementById('phone').value;
+          // if (!/^09\d{8}$/.test(phone)) {
+          //     alert('請輸入正確的手機號碼格式（09xxxxxxxx）');
+          //     return;
+          // }
           
-          // 驗證身分證格式
-          const idNumber = document.getElementById('idNumber').value.toUpperCase();
-          if (!/^[A-Z][12]\d{8}$/.test(idNumber)) {
-              alert('請輸入正確的身分證字號格式');
-              return;
-          }
+          // // 驗證身分證格式
+          // const idNumber = document.getElementById('idNumber').value.toUpperCase();
+          // if (!/^[A-Z][12]\d{8}$/.test(idNumber)) {
+          //     alert('請輸入正確的身分證字號格式');
+          //     return;
+          // }
           
-          // 驗證Email格式
-          const email = document.getElementById('email').value;
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-              alert('請輸入正確的Email格式');
-              return;
-          }
+          // // 驗證Email格式
+          // const email = document.getElementById('email').value;
+          // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          //     alert('請輸入正確的Email格式');
+          //     return;
+          // }
           
           await submitRegistration();
       }
