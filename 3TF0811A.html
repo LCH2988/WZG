@@ -1,1370 +1,398 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>三鐵活動報名系統</title>
-<meta name="description" content="三鐵活動多分類報名系統 - 登山組、單車組、慢跑組、水上組">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏃‍♂️</text></svg>">
-
-<!-- LIFF SDK -->
-<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
-<style>
-  /* ====== CSS 樣式 ====== */
-  :root {
-    --primary-color: #1565c0;
-    --secondary-color: #42a5f5;
-    --success-color: #4caf50;
-    --warning-color: #ff9800;
-    --error-color: #f44336;
-    --info-color: #2196f3;
-    --text-color: #333;
-    --bg-color: #f5f7fa;
-    --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    --border-radius: 8px;
-    --transition: all 0.3s ease;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ====== 頁面佈局 ====== */
-  header {
-    background: #fff;
-    box-shadow: var(--card-shadow);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--primary-color);
-  }
-
-  /* LIFF 狀態顯示 */
-  .liff-status {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    background: #f8f9fa;
-    border-radius: var(--border-radius);
-    font-size: 14px;
-  }
-
-  .liff-status.connected {
-    background: #e8f5e8;
-    color: #2e7d32;
-  }
-
-  .liff-status.disconnected {
-    background: #ffebee;
-    color: #c62828;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    background: #f8f9fa;
-    border-radius: var(--border-radius);
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .user-details {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .user-name {
-    font-weight: 600;
-    color: #333;
-  }
-
-  .user-id {
-    font-size: 12px;
-    color: #666;
-    font-family: monospace;
-  }
-
-  nav {
-    background: var(--primary-color);
-    padding: 0 20px;
-  }
-
-  nav a {
-    display: inline-block;
-    padding: 12px 20px;
-    color: #fff;
-    text-decoration: none;
-    transition: var(--transition);
-    border-radius: 4px 4px 0 0;
-    margin-right: 4px;
-  }
-
-  nav a:hover, nav a.nav-active {
-    background: rgba(255,255,255,0.2);
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    flex: 1;
-  }
-
-  footer {
-    background: #333;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-    margin-top: auto;
-  }
-
-  /* ====== 通用元件 ====== */
-  .btn, button {
-    background: var(--primary-color);
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: var(--transition);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 100px;
-  }
-
-  .btn:hover, button:hover {
-    background: #0d47a1;
-    transform: translateY(-1px);
-  }
-
-  .btn.secondary, button.secondary {
-    background: #6c757d;
-  }
-
-  .btn.success, button.success {
-    background: var(--success-color);
-  }
-
-  .btn.warning, button.warning {
-    background: var(--warning-color);
-  }
-
-  .btn.danger, button.danger {
-    background: var(--error-color);
-  }
-
-  .btn:disabled, button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* ====== 表單元件 ====== */
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  .form-row {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
-    color: #333;
-  }
-
-  input, select, textarea {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: var(--border-radius);
-    font-size: 14px;
-    transition: var(--transition);
-    font-family: inherit;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-  }
-
-  /* 自動填入的欄位樣式 */
-  input.auto-filled {
-    background: #e8f5e8;
-    border-color: var(--success-color);
-  }
-
-  .auto-fill-indicator {
-    font-size: 12px;
-    color: var(--success-color);
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  small {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    color: #666;
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 24px;
-    flex-wrap: wrap;
-  }
-
-  /* ====== 卡片組件 ====== */
-  .card {
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--card-shadow);
-    padding: 20px;
-    transition: var(--transition);
-    border: 1px solid #e0e0e0;
-  }
-
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  }
-
-  .grid {
-    display: grid;
-    gap: 20px;
-  }
-
-  .cols-3 {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  }
-
-  /* ====== LIFF 測試區塊 ====== */
-  .liff-test-section {
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--card-shadow);
-    padding: 24px;
-    margin-bottom: 24px;
-  }
-
-  .test-grid {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    margin-top: 16px;
-  }
-
-  .test-card {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: var(--border-radius);
-    border-left: 4px solid var(--info-color);
-  }
-
-  .test-card.success {
-    border-color: var(--success-color);
-    background: #e8f5e8;
-  }
-
-  .test-card.error {
-    border-color: var(--error-color);
-    background: #ffebee;
-  }
-
-  .test-result {
-    font-family: monospace;
-    background: #f0f0f0;
-    padding: 8px;
-    border-radius: 4px;
-    margin-top: 8px;
-    font-size: 12px;
-    word-break: break-all;
-  }
-
-  /* ====== 模態框 ====== */
-  .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .modal-backdrop.show {
-    display: flex;
-  }
-
-  .modal {
-    background: #fff;
-    border-radius: var(--border-radius);
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    animation: modalSlideIn 0.3s ease;
-  }
-
-  @keyframes modalSlideIn {
-    from {
-      opacity: 0;
-      transform: scale(0.9) translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  .modal h2 {
-    background: var(--primary-color);
-    color: #fff;
-    padding: 20px;
-    margin: 0;
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-  }
-
-  .modal-content {
-    padding: 20px;
-  }
-
-  .close-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-    min-width: auto;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .close-btn:hover {
-    background: rgba(255,255,255,0.2);
-  }
-
-  /* ====== 通知系統 ====== */
-  .notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 16px 20px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    z-index: 1000;
-    transform: translateX(400px);
-    transition: var(--transition);
-    max-width: 350px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .notification.show {
-    transform: translateX(0);
-  }
-
-  .notification.success {
-    background: var(--success-color);
-    color: #fff;
-  }
-
-  .notification.error {
-    background: var(--error-color);
-    color: #fff;
-  }
-
-  .notification.warning {
-    background: var(--warning-color);
-    color: #fff;
-  }
-
-  .notification.info {
-    background: var(--info-color);
-    color: #fff;
-  }
-
-  /* ====== 訊息提示 ====== */
-  .msg {
-    padding: 12px 16px;
-    border-radius: var(--border-radius);
-    margin: 16px 0;
-    border-left: 4px solid;
-  }
-
-  .msg.success {
-    background: #e8f5e8;
-    color: #2e7d32;
-    border-color: var(--success-color);
-  }
-
-  .msg.error {
-    background: #ffebee;
-    color: #c62828;
-    border-color: var(--error-color);
-  }
-
-  .msg.warning {
-    background: #fff3e0;
-    color: #ef6c00;
-    border-color: var(--warning-color);
-  }
-
-  .msg.info {
-    background: #e3f2fd;
-    color: #1565c0;
-    border-color: var(--info-color);
-  }
-
-  /* ====== 響應式設計 ====== */
-  @media (max-width: 768px) {
-    .header-content {
-      flex-direction: column;
-      gap: 12px;
-      align-items: stretch;
-    }
-
-    .user-info {
-      justify-content: center;
-    }
-
-    .container {
-      padding: 16px;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-    }
-
-    .test-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>報名名單查看</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+      
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          padding: 20px;
+      }
+      
+      .container {
+          max-width: 800px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          overflow: hidden;
+      }
+      
+      .header {
+          background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+          color: white;
+          padding: 30px 20px;
+          text-align: center;
+      }
+      
+      .activity-info {
+          padding: 20px;
+          background: #f8f9fa;
+          border-bottom: 1px solid #eee;
+      }
+      
+      .group-section {
+          margin-bottom: 30px;
+          background: white;
+          border-radius: 10px;
+          overflow: hidden;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      
+      .group-header {
+          background: linear-gradient(45deg, #4ECDC4, #44A08D);
+          color: white;
+          padding: 15px 20px;
+          font-weight: bold;
+          font-size: 1.2em;
+      }
+      
+      .registration-list {
+          padding: 20px;
+      }
+      
+      .list-section {
+          margin-bottom: 25px;
+      }
+      
+      .section-title {
+          font-weight: bold;
+          color: #333;
+          margin-bottom: 15px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #4ECDC4;
+      }
+      
+      .confirmed-title {
+          color: #28a745;
+      }
+      
+      .waitlist-title {
+          color: #ffc107;
+      }
+      
+      .participant-item {
+          display: flex;
+          align-items: center;
+          padding: 10px 15px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          margin-bottom: 8px;
+          border-left: 4px solid #4ECDC4;
+      }
+      
+      .waitlist-item {
+          border-left-color: #ffc107;
+          background: #fff8e1;
+      }
+      
+      .participant-number {
+          background: #4ECDC4;
+          color: white;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          margin-right: 15px;
+          flex-shrink: 0;
+      }
+      
+      .waitlist-number {
+          background: #ffc107;
+      }
+      
+      .participant-name {
+          font-weight: bold;
+          color: #333;
+      }
+      
+      .participant-time {
+          font-size: 0.8em;
+          color: #666;
+          margin-left: auto;
+      }
+      
+      .empty-list {
+          text-align: center;
+          color: #666;
+          padding: 30px;
+          font-style: italic;
+      }
+      
+      .summary-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 15px;
+          margin-bottom: 20px;
+      }
+      
+      .stat-card {
+          background: white;
+          padding: 15px;
+          border-radius: 8px;
+          text-align: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      .stat-number {
+          font-size: 2em;
+          font-weight: bold;
+          color: #4ECDC4;
+      }
+      
+      .stat-label {
+          font-size: 0.9em;
+          color: #666;
+          margin-top: 5px;
+      }
+      
+      .loading {
+          text-align: center;
+          padding: 50px;
+      }
+      
+      .spinner {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #4ECDC4;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 10px;
+      }
+      
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+  </style>
 </head>
-
 <body>
-<!-- 頁面標題 -->
-<header>
-  <div class="header-content">
-    <h1 id="pageTitle">🏃‍♂️ 三鐵活動報名系統</h1>
-    
-    <!-- LIFF 狀態顯示 -->
-    <div id="liffStatus" class="liff-status disconnected">
-      <span id="liffStatusIcon">❌</span>
-      <span id="liffStatusText">LIFF 未連接</span>
-    </div>
-    
-    <!-- 使用者資訊 -->
-    <div id="userInfo" class="user-info" style="display: none;">
-      <img id="userAvatar" class="user-avatar" src="" alt="使用者頭像">
-      <div class="user-details">
-        <div id="userName" class="user-name"></div>
-        <div id="userId" class="user-id"></div>
+  <div class="container">
+      <div class="header">
+          <h1>📊 報名名單</h1>
+          <p>統計資料</p>
       </div>
-    </div>
+      
+      <div id="activityInfo" class="activity-info">
+          <!-- 活動資訊 -->
+      </div>
+      
+      <div id="summaryStats" class="summary-stats" style="padding: 20px;">
+          <!-- 統計資料 -->
+      </div>
+      
+      <div id="registrationLists" style="padding: 20px;">
+          <!-- 報名名單 -->
+      </div>
+      
+      <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>載入中...</p>
+      </div>
   </div>
-  
-  <nav id="mainNav">
-    <a href="#" onclick="showPage('home')" class="nav-active">🏠 活動列表</a>
-    <a href="#" onclick="showPage('liff-test')">🔧 LIFF 測試</a>
-    <a href="#" onclick="showPage('register-test')">📝 報名測試</a>
-  </nav>
-</header>
 
-<!-- 主要內容容器 -->
-<div class="container">
-  <div id="mainContent">
-    <!-- 動態載入頁面內容 -->
-  </div>
-</div>
-
-<!-- 模態框 -->
-<div id="modalBackdrop" class="modal-backdrop">
-  <div class="modal" id="modalContent">
-    <!-- 動態內容 -->
-  </div>
-</div>
-
-<!-- 頁尾 -->
-<footer>
-  <div class="footer-content">
-    <p>© 2025 三鐵活動報名系統 v2.0 - LIFF 整合測試版</p>
-  </div>
-</footer>
-
-<script>
-  // ====== 全域變數 ====== 
-  const CONFIG = {
-    API_BASE_URL: "https://script.google.com/macros/s/AKfycbxdSWNjtioLiJ7wv6kpwRgqeUoRSiEiXMCGcJsjMeyM2CbePptLYDcOVt7SAgy-_EKy/exec",
-    LIFF_ID: "2007905012-o1yDNa92", 
-    VERSION: "2.0.0"
-  };
-
-  let gProfile = {
-    isLoggedIn: false,
-    userId: null,
-    displayName: null,
-    pictureUrl: null,
-    statusMessage: null,
-    email: null
-  };
-
-  let liffInitialized = false;
-  let currentPage = 'home';
-
-  // ====== 共用工具函數 ======
-  function htmlEscape(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function showNotification(message, type = 'info', duration = 3000) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-      <span>${htmlEscape(message)}</span>
-      <button onclick="this.parentElement.remove()" style="background: none; border: none; color: inherit; font-size: 18px; cursor: pointer; padding: 0; margin-left: auto;">✕</button>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => notification.classList.add('show'), 100);
-    
-    setTimeout(() => {
-      notification.classList.remove('show');
-      setTimeout(() => notification.remove(), 300);
-    }, duration);
-  }
-
-  function openModal(content) {
-    const backdrop = document.getElementById('modalBackdrop');
-    const modal = document.getElementById('modalContent');
-    
-    modal.innerHTML = content;
-    backdrop.classList.add('show');
-    
-    // 綁定關閉事件
-    const closeBtn = modal.querySelector('.close-btn');
-    if (closeBtn) {
-      closeBtn.onclick = closeModal;
-    }
-    
-    backdrop.onclick = (e) => {
-      if (e.target === backdrop) closeModal();
-    };
-  }
-
-  function closeModal() {
-    const backdrop = document.getElementById('modalBackdrop');
-    backdrop.classList.remove('show');
-  }
-
-  // ====== LIFF 初始化和管理 ======
-  async function initializeLiff() {
-    console.log('🔄 開始初始化 LIFF...');
-    updateLiffStatus('connecting', '連接中...');
-    
-    try {
-      // 檢查 LIFF SDK 是否載入
-      if (typeof liff === 'undefined') {
-        throw new Error('LIFF SDK 未載入');
-      }
-
-      // 檢查 LIFF_ID 是否設定
-      if (!CONFIG.LIFF_ID || CONFIG.LIFF_ID === "YOUR_LIFF_ID") {
-        throw new Error('LIFF_ID 未正確設定');
-      }
-
-      console.log('📱 使用 LIFF ID:', CONFIG.LIFF_ID);
-
+  <script>
+      let liffId = '2007905012-o1yDNa92';
+      let gasApiUrl = 'https://script.google.com/macros/s/AKfycbwgZK974QlJT48U6_O99mR2ZmDe2KlCLvGFlb-Ot7UnQecdV-H3uNLC5nvVud1bKJ1Uyw/exec';
+      let currentActivity = null;
+      
       // 初始化 LIFF
-      await liff.init({ 
-        liffId: CONFIG.LIFF_ID,
-        withLoginOnExternalBrowser: true // 允許外部瀏覽器登入
-      });
-
-      liffInitialized = true;
-      console.log('✅ LIFF 初始化成功');
-
-      // 檢查登入狀態
-      if (liff.isLoggedIn()) {
-        console.log('👤 使用者已登入，取得個人資料...');
-        await loadUserProfile();
-        updateLiffStatus('connected', '已連接並登入');
-      } else {
-        console.log('👤 使用者未登入');
-        updateLiffStatus('connected', '已連接但未登入');
-      }
-
-      return true;
-
-    } catch (error) {
-      console.error('❌ LIFF 初始化失敗:', error);
-      liffInitialized = false;
-      updateLiffStatus('error', `初始化失敗: ${error.message}`);
-      return false;
-    }
-  }
-
-  async function loadUserProfile() {
-    try {
-      console.log('📋 取得使用者個人資料...');
-      const profile = await liff.getProfile();
-      
-      gProfile = {
-        isLoggedIn: true,
-        userId: profile.userId,
-        displayName: profile.displayName,
-        pictureUrl: profile.pictureUrl,
-        statusMessage: profile.statusMessage || null,
-        email: null // LIFF v2 需要特殊權限才能取得 email
-      };
-
-      console.log('✅ 使用者資料載入成功:', {
-        userId: gProfile.userId,
-        displayName: gProfile.displayName,
-        hasPicture: !!gProfile.pictureUrl
-      });
-
-      updateUserDisplay();
-      return gProfile;
-
-    } catch (error) {
-      console.error('❌ 取得使用者資料失敗:', error);
-      throw error;
-    }
-  }
-
-  function updateLiffStatus(status, message) {
-    const statusElement = document.getElementById('liffStatus');
-    const iconElement = document.getElementById('liffStatusIcon');
-    const textElement = document.getElementById('liffStatusText');
-
-    statusElement.className = `liff-status ${status}`;
-    
-    switch(status) {
-      case 'connecting':
-        iconElement.textContent = '🔄';
-        statusElement.className = 'liff-status';
-        break;
-      case 'connected':
-        iconElement.textContent = '✅';
-        statusElement.className = 'liff-status connected';
-        break;
-      case 'disconnected':
-        iconElement.textContent = '❌';
-        statusElement.className = 'liff-status disconnected';
-        break;
-      case 'error':
-        iconElement.textContent = '⚠️';
-        statusElement.className = 'liff-status error';
-        break;
-    }
-    
-    textElement.textContent = message;
-  }
-
-  function updateUserDisplay() {
-    const userInfoElement = document.getElementById('userInfo');
-    const userAvatarElement = document.getElementById('userAvatar');
-    const userNameElement = document.getElementById('userName');
-    const userIdElement = document.getElementById('userId');
-
-    if (gProfile.isLoggedIn) {
-      userInfoElement.style.display = 'flex';
-      
-      if (gProfile.pictureUrl) {
-        userAvatarElement.src = gProfile.pictureUrl;
-        userAvatarElement.style.display = 'block';
-      } else {
-        userAvatarElement.style.display = 'none';
-      }
-      
-      userNameElement.textContent = gProfile.displayName || '未知使用者';
-      userIdElement.textContent = gProfile.userId ? `ID: ${gProfile.userId.substring(0, 10)}...` : '';
-    } else {
-      userInfoElement.style.display = 'none';
-    }
-  }
-
-  async function loginWithLiff() {
-    if (!liffInitialized) {
-      showNotification('LIFF 尚未初始化', 'error');
-      return;
-    }
-
-    try {
-      if (!liff.isLoggedIn()) {
-        console.log('🔑 開始 LINE 登入流程...');
-        liff.login({
-          redirectUri: window.location.href
-        });
-      } else {
-        showNotification('已經登入了', 'info');
-      }
-    } catch (error) {
-      console.error('❌ 登入失敗:', error);
-      showNotification('登入失敗: ' + error.message, 'error');
-    }
-  }
-
-  async function logoutFromLiff() {
-    if (!liffInitialized) {
-      showNotification('LIFF 尚未初始化', 'error');
-      return;
-    }
-
-    try {
-      if (liff.isLoggedIn()) {
-        console.log('🚪 登出 LINE...');
-        liff.logout();
-        
-        // 重置使用者資料
-        gProfile = {
-          isLoggedIn: false,
-          userId: null,
-          displayName: null,
-          pictureUrl: null,
-          statusMessage: null,
-          email: null
-        };
-        
-        updateUserDisplay();
-        updateLiffStatus('connected', '已連接但未登入');
-        showNotification('已登出', 'info');
-      } else {
-        showNotification('尚未登入', 'info');
-      }
-    } catch (error) {
-      console.error('❌ 登出失敗:', error);
-      showNotification('登出失敗: ' + error.message, 'error');
-    }
-  }
-
-  // ====== 頁面路由系統 ======
-  function showPage(page) {
-    currentPage = page;
-    
-    // 更新導航狀態
-    document.querySelectorAll('#mainNav a').forEach(a => {
-      a.classList.remove('nav-active');
-    });
-    
-    const navLinks = {
-      'home': 0,
-      'liff-test': 1,
-      'register-test': 2
-    };
-    
-    if (navLinks[page] !== undefined) {
-      document.querySelectorAll('#mainNav a')[navLinks[page]].classList.add('nav-active');
-    }
-    
-    // 載入頁面內容
-    switch(page) {
-      case 'home':
-        loadHomePage();
-        break;
-      case 'liff-test':
-        loadLiffTestPage();
-        break;
-      case 'register-test':
-        loadRegisterTestPage();
-        break;
-      default:
-        loadHomePage();
-    }
-  }
-
-  // ====== 主頁面 ======
-  function loadHomePage() {
-    document.getElementById('pageTitle').textContent = '🏃‍♂️ 三鐵活動報名系統';
-    
-    const content = `
-      <div class="card">
-        <h2>🏠 歡迎使用三鐵活動報名系統</h2>
-        <p>這是一個整合 LINE LIFF 的報名系統測試版本。</p>
-        
-        <div style="margin-top: 24px;">
-          <h3>🔧 系統功能</h3>
-          <ul style="margin: 12px 0 0 24px; line-height: 1.8;">
-            <li><strong>LIFF 整合測試</strong> - 測試 LINE 登入和個人資料取得</li>
-            <li><strong>自動填入功能</strong> - 使用 LINE 名稱自動填入表單</li>
-            <li><strong>報名系統</strong> - 完整的活動報名流程</li>
-            <li><strong>即時狀態</strong> - 顯示 LIFF 連接狀態和使用者資訊</li>
-          </ul>
-        </div>
-        
-        <div style="margin-top: 24px;">
-          <h3>📱 使用說明</h3>
-          <ol style="margin: 12px 0 0 24px; line-height: 1.8;">
-            <li>點擊上方「LIFF 測試」頁面檢查連接狀態</li>
-            <li>如果未登入，可以點擊「LINE 登入」按鈕</li>
-            <li>登入後會自動取得您的 LINE 名稱和頭像</li>
-            <li>在報名表單中會自動填入您的姓名</li>
-          </ol>
-        </div>
-
-        <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
-          <h4>ℹ️ 目前狀態</h4>
-          <div style="margin-top: 8px;">
-            <div><strong>LIFF 狀態：</strong><span id="homePageLiffStatus">檢查中...</span></div>
-            <div><strong>登入狀態：</strong><span id="homePageLoginStatus">檢查中...</span></div>
-            <div><strong>使用者：</strong><span id="homePageUserName">未登入</span></div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    document.getElementById('mainContent').innerHTML = content;
-    
-      // 更新狀態顯示
-      updateHomePageStatus();
-    }
-
-    function updateHomePageStatus() {
-      const liffStatusEl = document.getElementById('homePageLiffStatus');
-      const loginStatusEl = document.getElementById('homePageLoginStatus');
-      const userNameEl = document.getElementById('homePageUserName');
-
-      if (liffStatusEl) {
-        liffStatusEl.textContent = liffInitialized ? '✅ 已連接' : '❌ 未連接';
-        liffStatusEl.style.color = liffInitialized ? '#2e7d32' : '#c62828';
-      }
-
-      if (loginStatusEl) {
-        loginStatusEl.textContent = gProfile.isLoggedIn ? '✅ 已登入' : '❌ 未登入';
-        loginStatusEl.style.color = gProfile.isLoggedIn ? '#2e7d32' : '#c62828';
-      }
-
-      if (userNameEl) {
-        userNameEl.textContent = gProfile.isLoggedIn ? gProfile.displayName : '未登入';
-      }
-    }
-
-    // ====== LIFF 測試頁面 ======
-    function loadLiffTestPage() {
-      document.getElementById('pageTitle').textContent = '🔧 LIFF 測試';
-      
-      const content = `
-        <div class="liff-test-section">
-          <h2>🔧 LIFF 連接測試</h2>
-          <p>測試 LINE Front-end Framework 的各項功能</p>
-          
-          <div class="test-grid">
-            <div class="test-card" id="initTestCard">
-              <h4>📡 初始化測試</h4>
-              <p>檢查 LIFF SDK 載入和初始化狀態</p>
-              <div class="test-result" id="initTestResult">等待測試...</div>
-              <button onclick="testLiffInit()" style="margin-top: 12px;">重新測試</button>
-            </div>
-            
-            <div class="test-card" id="loginTestCard">
-              <h4>🔑 登入狀態測試</h4>
-              <p>檢查使用者登入狀態</p>
-              <div class="test-result" id="loginTestResult">等待測試...</div>
-              <div style="margin-top: 12px; display: flex; gap: 8px;">
-                <button onclick="testLoginStatus()">檢查狀態</button>
-                <button onclick="loginWithLiff()" class="success">LINE 登入</button>
-                <button onclick="logoutFromLiff()" class="warning">登出</button>
-              </div>
-            </div>
-            
-            <div class="test-card" id="profileTestCard">
-              <h4>👤 個人資料測試</h4>
-              <p>取得 LINE 使用者個人資料</p>
-              <div class="test-result" id="profileTestResult">等待測試...</div>
-              <button onclick="testGetProfile()" style="margin-top: 12px;">取得資料</button>
-            </div>
-            
-            <div class="test-card" id="environmentTestCard">
-              <h4>🌐 環境資訊測試</h4>
-              <p>檢查 LIFF 執行環境</p>
-              <div class="test-result" id="environmentTestResult">等待測試...</div>
-              <button onclick="testEnvironment()" style="margin-top: 12px;">檢查環境</button>
-            </div>
-          </div>
-          
-          <div style="margin-top: 24px;">
-            <h3>📋 完整測試報告</h3>
-            <div id="fullTestReport" style="background: #f0f0f0; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px; overflow-y: auto;">
-              點擊下方按鈕開始完整測試...
-            </div>
-            <button onclick="runFullTest()" style="margin-top: 12px;" class="success">🚀 執行完整測試</button>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('mainContent').innerHTML = content;
-      
-      // 自動執行基本測試
-      setTimeout(() => {
-        testLiffInit();
-        testLoginStatus();
-        testEnvironment();
-      }, 500);
-    }
-
-    async function testLiffInit() {
-      const card = document.getElementById('initTestCard');
-      const result = document.getElementById('initTestResult');
-      
-      try {
-        result.textContent = '測試中...';
-        card.className = 'test-card';
-        
-        let testResult = '';
-        
-        // 檢查 LIFF SDK
-        if (typeof liff === 'undefined') {
-          throw new Error('LIFF SDK 未載入');
-        }
-        testResult += '✅ LIFF SDK 已載入\n';
-        
-        // 檢查初始化狀態
-        if (liffInitialized) {
-          testResult += '✅ LIFF 已初始化\n';
-          testResult += `📱 LIFF ID: ${CONFIG.LIFF_ID}\n`;
-          
-          // 檢查 LIFF 是否在 LINE 中執行
-          if (liff.isInClient()) {
-            testResult += '📱 在 LINE 應用程式中執行\n';
+      liff.init({
+          liffId: liffId
+      }).then(() => {
+          if (!liff.isLoggedIn()) {
+              liff.login();
           } else {
-            testResult += '🌐 在外部瀏覽器中執行\n';
+              initializeApp();
           }
-          
-        } else {
-          testResult += '❌ LIFF 未初始化\n';
-          // 嘗試重新初始化
-          await initializeLiff();
-          if (liffInitialized) {
-            testResult += '✅ 重新初始化成功\n';
-          }
-        }
-        
-        result.textContent = testResult;
-        card.className = 'test-card success';
-        
-      } catch (error) {
-        result.textContent = `❌ 測試失敗: ${error.message}`;
-        card.className = 'test-card error';
-      }
-    }
-
-    async function testLoginStatus() {
-      const card = document.getElementById('loginTestCard');
-      const result = document.getElementById('loginTestResult');
+      }).catch((err) => {
+          console.error('LIFF initialization failed', err);
+      });
       
-      try {
-        result.textContent = '測試中...';
-        card.className = 'test-card';
-        
-        let testResult = '';
-        
-        if (!liffInitialized) {
-          throw new Error('LIFF 未初始化');
-        }
-        
-        const isLoggedIn = liff.isLoggedIn();
-        testResult += `登入狀態: ${isLoggedIn ? '✅ 已登入' : '❌ 未登入'}\n`;
-        
-        if (isLoggedIn) {
-          testResult += `使用者ID: ${gProfile.userId || '未取得'}\n`;
-          testResult += `顯示名稱: ${gProfile.displayName || '未取得'}\n`;
-          testResult += `頭像: ${gProfile.pictureUrl ? '✅ 有' : '❌ 無'}\n`;
-        }
-        
-        result.textContent = testResult;
-        card.className = isLoggedIn ? 'test-card success' : 'test-card';
-        
-      } catch (error) {
-        result.textContent = `❌ 測試失敗: ${error.message}`;
-        card.className = 'test-card error';
-      }
-    }
-
-    async function testGetProfile() {
-      const card = document.getElementById('profileTestCard');
-      const result = document.getElementById('profileTestResult');
-      
-      try {
-        result.textContent = '測試中...';
-        card.className = 'test-card';
-        
-        if (!liffInitialized) {
-          throw new Error('LIFF 未初始化');
-        }
-        
-        if (!liff.isLoggedIn()) {
-          throw new Error('使用者未登入');
-        }
-        
-        const profile = await liff.getProfile();
-        
-        let testResult = '';
-        testResult += `✅ 個人資料取得成功\n`;
-        testResult += `使用者ID: ${profile.userId}\n`;
-        testResult += `顯示名稱: ${profile.displayName}\n`;
-        testResult += `狀態訊息: ${profile.statusMessage || '無'}\n`;
-        testResult += `頭像URL: ${profile.pictureUrl ? '有' : '無'}\n`;
-        
-        // 更新全域變數
-        gProfile = {
-          isLoggedIn: true,
-          userId: profile.userId,
-          displayName: profile.displayName,
-          pictureUrl: profile.pictureUrl,
-          statusMessage: profile.statusMessage,
-          email: null
-        };
-        
-        updateUserDisplay();
-        
-        result.textContent = testResult;
-        card.className = 'test-card success';
-        
-      } catch (error) {
-        result.textContent = `❌ 測試失敗: ${error.message}`;
-        card.className = 'test-card error';
-      }
-    }
-
-    async function testEnvironment() {
-      const card = document.getElementById('environmentTestCard');
-      const result = document.getElementById('environmentTestResult');
-      
-      try {
-        result.textContent = '測試中...';
-        card.className = 'test-card';
-        
-        if (!liffInitialized) {
-          throw new Error('LIFF 未初始化');
-        }
-        
-        let testResult = '';
-        
-        // 基本環境資訊
-        testResult += `執行環境: ${liff.isInClient() ? 'LINE App' : 'External Browser'}\n`;
-        testResult += `作業系統: ${liff.getOS()}\n`;
-        testResult += `LIFF 版本: ${liff.getVersion()}\n`;
-        testResult += `語言: ${liff.getLanguage()}\n`;
-        
-        // 權限檢查
-        const context = liff.getContext();
-        if (context) {
-          testResult += `\n📱 Context 資訊:\n`;
-          testResult += `類型: ${context.type}\n`;
-          testResult += `檢視類型: ${context.viewType}\n`;
-          if (context.userId) {
-            testResult += `使用者ID: ${context.userId}\n`;
-          }
-          if (context.utouId) {
-            testResult += `UTOU ID: ${context.utouId}\n`;
-          }
-        }
-        
-        result.textContent = testResult;
-        card.className = 'test-card success';
-        
-      } catch (error) {
-        result.textContent = `❌ 測試失敗: ${error.message}`;
-        card.className = 'test-card error';
-      }
-    }
-
-    async function runFullTest() {
-      const reportElement = document.getElementById('fullTestReport');
-      reportElement.textContent = '🚀 開始執行完整測試...\n\n';
-      
-      const tests = [
-        { name: 'LIFF 初始化測試', func: testLiffInit },
-        { name: '登入狀態測試', func: testLoginStatus },
-        { name: '環境資訊測試', func: testEnvironment }
-      ];
-      
-      if (liff.isLoggedIn()) {
-        tests.push({ name: '個人資料測試', func: testGetProfile });
-      }
-      
-      for (let i = 0; i < tests.length; i++) {
-        const test = tests[i];
-        reportElement.textContent += `${i + 1}. 執行 ${test.name}...\n`;
-        
-        try {
-          await test.func();
-          reportElement.textContent += `   ✅ ${test.name} 完成\n\n`;
-        } catch (error) {
-          reportElement.textContent += `   ❌ ${test.name} 失敗: ${error.message}\n\n`;
-        }
-        
-        // 滾動到底部
-        reportElement.scrollTop = reportElement.scrollHeight;
-        
-        // 短暫延遲
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      
-      reportElement.textContent += '🎉 完整測試執行完畢！\n';
-      reportElement.textContent += `\n📊 測試摘要:\n`;
-      reportElement.textContent += `LIFF 狀態: ${liffInitialized ? '✅ 正常' : '❌ 異常'}\n`;
-      reportElement.textContent += `登入狀態: ${gProfile.isLoggedIn ? '✅ 已登入' : '❌ 未登入'}\n`;
-      reportElement.textContent += `使用者名稱: ${gProfile.displayName || '未取得'}\n`;
-      
-      reportElement.scrollTop = reportElement.scrollHeight;
-    }
-
-    // ====== 報名測試頁面 ======
-    function loadRegisterTestPage() {
-      document.getElementById('pageTitle').textContent = '📝 報名測試';
-      
-      const content = `
-        <div class="card">
-          <h2>📝 報名表單測試</h2>
-          <p>測試 LIFF 整合的自動填入功能</p>
-          
-          <form id="testRegisterForm" style="margin-top: 24px;">
-            <div class="form-group">
-              <label>活動選擇</label>
-              <select name="eventCategory" required>
-                <option value="">請選擇活動分類</option>
-                <option value="登山組">🏔️ 登山組</option>
-                <option value="單車組">🚴‍♂️ 單車組</option>
-                <option value="慢跑組">🏃‍♀️ 慢跑組</option>
-                <option value="水上組">🏊‍♂️ 水上組</option>
-              </select>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label>姓名 *</label>
-                <input type="text" name="userName" id="userNameInput" required placeholder="請輸入姓名">
-                <div id="autoFillIndicator" class="auto-fill-indicator" style="display: none;">
-                  ✅ 已從 LINE 自動填入
-                </div>
-              </div>
+      async function initializeApp() {
+          try {
+              const urlParams = new URLSearchParams(window.location.search);
+              const activityId = urlParams.get('activityId');
               
-              <div class="form-group">
-                <label>聯絡電話</label>
-                <input type="tel" name="userPhone" placeholder="請輸入聯絡電話">
+              if (activityId) {
+                  await loadActivityAndRegistrations(activityId);
+              }
+          } catch (error) {
+              console.error('初始化失敗:', error);
+          }
+      }
+      
+      async function loadActivityAndRegistrations(activityId) {
+          try {
+              // 載入活動資訊
+              const activityResponse = await fetch(`${gasApiUrl}?action=getActivities`);
+              const activityData = await activityResponse.json();
+              
+              if (activityData.success) {
+                  currentActivity = activityData.activities.find(a => a.id === activityId);
+                  if (currentActivity) {
+                      displayActivityInfo(currentActivity);
+                  }
+              }
+              
+              // 載入報名名單
+              const registrationResponse = await fetch(gasApiUrl, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      action: 'getRegistrations',
+                      activityId: activityId
+                  })
+              });
+              
+              const registrationData = await registrationResponse.json();
+              
+              if (registrationData.success) {
+                  displayRegistrations(registrationData.registrations);
+                  displaySummaryStats(registrationData.registrations);
+              }
+              
+              document.getElementById('loading').style.display = 'none';
+              
+          } catch (error) {
+              console.error('載入失敗:', error);
+              document.getElementById('loading').style.display = 'none';
+          }
+      }
+      
+      function displayActivityInfo(activity) {
+          const activityInfoDiv = document.getElementById('activityInfo');
+          activityInfoDiv.innerHTML = `
+              <div class="activity-card">
+                  <h2>${activity.name}</h2>
+                  <p><strong>日期：</strong>${activity.date}</p>
+                  <p><strong>地點：</strong>${activity.location}</p>
+                  <p><strong>說明：</strong>${activity.description}</p>
               </div>
-            </div>
-            
-            <div class="form-group">
-              <label>備註</label>
-              <textarea name="userNote" rows="3" placeholder="其他需要說明的事項"></textarea>
-            </div>
-            
-            <div class="form-actions">
-              <button type="button" onclick="autoFillFromLine()" class="success">
-                🔄 從 LINE 自動填入
-              </button>
-              <button type="button" onclick="clearForm()" class="secondary">
-                🗑️ 清除表單
-              </button>
-              <button type="submit">
-                📝 測試報名
-              </button>
-            </div>
-          </form>
+          `;
+      }
+      
+      function displaySummaryStats(registrations) {
+          const groups = ['mountain', 'cycling', 'running', 'water'];
+          const groupNames = {
+              mountain: '登山組',
+              cycling: '單車組',
+              running: '跑步組',
+              water: '水上組'
+          };
           
-          <div id="registerTestMsg"></div>
+          let totalConfirmed = 0;
+          let totalWaitlist = 0;
           
-          <div style="margin-top: 32px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
-            <h4>💡 測試說明</h4>
-            <ul style="margin: 12px 0 0 20px; line-height: 1.6;">
-              <li>如果已登入 LINE，點擊「從 LINE 自動填入」會自動填入您的姓名</li>
-              <li>自動填入的欄位會有綠色背景和提示標記</li>
-              <li>這個功能可以大幅簡化報名流程</li>
-              <li>實際報名時會自動檢測登入狀態並預填資料</li>
-            </ul>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('mainContent').innerHTML = content;
-      
-      // 綁定表單提交事件
-      document.getElementById('testRegisterForm').addEventListener('submit', handleTestRegisterSubmit);
-      
-      // 如果已登入，自動填入
-      if (gProfile.isLoggedIn) {
-        setTimeout(() => autoFillFromLine(), 500);
-      }
-    }
-
-    function autoFillFromLine() {
-      const userNameInput = document.getElementById('userNameInput');
-      const indicator = document.getElementById('autoFillIndicator');
-      
-      if (!gProfile.isLoggedIn) {
-        showNotification('請先登入 LINE', 'warning');
-        return;
+          const statsHtml = groups.map(group => {
+              const confirmed = registrations[group].confirmed.length;
+              const waitlist = registrations[group].waitlist.length;
+              totalConfirmed += confirmed;
+              totalWaitlist += waitlist;
+              
+              return `
+                  <div class="stat-card">
+                      <div class="stat-number">${confirmed}</div>
+                      <div class="stat-label">${groupNames[group]}<br>正選</div>
+                  </div>
+              `;
+          }).join('');
+          
+          document.getElementById('summaryStats').innerHTML = `
+              <div class="stat-card">
+                  <div class="stat-number">${totalConfirmed}</div>
+                  <div class="stat-label">總正選人數</div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-number">${totalWaitlist}</div>
+                  <div class="stat-label">總候補人數</div>
+              </div>
+              ${statsHtml}
+          `;
       }
       
-      if (!gProfile.displayName) {
-        showNotification('無法取得 LINE 姓名', 'error');
-        return;
+      function displayRegistrations(registrations) {
+          const groups = ['mountain', 'cycling', 'running', 'water'];
+          const groupNames = {
+              mountain: '🏔️ 登山組',
+              cycling: '🚴‍♂️ 單車組',
+              running: '🏃‍♂️ 跑步組',
+              water: '🏊‍♂️ 水上組'
+          };
+          
+          const listsHtml = groups.map(group => {
+              const groupData = registrations[group];
+              const confirmed = groupData.confirmed.sort((a, b) => a.order - b.order);
+              const waitlist = groupData.waitlist.sort((a, b) => a.order - b.order);
+              
+              return `
+                  <div class="group-section">
+                      <div class="group-header">
+                          ${groupNames[group]}
+                      </div>
+                      <div class="registration-list">
+                          ${confirmed.length > 0 ? `
+                              <div class="list-section">
+                                  <h3 class="section-title confirmed-title">✅ 正選名單 (${confirmed.length}人)</h3>
+                                  ${confirmed.map((participant, index) => `
+                                      <div class="participant-item">
+                                          <div class="participant-number">${index + 1}</div>
+                                          <div class="participant-name">${participant.name}</div>
+                                          <div class="participant-time">${formatDate(participant.timestamp)}</div>
+                                      </div>
+                                  `).join('')}
+                              </div>
+                          ` : ''}
+                          
+                          ${waitlist.length > 0 ? `
+                              <div class="list-section">
+                                  <h3 class="section-title waitlist-title">⏳ 候補名單 (${waitlist.length}人)</h3>
+                                  ${waitlist.map((participant, index) => `
+                                      <div class="participant-item waitlist-item">
+                                          <div class="participant-number waitlist-number">${index + 1}</div>
+                                          <div class="participant-name">${participant.name}</div>
+                                          <div class="participant-time">${formatDate(participant.timestamp)}</div>
+                                      </div>
+                                  `).join('')}
+                              </div>
+                          ` : ''}
+                          
+                          ${confirmed.length === 0 && waitlist.length === 0 ? `
+                              <div class="empty-list">
+                                  目前還沒有人報名此組別
+                              </div>
+                          ` : ''}
+                      </div>
+                  </div>
+              `;
+          }).join('');
+          
+          document.getElementById('registrationLists').innerHTML = listsHtml;
       }
       
-      // 填入姓名
-      userNameInput.value = gProfile.displayName;
-      userNameInput.classList.add('auto-filled');
-      
-      // 顯示指示器
-      indicator.style.display = 'flex';
-      
-      showNotification('已從 LINE 自動填入姓名', 'success');
-    }
-
-    function clearForm() {
-      const form = document.getElementById('testRegisterForm');
-      const indicator = document.getElementById('autoFillIndicator');
-      const userNameInput = document.getElementById('userNameInput');
-      
-      form.reset();
-      userNameInput.classList.remove('auto-filled');
-      indicator.style.display = 'none';
-      
-      showNotification('表單已清除', 'info');
-    }
-
-    function handleTestRegisterSubmit(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(e.target);
-      const msgDiv = document.getElementById('registerTestMsg');
-      
-      const data = {
-        eventCategory: formData.get('eventCategory'),
-        userName: formData.get('userName'),
-        userPhone: formData.get('userPhone'),
-        userNote: formData.get('userNote'),
-        lineUserId: gProfile.userId,
-        autoFilled: document.getElementById('userNameInput').classList.contains('auto-filled')
-      };
-      
-      let message = '📝 測試報名資料:\n';
-      message += `活動分類: ${data.eventCategory}\n`;
-      message += `姓名: ${data.userName}`;
-      if (data.autoFilled) {
-        message += ' (來自 LINE)';
+      function formatDate(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('zh-TW') + ' ' + date.toLocaleTimeString('zh-TW', {
+              hour: '2-digit',
+              minute: '2-digit'
+          });
       }
-      message += `\n電話: ${data.userPhone || '未填寫'}`;
-      message += `\nLINE ID: ${data.lineUserId || '未登入'}`;
-      message += `\n備註: ${data.userNote || '無'}`;
-      
-      msgDiv.innerHTML = `<div class="msg success">${message.replace(/\n/g, '<br>')}</div>`;
-      
-      showNotification('測試報名成功！', 'success');
-    }
-
-    // ====== 應用程式初始化 ======
-    document.addEventListener('DOMContentLoaded', async function() {
-      console.log('🚀 三鐵報名系統 LIFF 測試版啟動中...');
-      
-      try {
-        // 初始化 LIFF
-        await initializeLiff();
-        
-        // 載入預設頁面
-        showPage('home');
-        
-        console.log('✅ 系統初始化完成');
-        
-      } catch (error) {
-        console.error('❌ 系統初始化失敗:', error);
-        showNotification('系統初始化失敗：' + error.message, 'error');
-      }
-    });
-
-    // 定期更新狀態顯示
-    setInterval(() => {
-      if (currentPage === 'home') {
-        updateHomePageStatus();
-      }
-    }, 5000);
-
-    // 全域錯誤處理
-    window.addEventListener('error', function(e) {
-      console.error('全域錯誤:', e.error);
-      showNotification('系統發生錯誤', 'error');
-    });
-
-    window.addEventListener('unhandledrejection', function(e) {
-      console.error('未處理的 Promise 錯誤:', e.reason);
-      showNotification('網路請求失敗', 'error');
-    });
   </script>
-  </body>
-  </html>
+</body>
+</html>
