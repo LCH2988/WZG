@@ -413,8 +413,9 @@
           if (isSubmitting) return;
           
           // 驗證必要欄位
-          const requiredFields = ['name', 'gender', 'phone', 'email', 'emergencyContact', 'emergencyPhone', 'idNumber', 'birthday', 'tshirtSize'];
-          
+          // const requiredFields = ['name', 'gender', 'phone', 'email', 'emergencyContact', 'emergencyPhone', 'idNumber', 'birthday', 'tshirtSize'];
+          const requiredFields = ['name', 'gender'];
+
           for (const field of requiredFields) {
               const element = document.getElementById(field);
               if (!element.value.trim()) {
