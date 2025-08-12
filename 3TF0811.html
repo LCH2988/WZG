@@ -251,8 +251,7 @@ small.helper {
 <script>
   const PAGE_MODE = '<?= page ?>';
   const EVENT_ID = '<?= eventId ?>';
-  // const API_BASE = '<?= ScriptApp.getService().getUrl() ?>'; // 自動填入 WebApp URL (同部署後)
-  const API_BASE = 'https://script.google.com/macros/s/AKfycbxzLp7TjdJ1Ht0w4zw8vBiZVFy6QO1SSJkn7VyMmAUg7AOocFFOhkdt1He1i8m1NLU/exec';
+  const API_BASE = '<?= ScriptApp.getService().getUrl() ?>'; // 自動填入 WebApp URL (同部署後)
   const GROUPS = ['登山組','單車組','跑步組','水上組'];
   let liffProfile = null;
 
