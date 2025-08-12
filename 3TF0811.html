@@ -1,622 +1,565 @@
+
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>三鐵飛翔活動報名</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-      * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
+<meta charset="UTF-8"/>
+<title>三鐵飛翔好活動報名</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+body {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  margin:0;
+  background:#f5f7fa;
+  color:#222;
+}
+header {
+  background:#0d47a1;
+  color:#fff;
+  padding:12px 18px;
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:1px;
+}
+.container {
+  padding:16px;
+  max-width:960px;
+  margin:0 auto;
+}
+.grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap:16px;
+}
+.card {
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+  border:1px solid #e2e8f0;
+}
+.card:before {
+  content:"";
+  position:absolute;
+  top:-40px; right:-40px;
+  width:120px; height:120px;
+  background:linear-gradient(135deg,#1976d2,#64b5f6);
+  opacity:0.15;
+  border-radius:50%;
+}
+.card h3 {
+  margin:0 0 8px;
+  font-size:18px;
+  color:#0d47a1;
+  font-weight:600;
+}
+.tag-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-bottom:8px;
+}
+.tag {
+  background:#e3f2fd;
+  color:#0d47a1;
+  font-size:11px;
+  padding:2px 6px;
+  border-radius:6px;
+  font-weight:500;
+  letter-spacing:.5px;
+}
+.meta {
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:8px;
+}
+.desc {
+  font-size:13px;
+  color:#555;
+  flex:1;
+  margin-bottom:12px;
+}
+.btn-row {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+button, .btn {
+  cursor:pointer;
+  border:none;
+  background:#1976d2;
+  color:#fff;
+  padding:9px 14px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:500;
+  transition:.2s;
+  text-decoration:none;
+  display:inline-block;
+}
+button.secondary, .btn.secondary {
+  background:#455a64;
+}
+button.outline, .btn.outline {
+  background:#fff;
+  color:#1976d2;
+  border:1px solid #1976d2;
+}
+button:hover, .btn:hover {
+  opacity:.9;
+  transform:translateY(-2px);
+}
+.form-section {
+  background:#fff;
+  padding:16px 18px 22px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  border:1px solid #e0e0e0;
+  margin-bottom:18px;
+}
+.form-section h2 {
+  margin:0 0 12px;
+  font-size:20px;
+  color:#0d47a1;
+}
+label {
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  margin-top:12px;
+  margin-bottom:4px;
+  letter-spacing:.5px;
+  color:#333;
+}
+select, input[type=text] {
+  width:100%;
+  padding:10px 12px;
+  font-size:14px;
+  border:1px solid #cfd8dc;
+  border-radius:8px;
+  box-sizing:border-box;
+  transition:border-color .2s, box-shadow .2s;
+  background:#fafafa;
+}
+select:focus, input[type=text]:focus {
+  outline:none;
+  border-color:#1976d2;
+  box-shadow:0 0 0 2px rgba(25,118,210,0.2);
+  background:#fff;
+}
+.inline {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.radio-group {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:4px;
+}
+.radio-group label {
+  font-weight:500;
+  color:#444;
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+small.helper {
+  color:#666;
+  font-size:12px;
+  margin-top:4px;
+  display:block;
+}
+.name-fields {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:8px;
+}
+.status-box {
+  background:#e3f2fd;
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:13px;
+  line-height:1.6;
+  border:1px solid #bbdefb;
+  margin-top:8px;
+  white-space:pre-line;
+}
+.footer-links {
+  text-align:center;
+  font-size:12px;
+  color:#78909c;
+  margin:32px 0 12px;
+}
+.badge {
+  display:inline-block;
+  padding:2px 6px;
+  font-size:11px;
+  background:#ffecb3;
+  color:#795548;
+  border-radius:6px;
+  margin-left:6px;
+  font-weight:500;
+}
+.group-stat {
+  font-size:12px;
+  background:#f1f8e9;
+  padding:4px 6px;
+  border-radius:6px;
+  margin:2px 0;
+  color:#33691e;
+}
+.table-section {
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  margin-bottom:18px;
+  border:1px solid #e0e0e0;
+}
+.table-section h3 {
+  margin:0 0 10px;
+  font-size:16px;
+  color:#0d47a1;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.list-block {
+  font-size:13px;
+  line-height:1.6;
+  white-space:pre-line;
+  background:#fafafa;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #e0e0e0;
+}
+.loader {
+  text-align:center;
+  padding:40px 0;
+  color:#607d8b;
+}
+</style>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  const PAGE_MODE = '<?= page ?>';
+  const EVENT_ID = '<?= eventId ?>';
+  // const API_BASE = '<?= ScriptApp.getService().getUrl() ?>'; // 自動填入 WebApp URL (同部署後)
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbxzLp7TjdJ1Ht0w4zw8vBiZVFy6QO1SSJkn7VyMmAUg7AOocFFOhkdt1He1i8m1NLU/exec';
+  const GROUPS = ['登山組','單車組','跑步組','水上組'];
+  let liffProfile = null;
+
+  async function init() {
+    if (typeof liff !== 'undefined') {
+      try {
+        await liff.init({ liffId: '2007905012-o1yDNa92' });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+        liffProfile = await liff.getProfile();
+      } catch (err) {
+        console.error('LIFF init error', err);
       }
-      
-      body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          min-height: 100vh;
-          padding: 20px;
+    }
+    if (PAGE_MODE === 'events') {
+      renderEventsPage();
+    } else if (PAGE_MODE === 'register') {
+      renderRegisterPage(EVENT_ID);
+    } else if (PAGE_MODE === 'stats') {
+      renderStatsPage(EVENT_ID);
+    } else {
+      renderEventsPage();
+    }
+  }
+
+  async function fetchJSON(url, opt={}) {
+    const res = await fetch(url, opt);
+    return res.json();
+  }
+
+  async function renderEventsPage() {
+    const root = document.getElementById('app');
+    root.innerHTML = '<div class="loader">載入活動中...</div>';
+    try {
+      const data = await fetchJSON(API_BASE + '?action=events');
+      if (!data.success) {
+        root.innerHTML = '<p>無法取得活動</p>';
+        return;
       }
-      
-      .container {
-          max-width: 600px;
-          margin: 0 auto;
-          background: white;
-          border-radius: 15px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-          overflow: hidden;
+      const events = data.events;
+      if (!events.length) {
+        root.innerHTML = '<p>目前沒有開放中的活動。</p>';
+        return;
       }
-      
-      .header {
-          background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-          color: white;
-          padding: 30px 20px;
-          text-align: center;
+      let html = '<div class="grid">';
+      events.forEach(ev=>{
+        html += renderEventCard(ev);
+      });
+      html += '</div>';
+      root.innerHTML = html;
+    } catch (e) {
+      console.error(e);
+      root.innerHTML = '<p>載入發生錯誤</p>';
+    }
+  }
+
+  function renderEventCard(ev) {
+    const desc = (ev.Description || '').slice(0,60);
+    const regUrl = API_BASE + '?page=register&eventId=' + encodeURIComponent(ev.EventID);
+    const statsUrl = API_BASE + '?page=stats&eventId=' + encodeURIComponent(ev.EventID);
+    return `
+      <div class="card">
+        <h3>${ev.Title}</h3>
+        <div class="tag-row">
+          <span class="tag">${ev.EventID}</span>
+          <span class="tag">${ev.Date}</span>
+        </div>
+        <div class="meta">
+          時間: ${ev.StartTime || ''} - ${ev.EndTime || ''}<br/>
+          地點: ${ev.Location || ''}<br/>
+        </div>
+        <div class="desc">${desc}${ev.Description && ev.Description.length>60 ? '...' : ''}</div>
+        <div class="btn-row">
+          <a class="btn" href="${regUrl}">我要報名</a>
+          <a class="btn outline" href="${statsUrl}">查看名單</a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function renderRegisterPage(eventId) {
+    const root = document.getElementById('app');
+    if (!eventId) {
+      root.innerHTML = '<p>未指定活動 ID</p>';
+      return;
+    }
+    root.innerHTML = '<div class="loader">載入活動資料...</div>';
+    const data = await fetchJSON(API_BASE + '?action=event&eventId=' + encodeURIComponent(eventId));
+    if (!data.success) {
+      root.innerHTML = '<p>活動不存在</p>';
+      return;
+    }
+    const ev = data.event;
+
+    let groupRadios = GROUPS.map(g=>`
+      <label><input type="radio" name="groupType" value="${g}"> ${g}</label>
+    `).join('');
+    root.innerHTML = `
+      <div class="form-section">
+        <h2>${ev.Title} <span class="badge">${ev.EventID}</span></h2>
+        <div style="font-size:13px;line-height:1.6;margin-bottom:10px;">
+          日期: ${ev.Date} <br/>
+          時間: ${ev.StartTime || ''} - ${ev.EndTime || ''}<br/>
+          地點: ${ev.Location || ''}<br/>
+          <small style="color:#555;">${ev.Description || ''}</small>
+        </div>
+        <label>選擇組別</label>
+        <div class="radio-group" id="groupRadios">${groupRadios}</div>
+        <label>報名模式</label>
+        <div class="radio-group">
+          <label><input type="radio" name="mode" value="single" checked> 個人</label>
+          <label><input type="radio" name="mode" value="multi"> 多人 (最多3人)</label>
+        </div>
+        <div id="nameFields" class="name-fields">
+          <div>
+            <label>姓名(1)</label>
+            <input type="text" name="name1" placeholder="請輸入姓名">
+          </div>
+        </div>
+        <button style="margin-top:14px;" onclick="addNameField()">新增姓名欄位</button>
+        <small class="helper">多人報名: 最多三人，超過請分批。</small>
+        <button style="margin-top:20px;" onclick="submitRegistration('${ev.EventID}')">送出報名</button>
+        <div id="statusBox" class="status-box" style="display:none;"></div>
+        <div style="margin-top:12px;font-size:12px;color:#607d8b;">送出後將以您的LINE身份在聊天中發布確認訊息</div>
+      </div>
+    `;
+
+    document.querySelectorAll('input[name=mode]').forEach(r=>{
+      r.addEventListener('change', ()=>{
+        const mode = document.querySelector('input[name=mode]:checked').value;
+        const nf = document.getElementById('nameFields');
+        nf.innerHTML = '';
+        if (mode === 'single') {
+          nf.innerHTML = `<div>
+              <label>姓名(1)</label>
+              <input type="text" name="name1" placeholder="請輸入姓名">
+            </div>`;
+        } else {
+          nf.innerHTML = `<div>
+            <label>姓名(1)</label>
+            <input type="text" name="name1" placeholder="請輸入姓名">
+          </div>`;
+        }
+      });
+    });
+  }
+
+  function addNameField() {
+    const mode = document.querySelector('input[name=mode]:checked')?.value;
+    if (mode !== 'multi') return;
+    const nf = document.getElementById('nameFields');
+    const count = nf.querySelectorAll('input[type=text]').length;
+    if (count >= 3) {
+      alert('最多三位');
+      return;
+    }
+    const idx = count + 1;
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <label>姓名(${idx})</label>
+      <input type="text" name="name${idx}" placeholder="請輸入姓名">
+    `;
+    nf.appendChild(div);
+  }
+
+  async function submitRegistration(eventId) {
+    const groupType = document.querySelector('input[name=groupType]:checked')?.value;
+    if (!groupType) {
+      alert('請選擇組別');
+      return;
+    }
+    const mode = document.querySelector('input[name=mode]:checked').value;
+    const nameInputs = Array.from(document.querySelectorAll('#nameFields input[type=text]'));
+    const names = nameInputs.map(i=>i.value.trim()).filter(v=>v);
+    if (names.length === 0) {
+      alert('請至少輸入一個姓名');
+      return;
+    }
+    if (mode === 'single' && names.length !== 1) {
+      alert('個人報名僅能一人');
+      return;
+    }
+    if (mode === 'multi' && names.length > 3) {
+      alert('最多三位');
+      return;
+    }
+    const payload = {
+      eventId,
+      groupType,
+      names,
+      primaryUserLineId: liffProfile ? liffProfile.userId : '',
+      primaryUserDisplayName: liffProfile ? liffProfile.displayName : ''
+    };
+    const statusBox = document.getElementById('statusBox');
+    statusBox.style.display='block';
+    statusBox.textContent='送出中...';
+
+    try {
+      const res = await fetch(API_BASE + '?action=register', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      }).then(r=>r.json());
+      if (!res.success) {
+        statusBox.textContent='報名失敗：' + res.message;
+        return;
       }
-      
-      .header h1 {
-          font-size: 2em;
-          margin-bottom: 10px;
+      let msg = '報名成功！\n';
+      res.results.forEach(r=>{
+        if (r.status === 'CONFIRMED') {
+          msg += `${r.name} => 正選 #${r.sequenceNumber}\n`;
+        } else {
+          msg += `${r.name} => 候補 #${r.waitlistNumber}\n`;
+        }
+      });
+      statusBox.textContent = msg;
+
+      // 使用者本人傳訊息至聊天
+      if (liff && liff.isInClient()) {
+        try {
+          await liff.sendMessages([{
+            type:'text',
+            text:`[報名成功]\n活動:${eventId}\n組別:${groupType}\n` + res.results.map(r=>{
+              return `${r.name}:${r.status==='CONFIRMED'?'正選#'+r.sequenceNumber:'候補#'+r.waitlistNumber}`;
+            }).join(' / ')
+          }]);
+        } catch (e) {
+          console.warn('sendMessages error', e);
+        }
       }
-      
-      .activity-info {
-          padding: 20px;
-          background: #f8f9fa;
-          border-bottom: 1px solid #eee;
-      }
-      
-      .activity-card {
-          background: white;
-          border-radius: 10px;
-          padding: 20px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      }
-      
-      .activity-title {
-          font-size: 1.5em;
-          font-weight: bold;
-          color: #333;
-          margin-bottom: 10px;
-      }
-      
-      .activity-details {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 10px;
-          margin-bottom: 15px;
-      }
-      
-      .detail-item {
-          display: flex;
-          align-items: center;
-          font-size: 0.9em;
-          color: #666;
-      }
-      
-      .detail-item i {
-          margin-right: 8px;
-          color: #4ECDC4;
-      }
-      
-      .groups-status {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 10px;
-          margin-top: 15px;
-      }
-      
-      .group-status {
-          background: #f8f9fa;
-          padding: 10px;
-          border-radius: 8px;
-          text-align: center;
-      }
-      
-      .group-name {
-          font-weight: bold;
-          color: #333;
-          margin-bottom: 5px;
-      }
-      
-      .group-count {
-          font-size: 0.9em;
-          color: #666;
-      }
-      
-      .form-section {
-          padding: 30px 20px;
-      }
-      
-      .form-group {
-          margin-bottom: 25px;
-      }
-      
-      .form-label {
-          display: block;
-          font-weight: bold;
-          color: #333;
-          margin-bottom: 8px;
-          font-size: 1.1em;
-      }
-      
-      .form-control {
-          width: 100%;
-          padding: 12px 15px;
-          border: 2px solid #e1e5e9;
-          border-radius: 8px;
-          font-size: 16px;
-          transition: border-color 0.3s;
-      }
-      
-      .form-control:focus {
-          outline: none;
-          border-color: #4ECDC4;
-      }
-      
-      .radio-group {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 15px;
-      }
-      
-      .radio-option {
-          position: relative;
-          background: #f8f9fa;
-          border: 2px solid #e1e5e9;
-          border-radius: 10px;
-          padding: 15px;
-          cursor: pointer;
-          transition: all 0.3s;
-      }
-      
-      .radio-option:hover {
-          background: #e9ecef;
-          border-color: #4ECDC4;
-      }
-      
-      .radio-option.selected {
-          background: #4ECDC4;
-          border-color: #4ECDC4;
-          color: white;
-      }
-      
-      .radio-option input[type="radio"] {
-          display: none;
-      }
-      
-      .radio-label {
-          font-weight: bold;
-          text-align: center;
-          display: block;
-      }
-      
-      .participants-section {
-          background: #f8f9fa;
-          border-radius: 10px;
-          padding: 20px;
-          margin-top: 20px;
-      }
-      
-      .participant-input {
-          display: flex;
-          align-items: center;
-          margin-bottom: 15px;
-      }
-      
-      .participant-number {
-          background: #4ECDC4;
-          color: white;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          margin-right: 15px;
-          flex-shrink: 0;
-      }
-      
-      .add-participant-btn {
-          background: #28a745;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 14px;
-          margin-top: 10px;
-          transition: background-color 0.3s;
-      }
-      
-      .add-participant-btn:hover {
-          background: #218838;
-      }
-      
-      .remove-participant-btn {
-          background: #dc3545;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 12px;
-          margin-left: 10px;
-      }
-      
-      .submit-btn {
-          width: 100%;
-          background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-          color: white;
-          border: none;
-          padding: 15px;
-          border-radius: 10px;
-          font-size: 1.2em;
-          font-weight: bold;
-          cursor: pointer;
-          transition: transform 0.3s;
-          margin-top: 20px;
-      }
-      
-      .submit-btn:hover {
-          transform: translateY(-2px);
-      }
-      
-      .submit-btn:disabled {
-          background: #ccc;
-          cursor: not-allowed;
-          transform: none;
-      }
-      
-      .loading {
-          display: none;
-          text-align: center;
-          padding: 20px;
-      }
-      
-      .spinner {
-          border: 4px solid #f3f3f3;
-          border-top: 4px solid #4ECDC4;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 10px;
-      }
-      
-      @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-      }
-      
-      .alert {
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          font-weight: bold;
-      }
-      
-      .alert-success {
-          background: #d4edda;
-          color: #155724;
-          border: 1px solid #c3e6cb;
-      }
-      
-      .alert-danger {
-          background: #f8d7da;
-          color: #721c24;
-          border: 1px solid #f5c6cb;
-      }
-      
-      .alert-warning {
-          background: #fff3cd;
-          color: #856404;
-          border: 1px solid #ffeaa7;
-      }
-      
-      @media (max-width: 480px) {
-          .radio-group {
-              grid-template-columns: 1fr;
-          }
-          
-          .groups-status {
-              grid-template-columns: 1fr;
-          }
-      }
-  </style>
+      alert('已完成');
+    } catch (err) {
+      console.error(err);
+      statusBox.textContent='系統錯誤';
+    }
+  }
+
+  async function renderStatsPage(eventId) {
+    const root = document.getElementById('app');
+    if (!eventId) {
+      root.innerHTML = '<p>未指定活動 ID</p>';
+      return;
+    }
+    root.innerHTML = '<div class="loader">載入統計...</div>';
+    const data = await fetchJSON(API_BASE + '?action=stats&eventId=' + encodeURIComponent(eventId));
+    if (!data.success) {
+      root.innerHTML = '<p>無法取得名單</p>';
+      return;
+    }
+    const ev = data.event;
+    const stats = data.stats;
+    let html = `
+      <div class="form-section">
+        <h2>${ev.Title} <span class="badge">${ev.EventID}</span></h2>
+        <div style="font-size:13px;line-height:1.6;margin-bottom:10px;">
+          日期:${ev.Date} 時間:${ev.StartTime||''}-${ev.EndTime||''}<br/>
+          地點:${ev.Location||''}<br/>
+          <small style="color:#555;">${ev.Description||''}</small>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${GROUPS.map(g=>{
+            const gstat = stats.groups[g];
+            return `<div class="group-stat">${g} 正選:${gstat.confirmed} 候補:${gstat.waitlist}</div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    GROUPS.forEach(g=>{
+      const gstat = stats.groups[g];
+      html += `
+        <div class="table-section">
+          <h3>${g} 正選名單</h3>
+          <div class="list-block">
+            ${
+              gstat.confirmedList.length
+              ? gstat.confirmedList.map(x=>`${x.sequence}. ${x.name}`).join('\\n')
+              : '(無)'
+            }
+          </div>
+        </div>
+        <div class="table-section">
+          <h3>${g} 候補名單</h3>
+          <div class="list-block">
+            ${
+              gstat.waitlistList.length
+              ? gstat.waitlistList.map(x=>`${x.sequence}. ${x.name}`).join('\\n')
+              : '(無)'
+            }
+          </div>
+        </div>
+      `;
+    });
+
+    root.innerHTML = html;
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
 </head>
 <body>
-  <div class="container">
-      <div class="header">
-          <h1>🏃‍♂️ 三鐵飛翔</h1>
-          <p>活動報名系統</p>
-      </div>
-      
-      <div id="activityInfo" class="activity-info">
-          <!-- 活動資訊將在這裡動態載入 -->
-      </div>
-      
-      <div class="form-section">
-          <form id="registrationForm">
-              <div class="form-group">
-                  <label class="form-label">選擇組別</label>
-                  <div class="radio-group">
-                      <div class="radio-option" onclick="selectGroup('mountain')">
-                          <input type="radio" name="group" value="mountain">
-                          <span class="radio-label">🏔️ 登山組</span>
-                      </div>
-                      <div class="radio-option" onclick="selectGroup('cycling')">
-                          <input type="radio" name="group" value="cycling">
-                          <span class="radio-label">🚴‍♂️ 單車組</span>
-                      </div>
-                      <div class="radio-option" onclick="selectGroup('running')">
-                          <input type="radio" name="group" value="running">
-                          <span class="radio-label">🏃‍♂️ 跑步組</span>
-                      </div>
-                      <div class="radio-option" onclick="selectGroup('water')">
-                          <input type="radio" name="group" value="water">
-                          <span class="radio-label">🏊‍♂️ 水上組</span>
-                      </div>
-                  </div>
-              </div>
-              
-              <div class="participants-section">
-                  <label class="form-label">參加者姓名</label>
-                  <div id="participantsList">
-                      <div class="participant-input">
-                          <div class="participant-number">1</div>
-                          <input type="text" class="form-control participant-name" placeholder="請輸入姓名" required>
-                      </div>
-                  </div>
-                  <button type="button" class="add-participant-btn" onclick="addParticipant()">
-                      ➕ 新增參加者
-                  </button>
-              </div>
-              
-              <button type="submit" class="submit-btn" id="submitBtn">
-                  🎯 立即報名
-              </button>
-          </form>
-          
-          <div class="loading" id="loading">
-              <div class="spinner"></div>
-              <p>報名處理中...</p>
-          </div>
-      </div>
-  </div>
-
-  <script>
-      let liffId = '2007905012-o1yDNa92';
-      let gasApiUrl = 'https://script.google.com/macros/s/AKfycbwgZK974QlJT48U6_O99mR2ZmDe2KlCLvGFlb-Ot7UnQecdV-H3uNLC5nvVud1bKJ1Uyw/exec';
-      let currentActivity = null;
-      let userProfile = null;
-      let participantCount = 1;
-      let selectedGroup = null;
-      
-      // 初始化 LIFF
-      liff.init({
-          liffId: liffId
-      }).then(() => {
-          if (!liff.isLoggedIn()) {
-              liff.login();
-          } else {
-              initializeApp();
-          }
-      }).catch((err) => {
-          console.error('LIFF initialization failed', err);
-          showAlert('LIFF 初始化失敗', 'danger');
-      });
-      
-      async function initializeApp() {
-          try {
-              // 取得用戶資料
-              userProfile = await liff.getProfile();
-              
-              // 取得活動ID
-              const urlParams = new URLSearchParams(window.location.search);
-              const activityId = urlParams.get('activityId');
-              
-              if (activityId) {
-                  await loadActivity(activityId);
-              } else {
-                  await loadActivities();
-              }
-              
-              // 預填第一個參加者為用戶本人
-              const firstNameInput = document.querySelector('.participant-name');
-              if (firstNameInput) {
-                  firstNameInput.value = userProfile.displayName;
-              }
-              
-          } catch (error) {
-              console.error('初始化失敗:', error);
-              showAlert('初始化失敗', 'danger');
-          }
-      }
-      
-      async function loadActivity(activityId) {
-          try {
-              const response = await fetch(`${gasApiUrl}?action=getActivities`);
-              const data = await response.json();
-              
-              if (data.success) {
-                  currentActivity = data.activities.find(a => a.id === activityId);
-                  if (currentActivity) {
-                      displayActivityInfo(currentActivity);
-                  } else {
-                      showAlert('找不到指定的活動', 'danger');
-                  }
-              } else {
-                  showAlert('載入活動失敗', 'danger');
-              }
-          } catch (error) {
-              console.error('載入活動失敗:', error);
-              showAlert('載入活動失敗', 'danger');
-          }
-      }
-      
-      function displayActivityInfo(activity) {
-          const activityInfoDiv = document.getElementById('activityInfo');
-          
-          const groupNames = {
-              mountain: '登山組',
-              cycling: '單車組',
-              running: '跑步組',
-              water: '水上組'
-          };
-          
-          activityInfoDiv.innerHTML = `
-              <div class="activity-card">
-                  <div class="activity-title">${activity.name}</div>
-                  <div class="activity-details">
-                      <div class="detail-item">
-                          <i>📅</i>
-                          <span>${activity.date}</span>
-                      </div>
-                      <div class="detail-item">
-                          <i>📍</i>
-                          <span>${activity.location}</span>
-                      </div>
-                  </div>
-                  <div class="groups-status">
-                      ${Object.entries(activity.groups).map(([key, group]) => `
-                          <div class="group-status">
-                              <div class="group-name">${groupNames[key]}</div>
-                              <div class="group-count">${group.registered}/${group.limit} 人</div>
-                          </div>
-                      `).join('')}
-                  </div>
-              </div>
-          `;
-      }
-      
-      function selectGroup(group) {
-          selectedGroup = group;
-          
-          // 移除所有選中狀態
-          document.querySelectorAll('.radio-option').forEach(option => {
-              option.classList.remove('selected');
-          });
-          
-          // 添加選中狀態
-          event.currentTarget.classList.add('selected');
-          
-          // 設置 radio 按鈕
-          document.querySelector(`input[value="${group}"]`).checked = true;
-      }
-      
-      function addParticipant() {
-          if (participantCount >= 10) {
-              showAlert('最多只能新增10位參加者', 'warning');
-              return;
-          }
-          
-          participantCount++;
-          const participantsList = document.getElementById('participantsList');
-          
-          const participantDiv = document.createElement('div');
-          participantDiv.className = 'participant-input';
-          participantDiv.innerHTML = `
-              <div class="participant-number">${participantCount}</div>
-              <input type="text" class="form-control participant-name" placeholder="請輸入姓名" required>
-              <button type="button" class="remove-participant-btn" onclick="removeParticipant(this)">
-                  ❌
-              </button>
-          `;
-          
-          participantsList.appendChild(participantDiv);
-      }
-      
-      function removeParticipant(button) {
-          if (participantCount <= 1) {
-              showAlert('至少需要一位參加者', 'warning');
-              return;
-          }
-          
-          button.parentElement.remove();
-          participantCount--;
-          
-          // 重新編號
-          const participantNumbers = document.querySelectorAll('.participant-number');
-          participantNumbers.forEach((number, index) => {
-              number.textContent = index + 1;
-          });
-      }
-      
-      // 表單提交
-      document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          
-          if (!selectedGroup) {
-              showAlert('請選擇組別', 'warning');
-              return;
-          }
-          
-          const nameInputs = document.querySelectorAll('.participant-name');
-          const names = Array.from(nameInputs).map(input => input.value.trim()).filter(name => name);
-          
-          if (names.length === 0) {
-              showAlert('請至少輸入一位參加者姓名', 'warning');
-              return;
-          }
-          
-          // 檢查是否有重複姓名
-          const uniqueNames = [...new Set(names)];
-          if (uniqueNames.length !== names.length) {
-              showAlert('參加者姓名不能重複', 'warning');
-              return;
-          }
-          
-          await submitRegistration(selectedGroup, names);
-      });
-      
-      async function submitRegistration(group, names) {
-          const submitBtn = document.getElementById('submitBtn');
-          const loading = document.getElementById('loading');
-          
-          try {
-              submitBtn.disabled = true;
-              loading.style.display = 'block';
-              
-              const registrationData = {
-                  action: 'register',
-                  activityId: currentActivity.id,
-                  group: group,
-                  names: names,
-                  userId: userProfile.userId,
-                  displayName: userProfile.displayName
-              };
-              
-              const response = await fetch(gasApiUrl, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(registrationData)
-              });
-              
-              const result = await response.json();
-              
-              if (result.success) {
-                  showAlert(result.message, result.status === 'confirmed' ? 'success' : 'warning');
-                  
-                  // 關閉 LIFF 視窗
-                  setTimeout(() => {
-                      liff.closeWindow();
-                  }, 2000);            
-                  } else {
-                  showAlert(result.message, 'danger');
-              }
-              
-          } catch (error) {
-              console.error('報名失敗:', error);
-              showAlert('報名失敗，請稍後再試', 'danger');
-          } finally {
-              submitBtn.disabled = false;
-              loading.style.display = 'none';
-          }
-      }
-      
-      function showAlert(message, type) {
-          // 移除現有的 alert
-          const existingAlert = document.querySelector('.alert');
-          if (existingAlert) {
-              existingAlert.remove();
-          }
-          
-          const alert = document.createElement('div');
-          alert.className = `alert alert-${type}`;
-          alert.textContent = message;
-          
-          const formSection = document.querySelector('.form-section');
-          formSection.insertBefore(alert, formSection.firstChild);
-          
-          // 3秒後自動移除
-          setTimeout(() => {
-              alert.remove();
-          }, 3000);
-      }
-  </script>
+<header>三鐵飛翔好活動報名系統</header>
+<div class="container" id="app"></div>
+<div class="footer-links">
+  &copy; 2025 三鐵飛翔好活動系統
+</div>
 </body>
 </html>
