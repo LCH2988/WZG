@@ -803,7 +803,7 @@
 
 <script>
 /* ========= 系統設定（請替換為您的實際值） ========= */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbytnFmnc9LQ1Y9JW5WfT5p4RHvDaJJg43wCyZOxcW_jYwqxEhTrWg_B7X1LGfqH0B-trw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzEnuADUKI6wOU_oBze89A4T7PfGH_iy4dFVnWNDZxBBSLuBByb7HGAZtS5nFykYHKAZA/exec';
 const LIFF_ID = '2007905012-o1yDNa92';
 
 /* ========= 全域變數 ========= */
@@ -816,6 +816,7 @@ async function fetchJson(url, options = {}) {
   try {
       const response = await fetch(url, options);
       const text = await response.text();
+      console.log('[API Response]', text.slice(0, 500));
       console.log('[API Response]', text.slice(0, 500));
       
       if (!response.ok) {
