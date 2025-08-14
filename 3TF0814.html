@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三鐵飛翔好運動協會</title>
+  <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          font-family: 'Microsoft JhengHei', Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+      }
+
+      .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+      }
+
+      /* Loading Spinner */
+      .loading {
+          display: none;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 9999;
+      }
+
+      .spinner {
+          width: 50px;
+          height: 50px;
+          border: 5px solid #f3f3f3;
+          border-top: 5px solid #2a5298;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+
+      /* Header */
+      header {
+          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          color: white;
+          padding: 1rem 0;
+          position: fixed;
+          width: 100%;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      nav {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .logo {
+          font-size: 1.8rem;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+      }
+
+      .logo::before {
+          content: "🏊‍♂️🚴‍♂️🏃‍♂️";
+          margin-right: 10px;
+      }
+
+      .nav-links {
+          display: flex;
+          list-style: none;
+          gap: 2rem;
+      }
+
+      .nav-links a {
+          color: white;
+          text-decoration: none;
+          transition: color 0.3s;
+      }
+
+      .nav-links a:hover {
+          color: #ffd700;
+      }
+
+      .mobile-menu-btn {
+          display: none;
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+      }
+
+      /* Hero Section */
+      .hero {
+          background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e3f2fd" width="1200" height="600"/><circle fill="%232196f3" cx="200" cy="150" r="50" opacity="0.3"/><circle fill="%23ff9800" cx="800" cy="300" r="80" opacity="0.2"/><circle fill="%234caf50" cx="1000" cy="100" r="60" opacity="0.3"/></svg>');
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          color: white;
+          background-size: cover;
+          background-position: center;
+      }
+
+      .hero-content h1 {
+          font-size: 3.5rem;
+          margin-bottom: 1rem;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      }
+
+      .hero-content p {
+          font-size: 1.3rem;
+          margin-bottom: 2rem;
+          max-width: 600px;
+      }
+
+      .cta-button {
+          background: #ff6b35;
+          color: white;
+          padding: 15px 30px;
+          border: none;
+          border-radius: 50px;
+          font-size: 1.1rem;
+          cursor: pointer;
+          transition: all 0.3s;
+          text-decoration: none;
+          display: inline-block;
+      }
+
+      .cta-button:hover {
+          background: #e55a2b;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      }
+
+      .cta-button:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+          transform: none;
+      }
+
+      /* Sections */
+      section {
+          padding: 5rem 0;
+      }
+
+      .section-title {
+          text-align: center;
+          font-size: 2.5rem;
+          margin-bottom: 3rem;
+          color: #2a5298;
+      }
+
+      /* About Section */
+      .about {
+          background: #f8f9fa;
+      }
+
+      .about-content {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+          align-items: center;
+      }
+
+      .about-text {
+          font-size: 1.1rem;
+          line-height: 1.8;
+      }
+
+      .about-features {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+      }
+
+      .feature {
+          background: white;
+          padding: 1.5rem;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          text-align: center;
+      }
+
+      .feature-icon {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+      }
+
+      /* Activities Section */
+      .activities {
+          background: white;
+      }
+
+      .activity-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+      }
+
+      .activity-card {
+          background: white;
+          border-radius: 15px;
+          overflow: hidden;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          transition: transform 0.3s;
+          cursor: pointer;
+      }
+
+      .activity-card:hover {
+          transform: translateY(-5px);
+      }
+
+      .activity-image {
+          height: 200px;
+          background: linear-gradient(45deg, #2196f3, #21cbf3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 3rem;
+          color: white;
+      }
+
+      .activity-content {
+          padding: 1.5rem;
+      }
+
+      .activity-title {
+          font-size: 1.3rem;
+          margin-bottom: 1rem;
+          color: #2a5298;
+      }
+
+      .activity-meta {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 1rem;
+          font-size: 0.9rem;
+          color: #666;
+      }
+
+      .register-btn {
+          background: #4caf50;
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: background 0.3s;
+      }
+
+      .register-btn:hover {
+          background: #45a049;
+      }
+
+      .register-btn:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+      }
+
+      /* News Section */
+      .news {
+          background: #f8f9fa;
+      }
+
+      .news-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+          gap: 2rem;
+      }
+
+      .news-item {
+          background: white;
+          padding: 2rem;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          transition: transform 0.3s;
+          cursor: pointer;
+      }
+
+      .news-item:hover {
+          transform: translateY(-2px);
+      }
+
+      .news-date {
+          color: #666;
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+      }
+
+      .news-title {
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+          color: #2a5298;
+      }
+
+      .news-category {
+          display: inline-block;
+          background: #e3f2fd;
+          color: #1976d2;
+          padding: 4px 12px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          margin-top: 1rem;
+      }
+
+      /* Members Section */
+      .members {
+          background: white;
+      }
+
+      .member-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 2rem;
+          margin-bottom: 3rem;
+      }
+
+      .stat-card {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 2rem;
+          border-radius: 15px;
+          text-align: center;
+      }
+
+      .stat-number {
+          font-size: 3rem;
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+          font-size: 1.1rem;
+          opacity: 0.9;
+      }
+
+      .member-benefits {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 2rem;
+      }
+
+      .benefit-card {
+          background: #f8f9fa;
+          padding: 2rem;
+          border-radius: 10px;
+          text-align: center;
+      }
+
+      .benefit-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+      }
+
+      /* Gallery Section */
+      .gallery {
+          background: #f8f9fa;
+      }
+
+      .gallery-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 1rem;
+      }
+
+      .gallery-item {
+          position: relative;
+          aspect-ratio: 1;
+          border-radius: 10px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: transform 0.3s;
+      }
+
+      .gallery-item:hover {
+          transform: scale(1.05);
+      }
+
+      .gallery-image {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 3rem;
+          color: white;
+      }
+
+      .gallery-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: linear-gradient(transparent, rgba(0,0,0,0.8));
+          color: white;
+          padding: 1rem;
+          transform: translateY(100%);
+          transition: transform 0.3s;
+      }
+
+      .gallery-item:hover .gallery-overlay {
+          transform: translateY(0);
+      }
+
+      /* Contact Section */
+      .contact {
+          background: #2a5298;
+          color: white;
+      }
+
+      .contact-content {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3rem;
+      }
+
+      .contact-info {
+          font-size: 1.1rem;
+      }
+
+      .contact-info h3 {
+          margin-bottom: 1rem;
+          font-size: 1.5rem;
+      }
+
+      .contact-info p {
+          margin-bottom: 1rem;
+      }
+
+      .contact-form {
+          background: rgba(255,255,255,0.1);
+          padding: 2rem;
+          border-radius: 10px;
+      }
+
+      .form-group {
+          margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+          display: block;
+          margin-bottom: 0.5rem;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+          width: 100%;
+          padding: 10px;
+          border: none;
+          border-radius: 5px;
+          font-size: 1rem;
+      }
+
+      .form-group textarea {
+          height: 120px;
+          resize: vertical;
+      }
+
+      .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+      }
+
+      .success-message {
+          background: #4caf50;
+          color: white;
+          padding: 1rem;
+          border-radius: 5px;
+          margin-bottom: 1rem;
+          display: none;
+      }
+
+      .error-message {
+          background: #f44336;
+          color: white;
+          padding: 1rem;
+          border-radius: 5px;
+          margin-bottom: 1rem;
+          display: none;
+      }
+
+      /* Modal */
+      .modal {
+          display: none;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+      }
+
+      .modal-content {
+          background-color: white;
+          margin: 5% auto;
+          padding: 2rem;
+          border-radius: 10px;
+          width: 90%;
+          max-width: 600px;
+          max-height: 80vh;
+          overflow-y: auto;
+      }
+
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+      }
+
+      .close:hover {
+          color: black;
+      }
+
+      /* Footer */
+      footer {
+          background: #1a1a1a;
+          color: white;
+          text-align: center;
+          padding: 2rem 0;
+      }
+
+      .footer-content {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 2rem;
+          margin-bottom: 2rem;
+          text-align: left;
+      }
+
+      .footer-section h4 {
+          margin-bottom: 1rem;
+          color: #ffd700;
+      }
+
+      .footer-section ul {
+          list-style: none;
+      }
+
+      .footer-section ul li {
+          margin-bottom: 0.5rem;
+      }
+
+      .footer-section ul li a {
+          color: #ccc;
+          text-decoration: none;
+          transition: color 0.3s;
+      }
+
+      .footer-section ul li a:hover {
+          color: #ffd700;
+      }
+
+      .social-links {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          margin-top: 1rem;
+      }
+
+      .social-links a {
+          color: white;
+          font-size: 1.5rem;
+          transition: color 0.3s;
+      }
+
+      .social-links a:hover {
+          color: #ffd700;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+          .mobile-menu-btn {
+              display: block;
+          }
+
+          .nav-links {
+              display: none;
+              position: absolute;
+              top: 100%;
+              left: 0;
+              width: 100%;
+              background: #2a5298;
+              flex-direction: column;
+              padding: 1rem;
+          }
+
+          .nav-links.active {
+              display: flex;
+          }
+
+          .hero-content h1 {
+              font-size: 2.5rem;
+          }
+
+          .about-content,
+          .contact-content {
+              grid-template-columns: 1fr;
+          }
+
+          .about-features {
+              grid-template-columns: 1fr;
+          }
+
+          .form-row {
+              grid-template-columns: 1fr;
+          }
+
+          .member-stats {
+              grid-template-columns: repeat(2, 1fr);
+          }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+          from {
+              opacity: 0;
+              transform: translateY(30px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      .fade-in {
+          animation: fadeInUp 0.6s ease-out;
+      }
+
+      @keyframes slideInLeft {
+          from {
+              opacity: 0;
+              transform: translateX(-30px);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(0);
+          }
+      }
+
+      .slide-in-left {
+          animation: slideInLeft 0.6s ease-out;
+      }
+
+      @keyframes slideInRight {
+          from {
+              opacity: 0;
+              transform: translateX(30px);
+          }
+          to {
+              opacity: 1;
+              transform: translateX(0);
+          }
+      }
+
+      .slide-in-right {
+          animation: slideInRight 0.6s ease-out;
+      }
+  </style>
+</head>
+<body>
+  <!-- Loading Spinner -->
+  <div class="loading" id="loading">
+      <div class="spinner"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+      <nav class="container">
+          <div class="logo">三鐵飛翔好運動協會</div>
+          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+          <ul class="nav-links" id="navLinks">
+              <li><a href="#home">首頁</a></li>
+              <li><a href="#about">關於我們</a></li>
+              <li><a href="#activities">活動資訊</a></li>
+              <li><a href="#members">會員專區</a></li>
+              <li><a href="#gallery">活動花絮</a></li>
+              <li><a href="#news">最新消息</a></li>
+              <li><a href="#contact">聯絡我們</a></li>
+          </ul>
+      </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+      <div class="hero-content fade-in">
+          <h1 id="heroTitle">三鐵飛翔好運動協會</h1>
+          <p id="heroDescription">游泳、自行車、跑步 - 挑戰自我極限，享受運動樂趣<br>加入我們，一起飛翔在三鐵的世界裡</p>
+          <a href="#about" class="cta-button">了解更多</a>
+      </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about">
+      <div class="container">
+          <h2 class="section-title">關於我們</h2>
+          <div class="about-content">
+              <div class="about-text slide-in-left">
+                  <h3 id="aboutTitle">協會宗旨</h3>
+                  <div id="aboutContent">
+                      <p>三鐵飛翔好運動協會成立於2018年，致力於推廣三鐵運動，培養運動員的耐力、意志力與團隊精神。我們相信透過游泳、自行車、跑步三項運動的結合，能夠全面提升身體素質，同時培養堅韌不拔的運動精神。</p>
+                      <p>協會提供專業的訓練指導、完善的設施設備，以及豐富的競賽機會，讓每一位會員都能在三鐵運動中找到屬於自己的成就感。</p>
+                  </div>
+              </div>
+              <div class="about-features slide-in-right" id="aboutFeatures">
+                  <!-- Features will be loaded from Google Sheets -->
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <!-- Activities Section -->
+  <section id="activities" class="activities">
+      <div class="container">
+          <h2 class="section-title">活動資訊</h2>
+          <div class="activity-grid" id="activityGrid">
+              <!-- Activities will be loaded from Google Sheets -->
+          </div>
+      </div>
+  </section>
+
+  <!-- Members Section -->
+  <section id="members" class="members">
+      <div class="container">
+          <h2 class="section-title">會員專區</h2>
+          <div class="member-stats" id="memberStats">
+              <!-- Stats will be loaded from Google Sheets -->
+          </div>
+          <div class="member-benefits" id="memberBenefits">
+              <!-- Benefits will be loaded from Google Sheets -->
+          </div>
+      </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section id="gallery" class="gallery">
+      <div class="container">
+          <h2 class="section-title">活動花絮</h2>
+          <div class="gallery-grid" id="galleryGrid">
+              <!-- Gallery will be loaded from Google Drive -->
+          </div>
+      </div>
+  </section>
+
+  <!-- News Section -->
+  <section id="news" class="news">
+      <div class="container">
+          <h2 class="section-title">最新消息</h2>
+          <div class="news-grid" id="newsGrid">
+              <!-- News will be loaded from Google Sheets -->
+          </div>
+      </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact">
+      <div class="container">
+          <h2 class="section-title" style="color: white;">聯絡我們</h2>
+          <div class="contact-content">
+              <div class="contact-info" id="contactInfo">
+                  <!-- Contact info will be loaded from Google Sheets -->
+              </div>
+              <div class="contact-form">
+                  <h3>聯絡表單</h3>
+                  <div class="success-message" id="successMessage">訊息已成功送出！我們會盡快回覆您。</div>
+                  <div class="error-message" id="errorMessage">送出失敗，請稍後再試或直接聯絡我們。</div>
+                  <form id="contactForm">
+                      <div class="form-row">
+                          <div class="form-group">
+                              <label for="name">姓名 *</label>
+                              <input type="text" id="name" name="name" required>
+                          </div>
+                          <div class="form-group">
+                              <label for="email">電子信箱 *</label>
+                              <input type="email" id="email" name="email" required>
+                          </div>
+                      </div>
+                      <div class="form-row">
+                          <div class="form-group">
+                              <label for="phone">聯絡電話</label>
+                              <input type="tel" id="phone" name="phone">
+                          </div>
+                          <div class="form-group">
+                              <label for="category">詢問類別</label>
+                              <select id="category" name="category">
+                                  <option value="general">一般詢問</option>
+                                  <option value="membership">入會相關</option>
+                                  <option value="activity">活動報名</option>
+                                  <option value="training">訓練課程</option>
+                                  <option value="other">其他</option>
+                              </select>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="message">訊息內容 *</label>
+                          <textarea id="message" name="message" placeholder="請告訴我們您的需求或問題..." required></textarea>
+                      </div>
+                      <button type="submit" class="cta-button" id="submitBtn">送出訊息</button>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+      <div class="container">
+          <div class="footer-content">
+              <div class="footer-section">
+                  <h4>快速連結</h4>
+                  <ul>
+                      <li><a href="#about">關於我們</a></li>
+                      <li><a href="#activities">活動資訊</a></li>
+                      <li><a href="#members">會員專區</a></li>
+                      <li><a href="#news">最新消息</a></li>
+                  </ul>
+              </div>
+              <div class="footer-section">
+                  <h4>訓練項目</h4>
+                  <ul>
+                      <li><a href="#activities">游泳訓練</a></li>
+                      <li><a href="#activities">自行車訓練</a></li>
+                      <li><a href="#activities">跑步訓練</a></li>
+                      <li><a href="#activities">三鐵挑戰</a></li>
+                  </ul>
+              </div>
+              <div class="footer-section">
+                  <h4>聯絡資訊</h4>
+                  <ul>
+                      <li>📍 台北市中正區運動路123號</li>
+                      <li>📞 (02) 2345-6789</li>
+                      <li>📧 info@triathlon-fly.org.tw</li>
+                      <li>🕒 週一至週五 9:00-18:00</li>
+                  </ul>
+              </div>
+              <div class="footer-section">
+                  <h4>追蹤我們</h4>
+                  <div class="social-links">
+                      <a href="#" title="Facebook">📘</a>
+                      <a href="#" title="Instagram">📷</a>
+                      <a href="#" title="YouTube">📺</a>
+                      <a href="#" title="Line">💬</a>
+                  </div>
+              </div>
+          </div>
+          <p>&copy; 2024 三鐵飛翔好運動協會 版權所有 | 設計製作：協會網站小組</p>
+      </div>
+  </footer>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <div id="modalContent">
+              <!-- Modal content will be loaded dynamically -->
+          </div>
+      </div>
+  </div>
+
+  <script>
+      // Google Apps Script Web App URL (請替換為您的實際URL)
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwWaWd3BmAcCtHL0RsMUkSmFKhUYwIDfytoj5za8FwwiYxQcOeLROzFNSHlf3sImpc/exec';
+      
+      // API endpoints
+      const API_ENDPOINTS = {
+          getContent: `${GAS_WEB_APP_URL}?action=getContent`,
+          getActivities: `${GAS_WEB_APP_URL}?action=getActivities`,
+          getNews: `${GAS_WEB_APP_URL}?action=getNews`,
+          getMembers: `${GAS_WEB_APP_URL}?action=getMembers`,
+          getGallery: `${GAS_WEB_APP_URL}?action=getGallery`,
+          submitContact: `${GAS_WEB_APP_URL}?action=submitContact`,
+          registerActivity: `${GAS_WEB_APP_URL}?action=registerActivity`
+      };
+
+      // Global variables
+      let activitiesData = [];
+      let newsData = [];
+      let galleryData = [];
+
+      // Initialize the website
+      document.addEventListener('DOMContentLoaded', function() {
+          initializeWebsite();
+          setupEventListeners();
+      });
+
+      // Initialize website with data from Google Sheets
+      async function initializeWebsite() {
+          showLoading(true);
+          try {
+              await Promise.all([
+                  loadContent(),
+                  loadActivities(),
+                  loadNews(),
+                  loadMembers(),
+                  loadGallery()
+              ]);
+              setupAnimations();
+          } catch (error) {
+              console.error('Error initializing website:', error);
+              showError('載入網站資料時發生錯誤，請重新整理頁面。');
+          } finally {
+              showLoading(false);
+          }
+      }
+
+      // Load content from Google Sheets
+      async function loadContent() {
+          try {
+              const response = await fetch(API_ENDPOINTS.getContent);
+              const data = await response.json();
+              
+              if (data.success) {
+                  updateContent(data.content);
+              }
+          } catch (error) {
+              console.error('Error loading content:', error);
+          }
+      }
+
+      // Update content on the page
+      function updateContent(content) {
+          // Update hero section
+          if (content.hero) {
+              document.getElementById('heroTitle').textContent = content.hero.title;
+              document.getElementById('heroDescription').innerHTML = content.description;
+            }
+
+            // Update about section
+            if (content.about) {
+                document.getElementById('aboutTitle').textContent = content.about.title; 
+                document.getElementById('aboutContent').innerHTML = content.about.content;
+                
+                // Update features
+                const featuresContainer = document.getElementById('aboutFeatures');
+                featuresContainer.innerHTML = '';
+                content.about.features.forEach(feature => {
+                    const featureDiv = document.createElement('div');
+                    featureDiv.className = 'feature';
+                    featureDiv.innerHTML = `
+                        <div class="feature-icon">${feature.icon}</div>
+                        <h4>${feature.title}</h4>
+                        <p>${feature.description}</p>
+                    `;
+                    featuresContainer.appendChild(featureDiv);
+                });
+            }
+
+            // Update contact info
+            if (content.contact) {
+                const contactInfo = document.getElementById('contactInfo');
+                contactInfo.innerHTML = `
+                    <h3>協會資訊</h3>
+                    <p>📍 地址：${content.contact.address}</p>
+                    <p>📞 電話：${content.contact.phone}</p>
+                    <p>📧 信箱：${content.contact.email}</p>
+                    <p>🕒 辦公時間：${content.contact.hours}</p>
+                    
+                    <h3 style="margin-top: 2rem;">加入我們</h3>
+                    <p>歡迎對三鐵運動有熱忱的朋友加入我們的大家庭！</p>
+                    <p>入會費：${content.contact.membershipFee}<br>
+                    年費：${content.contact.annualFee}</p>
+                `;
+            }
+        }
+
+        // Load activities from Google Sheets
+        async function loadActivities() {
+            try {
+                const response = await fetch(API_ENDPOINTS.getActivities);
+                const data = await response.json();
+                
+                if (data.success) {
+                    activitiesData = data.activities;
+                    renderActivities(activitiesData);
+                }
+            } catch (error) {
+                console.error('Error loading activities:', error);
+            }
+        }
+
+        // Render activities
+        function renderActivities(activities) {
+            const container = document.getElementById('activityGrid');
+            container.innerHTML = '';
+            
+            activities.forEach(activity => {
+                const activityCard = document.createElement('div');
+                activityCard.className = 'activity-card';
+                activityCard.innerHTML = `
+                    <div class="activity-image">${activity.icon}</div>
+                    <div class="activity-content">
+                        <h3 class="activity-title">${activity.title}</h3>
+                        <p>${activity.description}</p>
+                        <div class="activity-meta">
+                            <span>📍 ${activity.location}</span>
+                            <span>🕒 ${activity.time}</span>
+                        </div>
+                        <div class="activity-meta">
+                            <span>💰 ${activity.fee}</span>
+                            <button class="register-btn" onclick="registerActivity('${activity.id}')" 
+                                    ${activity.available ? '' : 'disabled'}>
+                                ${activity.available ? '立即報名' : '已額滿'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(activityCard);
+            });
+        }
+
+        // Load news from Google Sheets
+        async function loadNews() {
+            try {
+                const response = await fetch(API_ENDPOINTS.getNews);
+                const data = await response.json();
+                
+                if (data.success) {
+                    newsData = data.news;
+                    renderNews(newsData);
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+            }
+        }
+
+        // Render news
+        function renderNews(news) {
+            const container = document.getElementById('newsGrid');
+            container.innerHTML = '';
+            
+            news.forEach(item => {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.onclick = () => showNewsDetail(item);
+                newsItem.innerHTML = `
+                    <div class="news-date">${formatDate(item.date)}</div>
+                    <h3 class="news-title">${item.title}</h3>
+                    <p>${item.summary}</p>
+                    <span class="news-category">${item.category}</span>
+                `;
+                container.appendChild(newsItem);
+            });
+        }
+
+        // Load member statistics
+        async function loadMembers() {
+            try {
+                const response = await fetch(API_ENDPOINTS.getMembers);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderMemberStats(data.stats);
+                    renderMemberBenefits(data.benefits);
+                }
+            } catch (error) {
+                console.error('Error loading members data:', error);
+            }
+        }
+
+        // Render member statistics
+        function renderMemberStats(stats) {
+            const container = document.getElementById('memberStats');
+            container.innerHTML = '';
+            
+            stats.forEach(stat => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <div class="stat-number">${stat.number}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                container.appendChild(statCard);
+            });
+        }
+
+        // Render member benefits
+        function renderMemberBenefits(benefits) {
+            const container = document.getElementById('memberBenefits');
+            container.innerHTML = '';
+            
+            benefits.forEach(benefit => {
+                const benefitCard = document.createElement('div');
+                benefitCard.className = 'benefit-card';
+                benefitCard.innerHTML = `
+                    <div class="benefit-icon">${benefit.icon}</div>
+                    <h4>${benefit.title}</h4>
+                    <p>${benefit.description}</p>
+                `;
+                container.appendChild(benefitCard);
+            });
+        }
+
+        // Load gallery from Google Drive
+        async function loadGallery() {
+            try {
+                const response = await fetch(API_ENDPOINTS.getGallery);
+                const data = await response.json();
+                
+                if (data.success) {
+                    galleryData = data.images;
+                    renderGallery(galleryData);
+                }
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+            }
+        }
+
+        // Render gallery
+        function renderGallery(images) {
+            const container = document.getElementById('galleryGrid');
+            container.innerHTML = '';
+            
+            images.forEach(image => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.onclick = () => showImageModal(image);
+                galleryItem.innerHTML = `
+                    <div class="gallery-image" style="background-image: url('${image.thumbnail}')">
+                        ${!image.thumbnail ? '📸' : ''}
+                    </div>
+                    <div class="gallery-overlay">
+                        <h4>${image.title}</h4>
+                        <p>${image.description}</p>
+                    </div>
+                `;
+                container.appendChild(galleryItem);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Contact form submission
+            document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
+
+            // Modal close
+            document.querySelector('.close').addEventListener('click', closeModal);
+            document.getElementById('modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // Window resize handler
+            window.addEventListener('resize', handleResize);
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Handle contact form submission
+        async function handleContactSubmit(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            // Reset messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = '送出中...';
+            
+            try {
+                const formData = new FormData(e.target);
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    category: formData.get('category'),
+                    message: formData.get('message'),
+                    timestamp: new Date().toISOString()
+                };
+                
+                const response = await fetch(API_ENDPOINTS.submitContact, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successMsg.style.display = 'block';
+                    e.target.reset();
+                } else {
+                    throw new Error(result.error || '送出失敗');
+                }
+            } catch (error) {
+                console.error('Error submitting contact form:', error);
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '送出訊息';
+            }
+        }
+
+        // Register for activity
+        async function registerActivity(activityId) {
+            const activity = activitiesData.find(a => a.id === activityId);
+            if (!activity) return;
+            
+            showModal(`
+                <h2>活動報名 - ${activity.title}</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regName">姓名 *</label>
+                        <input type="text" id="regName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">電子信箱 *</label>
+                        <input type="email" id="regEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPhone">聯絡電話 *</label>
+                        <input type="tel" id="regPhone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regExperience">運動經驗</label>
+                        <select id="regExperience" name="experience">
+                            <option value="beginner">初學者</option>
+                            <option value="intermediate">中級</option>
+                            <option value="advanced">進階</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="regNotes">備註</label>
+                        <textarea id="regNotes" name="notes" placeholder="特殊需求或問題..."></textarea>
+                    </div>
+                    <button type="submit" class="cta-button">確認報名</button>
+                </form>
+            `);
+            
+            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const data = {
+                    activityId: activityId,
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    experience: formData.get('experience'),
+                    notes: formData.get('notes'),
+                    timestamp: new Date().toISOString()
+                };
+                
+                try {
+                    const response = await fetch(API_ENDPOINTS.registerActivity, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('報名成功！我們會盡快與您聯絡。');
+                        closeModal();
+                        // Refresh activities to update availability
+                        loadActivities();
+                    } else {
+                        throw new Error(result.error || '報名失敗');
+                    }
+                } catch (error) {
+                    console.error('Error registering for activity:', error);
+                    alert('報名失敗，請稍後再試或直接聯絡我們。');
+                }
+            });
+        }
+
+        // Show news detail
+        function showNewsDetail(newsItem) {
+            showModal(`
+                <h2>${newsItem.title}</h2>
+                <div class="news-date">${formatDate(newsItem.date)}</div>
+                <span class="news-category">${newsItem.category}</span>
+                <div style="margin-top: 1rem;">
+                    ${newsItem.content || newsItem.summary}
+                </div>
+                ${newsItem.images ? `
+                    <div style="margin-top: 2rem;">
+                        ${newsItem.images.map(img => `<img src="${img}" style="width: 100%; margin-bottom: 1rem; border-radius: 5px;">`).join('')}
+                    </div>
+                ` : ''}
+            `);
+        }
+
+        // Show image modal
+        function showImageModal(image) {
+            showModal(`
+                <h2>${image.title}</h2>
+                <img src="${image.fullSize || image.thumbnail}" style="width: 100%; border-radius: 5px; margin-bottom: 1rem;">
+                <p>${image.description}</p>
+                <p><small>拍攝日期：${formatDate(image.date)}</small></p>
+            `);
+        }
+
+        // Show modal
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Setup animations
+        function setupAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all sections and cards
+            document.querySelectorAll('section, .activity-card, .news-item, .feature, .stat-card').forEach(element => {
+                observer.observe(element);
+            });
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function handleResize() {
+            // Handle responsive layout changes
+            const navLinks = document.getElementById('navLinks');
+            if (window.innerWidth > 768) {
+                navLinks.classList.remove('active');
+            }
+        }
+
+        // Initialize Google Analytics (optional)
+        function initGA() {
+            // Add Google Analytics code here if needed
+        }
+
+        // Service Worker registration (for PWA features)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
