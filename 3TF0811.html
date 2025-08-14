@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>樂活動 - 活動報名系統</title>
+<title>三鐵 - 活動報名系統</title>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes,maximum-scale=3.0">
 <link rel="icon" href="data:,">
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -662,8 +662,8 @@
         <img id="userAvatar" class="user-avatar" src="" alt="用戶頭像">
         <div id="userDisplayName" class="user-display-name"></div>
     </div>
-    <h1>🌟 樂活動</h1>
-    <div class="subtitle">銀髮族專屬活動報名平台</div>
+    <h1>🌟 三鐵飛翔好</h1>
+    <div class="subtitle">一起歡樂遊</div>
 </div>
 
 <!-- 導航頁籤 -->
@@ -803,7 +803,7 @@
 
 <script>
 /* ========= 系統設定（請替換為您的實際值） ========= */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbz6-ZkU9U-nu-zLnbEuUhlhn5kW4RYoEQJ5Aigr8ZfX6pQ5PzZ_eTH72khgNFSQpaDgHQ/exec';
+const GAS_URL = '';
 const LIFF_ID = '2007905012-o1yDNa92';
 
 /* ========= 全域變數 ========= */
@@ -1108,7 +1108,7 @@ if (selectedCategory) {
 }
 }
 
-/* ========= 提交報名 ========= */
+/* ========= 修正後的提交報名函數 ========= */
 async function submitRegistration() {
 const formData = {
     eventType: document.getElementById('eventSelect').value,
@@ -1158,18 +1158,27 @@ if (isNaN(age) || age < 18 || age > 120) {
 try {
     showLoading('正在提交報名資料...');
     
-    const payload = {
+    // 使用 GET 請求避免 CORS 問題
+    const params = new URLSearchParams({
         action: 'register',
-        ...formData
-    };
-    
-    const response = await fetchJson(GAS_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
+        eventType: formData.eventType,
+        name: formData.name,
+        phone: formData.phone,
+        age: formData.age,
+        emergencyContact: formData.emergencyContact,
+        emergencyPhone: formData.emergencyPhone,
+        emergencyRelation: formData.emergencyRelation,
+        healthCondition: formData.healthCondition,
+        notes: formData.notes,
+        userId: formData.userId,
+        displayName: formData.displayName,
+        timestamp: new Date().toISOString()
     });
+    
+    const url = `${GAS_URL}?${params.toString()}`;
+    console.log('[Submit] 提交 URL (隱藏敏感資料):', url.replace(/phone=[^&]*/g, 'phone=***'));
+    
+    const response = await fetchJson(url);
     
     hideLoading();
     
@@ -1198,54 +1207,6 @@ try {
     hideLoading();
     console.error('[Submit Registration Error]', error);
     showError('formFeedback', '提交失敗：' + error.message);
-}
-}
-
-/* ========= 查看活動統計 ========= */
-function viewEventStats(category) {
-document.getElementById('searchEventId').value = category;
-searchEventStats();
-switchTab('stats');
-}
-
-/* ========= 搜尋活動統計 ========= */
-async function searchEventStats() {
-const eventId = document.getElementById('searchEventId').value.trim();
-const resultContainer = document.getElementById('statsResult');
-
-if (!eventId) {
-    showError('statsFeedback', '請輸入活動代號');
-    return;
-}
-
-try {
-    showLoading('載入統計資料...');
-    
-    const response = await fetchJson(
-        `${GAS_URL}?action=getEventStats&eventId=${encodeURIComponent(eventId)}&ts=${Date.now()}`
-    );
-    
-    hideLoading();
-    
-    if (response.success) {
-        renderEventStats(response.stats, response.registrations || []);
-        clearFeedback('statsFeedback');
-    } else {
-        resultContainer.innerHTML = `
-            <div class="alert alert-error">
-                ${response.message || '查無此活動資料'}
-            </div>
-        `;
-    }
-    
-} catch (error) {
-    hideLoading();
-    console.error('[Search Stats Error]', error);
-    resultContainer.innerHTML = `
-        <div class="alert alert-error">
-            載入統計失敗：${error.message}
-        </div>
-    `;
 }
 }
 
