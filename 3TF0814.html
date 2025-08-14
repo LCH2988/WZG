@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>三鐵飛翔好運動協會</title>
+  <title>活動報名系統</title>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <style>
       * {
           margin: 0;
@@ -12,1411 +15,996 @@
       }
 
       body {
-          font-family: 'Microsoft JhengHei', Arial, sans-serif;
-          line-height: 1.6;
-          color: #333;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          padding: 20px;
       }
 
       .container {
-          max-width: 1200px;
+          max-width: 400px;
           margin: 0 auto;
-          padding: 0 20px;
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+          overflow: hidden;
       }
 
-      /* Loading Spinner */
-      .loading {
-          display: none;
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 9999;
+      .header {
+          background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+          color: white;
+          padding: 20px;
+          text-align: center;
       }
 
-      .spinner {
-          width: 50px;
-          height: 50px;
-          border: 5px solid #f3f3f3;
-          border-top: 5px solid #2a5298;
+      .user-info {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-bottom: 10px;
+      }
+
+      .user-avatar {
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          animation: spin 1s linear infinite;
+          border: 2px solid white;
       }
 
-      @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+      .user-name {
+          font-size: 16px;
+          font-weight: 600;
       }
 
-      /* Header */
-      header {
-          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          color: white;
-          padding: 1rem 0;
-          position: fixed;
-          width: 100%;
-          top: 0;
-          z-index: 1000;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      .header h1 {
+          font-size: 24px;
+          margin: 0;
       }
 
-      nav {
+      .nav-tabs {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
+          background: #f8f9fa;
+          border-bottom: 1px solid #dee2e6;
       }
 
-      .logo {
-          font-size: 1.8rem;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-      }
-
-      .logo::before {
-          content: "🏊‍♂️🚴‍♂️🏃‍♂️";
-          margin-right: 10px;
-      }
-
-      .nav-links {
-          display: flex;
-          list-style: none;
-          gap: 2rem;
-      }
-
-      .nav-links a {
-          color: white;
-          text-decoration: none;
-          transition: color 0.3s;
-      }
-
-      .nav-links a:hover {
-          color: #ffd700;
-      }
-
-      .mobile-menu-btn {
-          display: none;
+      .nav-tab {
+          flex: 1;
+          padding: 15px;
+          text-align: center;
           background: none;
           border: none;
-          color: white;
-          font-size: 1.5rem;
           cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6c757d;
+          transition: all 0.3s ease;
       }
 
-      /* Hero Section */
-      .hero {
-          background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e3f2fd" width="1200" height="600"/><circle fill="%232196f3" cx="200" cy="150" r="50" opacity="0.3"/><circle fill="%23ff9800" cx="800" cy="300" r="80" opacity="0.2"/><circle fill="%234caf50" cx="1000" cy="100" r="60" opacity="0.3"/></svg>');
-          height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          color: white;
-          background-size: cover;
-          background-position: center;
-      }
-
-      .hero-content h1 {
-          font-size: 3.5rem;
-          margin-bottom: 1rem;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-      }
-
-      .hero-content p {
-          font-size: 1.3rem;
-          margin-bottom: 2rem;
-          max-width: 600px;
-      }
-
-      .cta-button {
-          background: #ff6b35;
-          color: white;
-          padding: 15px 30px;
-          border: none;
-          border-radius: 50px;
-          font-size: 1.1rem;
-          cursor: pointer;
-          transition: all 0.3s;
-          text-decoration: none;
-          display: inline-block;
-      }
-
-      .cta-button:hover {
-          background: #e55a2b;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      }
-
-      .cta-button:disabled {
-          background: #ccc;
-          cursor: not-allowed;
-          transform: none;
-      }
-
-      /* Sections */
-      section {
-          padding: 5rem 0;
-      }
-
-      .section-title {
-          text-align: center;
-          font-size: 2.5rem;
-          margin-bottom: 3rem;
-          color: #2a5298;
-      }
-
-      /* About Section */
-      .about {
-          background: #f8f9fa;
-      }
-
-      .about-content {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3rem;
-          align-items: center;
-      }
-
-      .about-text {
-          font-size: 1.1rem;
-          line-height: 1.8;
-      }
-
-      .about-features {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1.5rem;
-      }
-
-      .feature {
+      .nav-tab.active {
           background: white;
-          padding: 1.5rem;
-          border-radius: 10px;
-          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-          text-align: center;
+          color: #007bff;
+          border-bottom: 2px solid #007bff;
       }
 
-      .feature-icon {
-          font-size: 2.5rem;
-          margin-bottom: 1rem;
+      .tab-content {
+          display: none;
+          padding: 20px;
       }
 
-      /* Activities Section */
-      .activities {
-          background: white;
+      .tab-content.active {
+          display: block;
       }
 
-      .activity-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 2rem;
+      /* 活動卡片輪播 */
+      .swiper {
+          width: 100%;
+          height: 400px;
+          margin: 20px 0;
       }
 
-      .activity-card {
+      .event-card {
           background: white;
           border-radius: 15px;
+          box-shadow: 0 8px 25px rgba(0,0,0,0.1);
           overflow: hidden;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-          transition: transform 0.3s;
-          cursor: pointer;
+          margin: 10px;
       }
 
-      .activity-card:hover {
-          transform: translateY(-5px);
-      }
-
-      .activity-image {
-          height: 200px;
-          background: linear-gradient(45deg, #2196f3, #21cbf3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 3rem;
+      .event-header {
+          padding: 20px;
           color: white;
-      }
-
-      .activity-content {
-          padding: 1.5rem;
-      }
-
-      .activity-title {
-          font-size: 1.3rem;
-          margin-bottom: 1rem;
-          color: #2a5298;
-      }
-
-      .activity-meta {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 1rem;
-          font-size: 0.9rem;
-          color: #666;
-      }
-
-      .register-btn {
-          background: #4caf50;
-          color: white;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 20px;
-          cursor: pointer;
-          font-size: 0.9rem;
-          transition: background 0.3s;
-      }
-
-      .register-btn:hover {
-          background: #45a049;
-      }
-
-      .register-btn:disabled {
-          background: #ccc;
-          cursor: not-allowed;
-      }
-
-      /* News Section */
-      .news {
-          background: #f8f9fa;
-      }
-
-      .news-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: 2rem;
-      }
-
-      .news-item {
-          background: white;
-          padding: 2rem;
-          border-radius: 10px;
-          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-          transition: transform 0.3s;
-          cursor: pointer;
-      }
-
-      .news-item:hover {
-          transform: translateY(-2px);
-      }
-
-      .news-date {
-          color: #666;
-          font-size: 0.9rem;
-          margin-bottom: 0.5rem;
-      }
-
-      .news-title {
-          font-size: 1.2rem;
-          margin-bottom: 1rem;
-          color: #2a5298;
-      }
-
-      .news-category {
-          display: inline-block;
-          background: #e3f2fd;
-          color: #1976d2;
-          padding: 4px 12px;
-          border-radius: 15px;
-          font-size: 0.8rem;
-          margin-top: 1rem;
-      }
-
-      /* Members Section */
-      .members {
-          background: white;
-      }
-
-      .member-stats {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 2rem;
-          margin-bottom: 3rem;
-      }
-
-      .stat-card {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 2rem;
-          border-radius: 15px;
           text-align: center;
+          position: relative;
       }
 
-      .stat-number {
-          font-size: 3rem;
-          font-weight: bold;
-          margin-bottom: 0.5rem;
+      .event-header.hiking {
+          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
       }
 
-      .stat-label {
-          font-size: 1.1rem;
+      .event-header.running {
+          background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+      }
+
+      .event-header.cycling {
+          background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+      }
+
+      .event-icon {
+          font-size: 48px;
+          margin-bottom: 10px;
+      }
+
+      .event-title {
+          font-size: 20px;
+          font-weight: 600;
+          margin-bottom: 5px;
+      }
+
+      .event-subtitle {
+          font-size: 14px;
           opacity: 0.9;
       }
 
-      .member-benefits {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 2rem;
+      .event-details {
+          padding: 20px;
       }
 
-      .benefit-card {
-          background: #f8f9fa;
-          padding: 2rem;
-          border-radius: 10px;
+      .detail-row {
+          display: flex;
+          align-items: center;
+          margin-bottom: 12px;
+          font-size: 14px;
+      }
+
+      .detail-icon {
+          width: 20px;
+          margin-right: 10px;
           text-align: center;
       }
 
-      .benefit-icon {
-          font-size: 3rem;
-          margin-bottom: 1rem;
+      .status-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 500;
+          margin-left: auto;
       }
 
-      /* Gallery Section */
-      .gallery {
+      .status-available {
+          background: #d4edda;
+          color: #155724;
+      }
+
+      .status-full {
+          background: #f8d7da;
+          color: #721c24;
+      }
+
+      .event-actions {
+          padding: 0 20px 20px;
+          display: flex;
+          gap: 10px;
+      }
+
+      .btn {
+          flex: 1;
+          padding: 12px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+          background: #007bff;
+          color: white;
+      }
+
+      .btn-primary:hover {
+          background: #0056b3;
+      }
+
+      .btn-secondary {
+          background: #6c757d;
+          color: white;
+      }
+
+      .btn-secondary:hover {
+          background: #545b62;
+      }
+
+      /* 報名表單 */
+      .form-group {
+          margin-bottom: 20px;
+      }
+
+      .form-label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 500;
+          color: #333;
+      }
+
+      .form-control {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #e9ecef;
+          border-radius: 8px;
+          font-size: 14px;
+          transition: border-color 0.3s ease;
+      }
+
+      .form-control:focus {
+          outline: none;
+          border-color: #007bff;
+      }
+
+      .form-control:disabled {
           background: #f8f9fa;
+          color: #6c757d;
       }
 
-      .gallery-grid {
+      /* 統計查詢 */
+      .search-section {
+          margin-bottom: 20px;
+      }
+
+      .search-input {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 15px;
+      }
+
+      .stats-card {
+          background: #f8f9fa;
+          border-radius: 10px;
+          padding: 20px;
+          margin-bottom: 20px;
+      }
+
+      .stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 1rem;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 20px;
       }
 
-      .gallery-item {
-          position: relative;
-          aspect-ratio: 1;
+      .stat-item {
+          text-align: center;
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      .stat-number {
+          font-size: 24px;
+          font-weight: 600;
+          color: #007bff;
+      }
+
+      .stat-label {
+          font-size: 12px;
+          color: #6c757d;
+          margin-top: 5px;
+      }
+
+      .registration-list {
+          background: white;
           border-radius: 10px;
           overflow: hidden;
-          cursor: pointer;
-          transition: transform 0.3s;
       }
 
-      .gallery-item:hover {
-          transform: scale(1.05);
+      .list-header {
+          background: #007bff;
+          color: white;
+          padding: 15px;
+          font-weight: 600;
       }
 
-      .gallery-image {
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+      .list-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 15px;
+          border-bottom: 1px solid #e9ecef;
+      }
+
+      .list-item:last-child {
+          border-bottom: none;
+      }
+
+      .item-number {
+          width: 30px;
+          height: 30px;
+          background: #007bff;
+          color: white;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 3rem;
-          color: white;
+          font-size: 12px;
+          font-weight: 600;
+          margin-right: 15px;
       }
 
-      .gallery-overlay {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: linear-gradient(transparent, rgba(0,0,0,0.8));
-          color: white;
-          padding: 1rem;
-          transform: translateY(100%);
-          transition: transform 0.3s;
+      .item-info {
+          flex: 1;
       }
 
-      .gallery-item:hover .gallery-overlay {
-          transform: translateY(0);
+      .item-name {
+          font-weight: 500;
+          margin-bottom: 2px;
       }
 
-      /* Contact Section */
-      .contact {
-          background: #2a5298;
-          color: white;
+      .item-time {
+          font-size: 12px;
+          color: #6c757d;
       }
 
-      .contact-content {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3rem;
+      .waitlist .item-number {
+          background: #ffc107;
       }
 
-      .contact-info {
-          font-size: 1.1rem;
-      }
-
-      .contact-info h3 {
-          margin-bottom: 1rem;
-          font-size: 1.5rem;
-      }
-
-      .contact-info p {
-          margin-bottom: 1rem;
-      }
-
-      .contact-form {
-          background: rgba(255,255,255,0.1);
-          padding: 2rem;
-          border-radius: 10px;
-      }
-
-      .form-group {
-          margin-bottom: 1.5rem;
-      }
-
-      .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-      }
-
-      .form-group input,
-      .form-group textarea,
-      .form-group select {
-          width: 100%;
-          padding: 10px;
-          border: none;
-          border-radius: 5px;
-          font-size: 1rem;
-      }
-
-      .form-group textarea {
-          height: 120px;
-          resize: vertical;
-      }
-
-      .form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-      }
-
-      .success-message {
-          background: #4caf50;
-          color: white;
-          padding: 1rem;
-          border-radius: 5px;
-          margin-bottom: 1rem;
-          display: none;
-      }
-
-      .error-message {
-          background: #f44336;
-          color: white;
-          padding: 1rem;
-          border-radius: 5px;
-          margin-bottom: 1rem;
-          display: none;
-      }
-
-      /* Modal */
-      .modal {
-          display: none;
-          position: fixed;
-          z-index: 2000;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0,0,0,0.5);
-      }
-
-      .modal-content {
-          background-color: white;
-          margin: 5% auto;
-          padding: 2rem;
-          border-radius: 10px;
-          width: 90%;
-          max-width: 600px;
-          max-height: 80vh;
-          overflow-y: auto;
-      }
-
-      .close {
-          color: #aaa;
-          float: right;
-          font-size: 28px;
-          font-weight: bold;
-          cursor: pointer;
-      }
-
-      .close:hover {
-          color: black;
-      }
-
-      /* Footer */
-      footer {
-          background: #1a1a1a;
-          color: white;
+      .loading {
           text-align: center;
-          padding: 2rem 0;
+          padding: 40px;
+          color: #6c757d;
       }
 
-      .footer-content {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 2rem;
-          margin-bottom: 2rem;
-          text-align: left;
+      .error {
+          background: #f8d7da;
+          color: #721c24;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
       }
 
-      .footer-section h4 {
-          margin-bottom: 1rem;
-          color: #ffd700;
+      .success {
+          background: #d4edda;
+          color: #155724;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
       }
 
-      .footer-section ul {
-          list-style: none;
-      }
-
-      .footer-section ul li {
-          margin-bottom: 0.5rem;
-      }
-
-      .footer-section ul li a {
-          color: #ccc;
-          text-decoration: none;
-          transition: color 0.3s;
-      }
-
-      .footer-section ul li a:hover {
-          color: #ffd700;
-      }
-
-      .social-links {
-          display: flex;
-          gap: 1rem;
-          justify-content: center;
-          margin-top: 1rem;
-      }
-
-      .social-links a {
-          color: white;
-          font-size: 1.5rem;
-          transition: color 0.3s;
-      }
-
-      .social-links a:hover {
-          color: #ffd700;
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-          .mobile-menu-btn {
-              display: block;
+      @media (max-width: 480px) {
+          .container {
+              margin: 0;
+              border-radius: 0;
+              min-height: 100vh;
           }
-
-          .nav-links {
-              display: none;
-              position: absolute;
-              top: 100%;
-              left: 0;
-              width: 100%;
-              background: #2a5298;
-              flex-direction: column;
-              padding: 1rem;
+          
+          body {
+              padding: 0;
           }
-
-          .nav-links.active {
-              display: flex;
-          }
-
-          .hero-content h1 {
-              font-size: 2.5rem;
-          }
-
-          .about-content,
-          .contact-content {
-              grid-template-columns: 1fr;
-          }
-
-          .about-features {
-              grid-template-columns: 1fr;
-          }
-
-          .form-row {
-              grid-template-columns: 1fr;
-          }
-
-          .member-stats {
-              grid-template-columns: repeat(2, 1fr);
-          }
-      }
-
-      /* Animations */
-      @keyframes fadeInUp {
-          from {
-              opacity: 0;
-              transform: translateY(30px);
-          }
-          to {
-              opacity: 1;
-              transform: translateY(0);
-          }
-      }
-
-      .fade-in {
-          animation: fadeInUp 0.6s ease-out;
-      }
-
-      @keyframes slideInLeft {
-          from {
-              opacity: 0;
-              transform: translateX(-30px);
-          }
-          to {
-              opacity: 1;
-              transform: translateX(0);
-          }
-      }
-
-      .slide-in-left {
-          animation: slideInLeft 0.6s ease-out;
-      }
-
-      @keyframes slideInRight {
-          from {
-              opacity: 0;
-              transform: translateX(30px);
-          }
-          to {
-              opacity: 1;
-              transform: translateX(0);
-          }
-      }
-
-      .slide-in-right {
-          animation: slideInRight 0.6s ease-out;
       }
   </style>
 </head>
 <body>
-  <!-- Loading Spinner -->
-  <div class="loading" id="loading">
-      <div class="spinner"></div>
-  </div>
-
-  <!-- Header -->
-  <header>
-      <nav class="container">
-          <div class="logo">三鐵飛翔好運動協會</div>
-          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-          <ul class="nav-links" id="navLinks">
-              <li><a href="#home">首頁</a></li>
-              <li><a href="#about">關於我們</a></li>
-              <li><a href="#activities">活動資訊</a></li>
-              <li><a href="#members">會員專區</a></li>
-              <li><a href="#gallery">活動花絮</a></li>
-              <li><a href="#news">最新消息</a></li>
-              <li><a href="#contact">聯絡我們</a></li>
-          </ul>
-      </nav>
-  </header>
-
-  <!-- Hero Section -->
-  <section id="home" class="hero">
-      <div class="hero-content fade-in">
-          <h1 id="heroTitle">三鐵飛翔好運動協會</h1>
-          <p id="heroDescription">游泳、自行車、跑步 - 挑戰自我極限，享受運動樂趣<br>加入我們，一起飛翔在三鐵的世界裡</p>
-          <a href="#about" class="cta-button">了解更多</a>
+  <div class="container">
+      <div class="header">
+          <div class="user-info" id="userInfo" style="display: none;">
+              <img class="user-avatar" id="userAvatar" src="" alt="用戶頭像">
+              <div class="user-name" id="userName"></div>
+          </div>
+          <h1>🏃‍♂️ 活動報名系統</h1>
       </div>
-  </section>
 
-  <!-- About Section -->
-  <section id="about" class="about">
-      <div class="container">
-          <h2 class="section-title">關於我們</h2>
-          <div class="about-content">
-              <div class="about-text slide-in-left">
-                  <h3 id="aboutTitle">協會宗旨</h3>
-                  <div id="aboutContent">
-                      <p>三鐵飛翔好運動協會成立於2018年，致力於推廣三鐵運動，培養運動員的耐力、意志力與團隊精神。我們相信透過游泳、自行車、跑步三項運動的結合，能夠全面提升身體素質，同時培養堅韌不拔的運動精神。</p>
-                      <p>協會提供專業的訓練指導、完善的設施設備，以及豐富的競賽機會，讓每一位會員都能在三鐵運動中找到屬於自己的成就感。</p>
+      <div class="nav-tabs">
+          <button class="nav-tab active" onclick="switchTab('events')">活動列表</button>
+          <button class="nav-tab" onclick="switchTab('register')">報名表單</button>
+          <button class="nav-tab" onclick="switchTab('stats')">統計查詢</button>
+      </div>
+
+      <!-- 活動列表頁面 -->
+      <div id="eventsTab" class="tab-content active">
+          <div class="swiper">
+              <div class="swiper-wrapper" id="eventCards">
+                  <!-- 動態載入活動卡片 -->
+              </div>
+              <div class="swiper-pagination"></div>
+          </div>
+      </div>
+
+      <!-- 報名表單頁面 -->
+      <div id="registerTab" class="tab-content">
+          <div id="registrationForm">
+              <div class="form-group">
+                  <label class="form-label">選擇活動</label>
+                  <select class="form-control" id="eventSelect" onchange="loadEventForm()">
+                      <option value="">請選擇活動</option>
+                  </select>
+              </div>
+
+              <div id="eventFormContainer" style="display: none;">
+                  <div class="form-group">
+                      <label class="form-label">姓名</label>
+                      <input type="text" class="form-control" id="userName" readonly>
                   </div>
-              </div>
-              <div class="about-features slide-in-right" id="aboutFeatures">
-                  <!-- Features will be loaded from Google Sheets -->
-              </div>
-          </div>
-      </div>
-  </section>
 
-  <!-- Activities Section -->
-  <section id="activities" class="activities">
-      <div class="container">
-          <h2 class="section-title">活動資訊</h2>
-          <div class="activity-grid" id="activityGrid">
-              <!-- Activities will be loaded from Google Sheets -->
-          </div>
-      </div>
-  </section>
-
-  <!-- Members Section -->
-  <section id="members" class="members">
-      <div class="container">
-          <h2 class="section-title">會員專區</h2>
-          <div class="member-stats" id="memberStats">
-              <!-- Stats will be loaded from Google Sheets -->
-          </div>
-          <div class="member-benefits" id="memberBenefits">
-              <!-- Benefits will be loaded from Google Sheets -->
-          </div>
-      </div>
-  </section>
-
-  <!-- Gallery Section -->
-  <section id="gallery" class="gallery">
-      <div class="container">
-          <h2 class="section-title">活動花絮</h2>
-          <div class="gallery-grid" id="galleryGrid">
-              <!-- Gallery will be loaded from Google Drive -->
-          </div>
-      </div>
-  </section>
-
-  <!-- News Section -->
-  <section id="news" class="news">
-      <div class="container">
-          <h2 class="section-title">最新消息</h2>
-          <div class="news-grid" id="newsGrid">
-              <!-- News will be loaded from Google Sheets -->
-          </div>
-      </div>
-  </section>
-
-  <!-- Contact Section -->
-  <section id="contact" class="contact">
-      <div class="container">
-          <h2 class="section-title" style="color: white;">聯絡我們</h2>
-          <div class="contact-content">
-              <div class="contact-info" id="contactInfo">
-                  <!-- Contact info will be loaded from Google Sheets -->
-              </div>
-              <div class="contact-form">
-                  <h3>聯絡表單</h3>
-                  <div class="success-message" id="successMessage">訊息已成功送出！我們會盡快回覆您。</div>
-                  <div class="error-message" id="errorMessage">送出失敗，請稍後再試或直接聯絡我們。</div>
-                  <form id="contactForm">
-                      <div class="form-row">
-                          <div class="form-group">
-                              <label for="name">姓名 *</label>
-                              <input type="text" id="name" name="name" required>
-                          </div>
-                          <div class="form-group">
-                              <label for="email">電子信箱 *</label>
-                              <input type="email" id="email" name="email" required>
-                          </div>
-                      </div>
-                      <div class="form-row">
-                          <div class="form-group">
-                              <label for="phone">聯絡電話</label>
-                              <input type="tel" id="phone" name="phone">
-                          </div>
-                          <div class="form-group">
-                              <label for="category">詢問類別</label>
-                              <select id="category" name="category">
-                                  <option value="general">一般詢問</option>
-                                  <option value="membership">入會相關</option>
-                                  <option value="activity">活動報名</option>
-                                  <option value="training">訓練課程</option>
-                                  <option value="other">其他</option>
-                              </select>
-                          </div>
-                      </div>
-                      <div class="form-group">
-                          <label for="message">訊息內容 *</label>
-                          <textarea id="message" name="message" placeholder="請告訴我們您的需求或問題..." required></textarea>
-                      </div>
-                      <button type="submit" class="cta-button" id="submitBtn">送出訊息</button>
-                  </form>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-      <div class="container">
-          <div class="footer-content">
-              <div class="footer-section">
-                  <h4>快速連結</h4>
-                  <ul>
-                      <li><a href="#about">關於我們</a></li>
-                      <li><a href="#activities">活動資訊</a></li>
-                      <li><a href="#members">會員專區</a></li>
-                      <li><a href="#news">最新消息</a></li>
-                  </ul>
-              </div>
-              <div class="footer-section">
-                  <h4>訓練項目</h4>
-                  <ul>
-                      <li><a href="#activities">游泳訓練</a></li>
-                      <li><a href="#activities">自行車訓練</a></li>
-                      <li><a href="#activities">跑步訓練</a></li>
-                      <li><a href="#activities">三鐵挑戰</a></li>
-                  </ul>
-              </div>
-              <div class="footer-section">
-                  <h4>聯絡資訊</h4>
-                  <ul>
-                      <li>📍 台北市中正區運動路123號</li>
-                      <li>📞 (02) 2345-6789</li>
-                      <li>📧 info@triathlon-fly.org.tw</li>
-                      <li>🕒 週一至週五 9:00-18:00</li>
-                  </ul>
-              </div>
-              <div class="footer-section">
-                  <h4>追蹤我們</h4>
-                  <div class="social-links">
-                      <a href="#" title="Facebook">📘</a>
-                      <a href="#" title="Instagram">📷</a>
-                      <a href="#" title="YouTube">📺</a>
-                      <a href="#" title="Line">💬</a>
+                  <div class="form-group">
+                      <label class="form-label">聯絡電話</label>
+                      <input type="tel" class="form-control" id="userPhone" placeholder="請輸入手機號碼" required>
                   </div>
+
+                  <div class="form-group">
+                      <label class="form-label">緊急聯絡人</label>
+                      <input type="text" class="form-control" id="emergencyContact" placeholder="緊急聯絡人姓名" required>
+                  </div>
+
+                  <div class="form-group">
+                      <label class="form-label">緊急聯絡電話</label>
+                      <input type="tel" class="form-control" id="emergencyPhone" placeholder="緊急聯絡人電話" required>
+                  </div>
+
+                  <div class="form-group">
+                      <label class="form-label">備註</label>
+                      <textarea class="form-control" id="notes" rows="3" placeholder="其他需要說明的事項（選填）"></textarea>
+                  </div>
+
+                  <button class="btn btn-primary" onclick="submitRegistration()" style="width: 100%;">
+                      🎯 立即報名
+                  </button>
               </div>
           </div>
-          <p>&copy; 2024 三鐵飛翔好運動協會 版權所有 | 設計製作：協會網站小組</p>
       </div>
-  </footer>
 
-  <!-- Modal -->
-  <div id="modal" class="modal">
-      <div class="modal-content">
-          <span class="close">&times;</span>
-          <div id="modalContent">
-              <!-- Modal content will be loaded dynamically -->
+      <!-- 統計查詢頁面 -->
+      <div id="statsTab" class="tab-content">
+          <div class="search-section">
+              <div class="search-input">
+                  <input type="text" class="form-control" id="searchEventId" placeholder="輸入活動ID (如: hiking, running)">
+                  <button class="btn btn-primary" onclick="searchEventStats()">查詢統計</button>
+              </div>
           </div>
+
+          <div id="statsResult"></div>
       </div>
   </div>
 
   <script>
-      // Google Apps Script Web App URL (請替換為您的實際URL)
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwWaWd3BmAcCtHL0RsMUkSmFKhUYwIDfytoj5za8FwwiYxQcOeLROzFNSHlf3sImpc/exec';
-      
-      // API endpoints
-      const API_ENDPOINTS = {
-          getContent: `${GAS_WEB_APP_URL}?action=getContent`,
-          getActivities: `${GAS_WEB_APP_URL}?action=getActivities`,
-          getNews: `${GAS_WEB_APP_URL}?action=getNews`,
-          getMembers: `${GAS_WEB_APP_URL}?action=getMembers`,
-          getGallery: `${GAS_WEB_APP_URL}?action=getGallery`,
-          submitContact: `${GAS_WEB_APP_URL}?action=submitContact`,
-          registerActivity: `${GAS_WEB_APP_URL}?action=registerActivity`
-      };
+      // 設定常數
+      const GAS_URL = 'https://script.google.com/macros/s/AKfycbwoSn_L7rQ7m1u-1Q5VRecJE9p2UrJ74fXbxEynA988CFLf46ib9P04TfyQAANPTpFF/exec';
+      const FALLBACK_LIFF_ID = '2007905012-o1yDNa92';
 
-      // Global variables
-      let activitiesData = [];
-      let newsData = [];
-      let galleryData = [];
+      // 全域變數
+      let liffProfile = null;
+      let eventConfigs = [];
+      let swiper = null;
 
-      // Initialize the website
-      document.addEventListener('DOMContentLoaded', function() {
-          initializeWebsite();
-          setupEventListeners();
-      });
-
-      // Initialize website with data from Google Sheets
-      async function initializeWebsite() {
-          showLoading(true);
+      // LIFF 初始化
+      async function initializeLiff() {
           try {
-              await Promise.all([
-                  loadContent(),
-                  loadActivities(),
-                  loadNews(),
-                  loadMembers(),
-                  loadGallery()
-              ]);
-              setupAnimations();
+              await liff.init({ liffId: FALLBACK_LIFF_ID });
+              
+              if (liff.isLoggedIn()) {
+                  liffProfile = await liff.getProfile();
+                  displayUserInfo(liffProfile);
+                  await loadEventConfigs();
+              } else {
+                  liff.login();
+              }
           } catch (error) {
-              console.error('Error initializing website:', error);
-              showError('載入網站資料時發生錯誤，請重新整理頁面。');
-          } finally {
-              showLoading(false);
+              console.error('LIFF 初始化失敗:', error);
+              showError('系統初始化失敗，請重新整理頁面');
           }
       }
 
-      // Load content from Google Sheets
-      async function loadContent() {
+      // 顯示用戶資訊
+      function displayUserInfo(profile) {
+          const userInfo = document.getElementById('userInfo');
+          const userAvatar = document.getElementById('userAvatar');
+          const userName = document.getElementById('userName');
+          
+          userAvatar.src = profile.pictureUrl || 'https://via.placeholder.com/40';
+          userName.textContent = profile.displayName;
+          userInfo.style.display = 'flex';
+          
+          // 同時更新表單中的姓名
+          document.getElementById('userName').value = profile.displayName;
+      }
+
+      // 載入活動設定
+      async function loadEventConfigs() {
           try {
-              const response = await fetch(API_ENDPOINTS.getContent);
+              const response = await fetch(`${GAS_URL}?action=getAllEvents`);
               const data = await response.json();
               
               if (data.success) {
-                  updateContent(data.content);
+                  eventConfigs = data.events;
+                  renderEventCards();
+                  populateEventSelect();
+              } else {
+                  showError('載入活動資料失敗');
               }
           } catch (error) {
-              console.error('Error loading content:', error);
+              console.error('載入活動失敗:', error);
+              showError('網路連線錯誤，請檢查網路狀態');
           }
       }
 
-      // Update content on the page
-      function updateContent(content) {
-          // Update hero section
-          if (content.hero) {
-              document.getElementById('heroTitle').textContent = content.hero.title;
-              document.getElementById('heroDescription').innerHTML = content.description;
-            }
+      // 渲染活動卡片
+      function renderEventCards() {
+          const container = document.getElementById('eventCards');
+          container.innerHTML = '';
 
-            // Update about section
-            if (content.about) {
-                document.getElementById('aboutTitle').textContent = content.about.title; 
-                document.getElementById('aboutContent').innerHTML = content.about.content;
-                
-                // Update features
-                const featuresContainer = document.getElementById('aboutFeatures');
-                featuresContainer.innerHTML = '';
-                content.about.features.forEach(feature => {
-                    const featureDiv = document.createElement('div');
-                    featureDiv.className = 'feature';
-                    featureDiv.innerHTML = `
-                        <div class="feature-icon">${feature.icon}</div>
-                        <h4>${feature.title}</h4>
-                        <p>${feature.description}</p>
-                    `;
-                    featuresContainer.appendChild(featureDiv);
-                });
-            }
+          eventConfigs.forEach(event => {
+              const card = createEventCard(event);
+              container.appendChild(card);
+          });
 
-            // Update contact info
-            if (content.contact) {
-                const contactInfo = document.getElementById('contactInfo');
-                contactInfo.innerHTML = `
-                    <h3>協會資訊</h3>
-                    <p>📍 地址：${content.contact.address}</p>
-                    <p>📞 電話：${content.contact.phone}</p>
-                    <p>📧 信箱：${content.contact.email}</p>
-                    <p>🕒 辦公時間：${content.contact.hours}</p>
-                    
-                    <h3 style="margin-top: 2rem;">加入我們</h3>
-                    <p>歡迎對三鐵運動有熱忱的朋友加入我們的大家庭！</p>
-                    <p>入會費：${content.contact.membershipFee}<br>
-                    年費：${content.contact.annualFee}</p>
-                `;
-            }
-        }
+          // 初始化 Swiper
+          if (swiper) {
+              swiper.destroy();
+          }
+          
+          swiper = new Swiper('.swiper', {
+              slidesPerView: 1,
+              spaceBetween: 20,
+              centeredSlides: true,
+              pagination: {
+                  el: '.swiper-pagination',
+                  clickable: true,
+              },
+              breakpoints: {
+                  640: {
+                      slidesPerView: 1.2,
+                  },
+              }
+          });
+      }
 
-        // Load activities from Google Sheets
-        async function loadActivities() {
-            try {
-                const response = await fetch(API_ENDPOINTS.getActivities);
-                const data = await response.json();
-                
-                if (data.success) {
-                    activitiesData = data.activities;
-                    renderActivities(activitiesData);
-                }
-            } catch (error) {
-                console.error('Error loading activities:', error);
-            }
-        }
+      // 創建活動卡片
+      function createEventCard(event) {
+          const slide = document.createElement('div');
+          slide.className = 'swiper-slide';
 
-        // Render activities
-        function renderActivities(activities) {
-            const container = document.getElementById('activityGrid');
-            container.innerHTML = '';
-            
-            activities.forEach(activity => {
-                const activityCard = document.createElement('div');
-                activityCard.className = 'activity-card';
-                activityCard.innerHTML = `
-                    <div class="activity-image">${activity.icon}</div>
-                    <div class="activity-content">
-                        <h3 class="activity-title">${activity.title}</h3>
-                        <p>${activity.description}</p>
-                        <div class="activity-meta">
-                            <span>📍 ${activity.location}</span>
-                            <span>🕒 ${activity.time}</span>
-                        </div>
-                        <div class="activity-meta">
-                            <span>💰 ${activity.fee}</span>
-                            <button class="register-btn" onclick="registerActivity('${activity.id}')" 
-                                    ${activity.available ? '' : 'disabled'}>
-                                ${activity.available ? '立即報名' : '已額滿'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(activityCard);
-            });
-        }
+          const availableSlots = event.maxParticipants - (event.currentCount || 0);
+          const isAvailable = availableSlots > 0;
+          
+          slide.innerHTML = `
+              <div class="event-card">
+                  <div class="event-header ${event.category}">
+                      <div class="event-icon">${getEventIcon(event.category)}</div>
+                      <div class="event-title">${event.eventName}</div>
+                      <div class="event-subtitle">${event.description}</div>
+                  </div>
+                  
+                  <div class="event-details">
+                      <div class="detail-row">
+                          <span class="detail-icon">📅</span>
+                          <span>活動日期</span>
+                          <span>${formatDateTime(event.eventDate)}</span>
+                      </div>
+                      
+                      <div class="detail-row">
+                          <span class="detail-icon">🕐</span>
+                          <span>集合時間</span>
+                          <span>${formatDateTime(event.meetingTime)}</span>
+                      </div>
+                      
+                      <div class="detail-row">
+                          <span class="detail-icon">📍</span>
+                          <span>集合地點</span>
+                          <span>${event.meetingLocation}</span>
+                      </div>
+                      
+                      <div class="detail-row">
+                          <span class="detail-icon">⏱️</span>
+                          <span>活動時長</span>
+                          <span>${event.duration}</span>
+                      </div>
+                      
+                      <div class="detail-row">
+                          <span class="detail-icon">⭐</span>
+                          <span>難度等級</span>
+                          <span>${event.difficulty}</span>
+                      </div>
+                      
+                      <div class="detail-row">
+                          <span class="detail-icon">🎒</span>
+                          <span>攜帶物品</span>
+                          <span>${event.requiredItems}</span>
+                      </div>
+                      
+                      <div class="detail-row">
+                          <span class="detail-icon">👥</span>
+                          <span>報名狀況</span>
+                          <span>${event.currentCount || 0}/${event.maxParticipants} 人</span>
+                          <span class="status-badge ${isAvailable ? 'status-available' : 'status-full'}">
+                              ${isAvailable ? `還有${availableSlots}個名額` : '已額滿'}
+                          </span>
+                      </div>
+                  </div>
+                  
+                  <div class="event-actions">
+                      <button class="btn btn-primary" onclick="selectEventForRegistration('${event.category}')" ${!isAvailable ? 'disabled' : ''}>
+                          🎯 立即報名
+                      </button>
+                      <button class="btn btn-secondary" onclick="viewEventStats('${event.category}')">
+                          📊 查看名單
+                      </button>
+                  </div>
+              </div>
+          `;
 
-        // Load news from Google Sheets
-        async function loadNews() {
-            try {
-                const response = await fetch(API_ENDPOINTS.getNews);
-                const data = await response.json();
-                
-                if (data.success) {
-                    newsData = data.news;
-                    renderNews(newsData);
-                }
-            } catch (error) {
-                console.error('Error loading news:', error);
-            }
-        }
+          return slide;
+      }
 
-        // Render news
-        function renderNews(news) {
-            const container = document.getElementById('newsGrid');
-            container.innerHTML = '';
-            
-            news.forEach(item => {
-                const newsItem = document.createElement('div');
-                newsItem.className = 'news-item';
-                newsItem.onclick = () => showNewsDetail(item);
-                newsItem.innerHTML = `
-                    <div class="news-date">${formatDate(item.date)}</div>
-                    <h3 class="news-title">${item.title}</h3>
-                    <p>${item.summary}</p>
-                    <span class="news-category">${item.category}</span>
-                `;
-                container.appendChild(newsItem);
-            });
-        }
+      // 取得活動圖示
+      function getEventIcon(category) {
+          const icons = {
+              'hiking': '🏔️',
+              'running': '🏃‍♂️',
+              'cycling': '🚴‍♂️',
+              'swimming': '🏊‍♂️',
+              'climbing': '🧗‍♂️'
+          };
+          return icons[category] || '🎯';
+      }
 
-        // Load member statistics
-        async function loadMembers() {
-            try {
-                const response = await fetch(API_ENDPOINTS.getMembers);
-                const data = await response.json();
-                
-                if (data.success) {
-                    renderMemberStats(data.stats);
-                    renderMemberBenefits(data.benefits);
-                }
-            } catch (error) {
-                console.error('Error loading members data:', error);
-            }
-        }
+      // 格式化日期時間
+      function formatDateTime(dateStr) {
+          if (!dateStr) return '';
+          const date = new Date(dateStr);
+          return date.toLocaleString('zh-TW', {
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+          });
+      }
 
-        // Render member statistics
-        function renderMemberStats(stats) {
-            const container = document.getElementById('memberStats');
-            container.innerHTML = '';
-            
-            stats.forEach(stat => {
-                const statCard = document.createElement('div');
-                statCard.className = 'stat-card';
-                statCard.innerHTML = `
-                    <div class="stat-number">${stat.number}</div>
-                    <div class="stat-label">${stat.label}</div>
-                `;
-                container.appendChild(statCard);
-            });
-        }
+      // 填充活動選擇下拉選單
+      function populateEventSelect() {
+          const select = document.getElementById('eventSelect');
+          select.innerHTML = '<option value="">請選擇活動</option>';
+          
+          eventConfigs.forEach(event => {
+              const option = document.createElement('option');
+              option.value = event.category;
+              option.textContent = event.eventName;
+              select.appendChild(option);
+          });
+      }
 
-        // Render member benefits
-        function renderMemberBenefits(benefits) {
-            const container = document.getElementById('memberBenefits');
-            container.innerHTML = '';
-            
-            benefits.forEach(benefit => {
-                const benefitCard = document.createElement('div');
-                benefitCard.className = 'benefit-card';
-                benefitCard.innerHTML = `
-                    <div class="benefit-icon">${benefit.icon}</div>
-                    <h4>${benefit.title}</h4>
-                    <p>${benefit.description}</p>
-                `;
-                container.appendChild(benefitCard);
-            });
-        }
+      // 切換頁籤
+      function switchTab(tabName) {
+          // 更新頁籤樣式
+          document.querySelectorAll('.nav-tab').forEach(tab => {
+              tab.classList.remove('active');
+          });
+          event.target.classList.add('active');
 
-        // Load gallery from Google Drive
-        async function loadGallery() {
-            try {
-                const response = await fetch(API_ENDPOINTS.getGallery);
-                const data = await response.json();
-                
-                if (data.success) {
-                    galleryData = data.images;
-                    renderGallery(galleryData);
-                }
-            } catch (error) {
-                console.error('Error loading gallery:', error);
-            }
-        }
+          // 顯示對應內容
+          document.querySelectorAll('.tab-content').forEach(content => {
+              content.classList.remove('active');
+          });
+          document.getElementById(tabName + 'Tab').classList.add('active');
+      }
 
-        // Render gallery
-        function renderGallery(images) {
-            const container = document.getElementById('galleryGrid');
-            container.innerHTML = '';
-            
-            images.forEach(image => {
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-                galleryItem.onclick = () => showImageModal(image);
-                galleryItem.innerHTML = `
-                    <div class="gallery-image" style="background-image: url('${image.thumbnail}')">
-                        ${!image.thumbnail ? '📸' : ''}
-                    </div>
-                    <div class="gallery-overlay">
-                        <h4>${image.title}</h4>
-                        <p>${image.description}</p>
-                    </div>
-                `;
-                container.appendChild(galleryItem);
-            });
-        }
+      // 選擇活動進行報名
+      function selectEventForRegistration(category) {
+          document.getElementById('eventSelect').value = category;
+          loadEventForm();
+          switchTab('register');
+          
+          // 更新頁籤外觀
+          document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+          document.querySelectorAll('.nav-tab')[1].classList.add('active');
+      }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Mobile menu toggle
-            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+      // 載入活動表單
+      function loadEventForm() {
+          const selectedCategory = document.getElementById('eventSelect').value;
+          const formContainer = document.getElementById('eventFormContainer');
+          
+          if (selectedCategory) {
+              formContainer.style.display = 'block';
+              // 可以根據不同活動類型載入不同的表單欄位
+          } else {
+              formContainer.style.display = 'none';
+          }
+      }
 
-            // Smooth scrolling for navigation links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
+      // 提交報名
+      async function submitRegistration() {
+          const formData = {
+              eventType: document.getElementById('eventSelect').value,
+              name: document.getElementById('userName').value,
+              phone: document.getElementById('userPhone').value,
+              emergencyContact: document.getElementById('emergencyContact').value,
+              emergencyPhone: document.getElementById('emergencyPhone').value,
+              notes: document.getElementById('notes').value,
+              userId: liffProfile?.userId || '',
+              displayName: liffProfile?.displayName || ''
+          };
 
-            // Contact form submission
-            document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
+          // 驗證必填欄位
+          if (!formData.eventType || !formData.phone || !formData.emergencyContact || !formData.emergencyPhone) {
+              showError('請填寫所有必填欄位');
+              return;
+          }
 
-            // Modal close
-            document.querySelector('.close').addEventListener('click', closeModal);
-            document.getElementById('modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeModal();
-                }
-            });
+          try {
+              showLoading('正在提交報名...');
+              
+              const response = await fetch(GAS_URL, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      action: 'register',
+                      ...formData
+                  })
+              });
 
-            // Window resize handler
-            window.addEventListener('resize', handleResize);
-        }
+              const result = await response.json();
+              hideLoading();
 
-        // Toggle mobile menu
-        function toggleMobileMenu() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
-        }
+              if (result.success) {
+                  showSuccess('報名成功！' + (result.message || ''));
+                  // 清空表單
+                  document.getElementById('userPhone').value = '';
+                  document.getElementById('emergencyContact').value = '';
+                  document.getElementById('emergencyPhone').value = '';
+                  document.getElementById('notes').value = '';
+                  
+                  // 重新載入活動資料
+                  await loadEventConfigs();
+              } else {
+                  showError(result.message || '報名失敗，請稍後再試');
+              }
+          } catch (error) {
+              hideLoading();
+              console.error('提交報名失敗:', error);
+              showError('網路錯誤，請檢查連線狀態');
+          }
+      }
 
-        // Handle contact form submission
-        async function handleContactSubmit(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const successMsg = document.getElementById('successMessage');
-            const errorMsg = document.getElementById('errorMessage');
-            
-            // Reset messages
-            successMsg.style.display = 'none';
-            errorMsg.style.display = 'none';
-            
-            // Disable submit button
-            submitBtn.disabled = true;
-            submitBtn.textContent = '送出中...';
-            
-            try {
-                const formData = new FormData(e.target);
-                const data = {
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    category: formData.get('category'),
-                    message: formData.get('message'),
-                    timestamp: new Date().toISOString()
-                };
-                
-                const response = await fetch(API_ENDPOINTS.submitContact, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    successMsg.style.display = 'block';
-                    e.target.reset();
-                } else {
-                    throw new Error(result.error || '送出失敗');
-                }
-            } catch (error) {
-                console.error('Error submitting contact form:', error);
-                errorMsg.style.display = 'block';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '送出訊息';
-            }
-        }
+      // 查看活動統計
+      function viewEventStats(category) {
+          document.getElementById('searchEventId').value = category;
+          searchEventStats();
+          switchTab('stats');
+          
+          // 更新頁籤外觀
+          document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+          document.querySelectorAll('.nav-tab')[2].classList.add('active');
+      }
 
-        // Register for activity
-        async function registerActivity(activityId) {
-            const activity = activitiesData.find(a => a.id === activityId);
-            if (!activity) return;
-            
-            showModal(`
-                <h2>活動報名 - ${activity.title}</h2>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="regName">姓名 *</label>
-                        <input type="text" id="regName" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="regEmail">電子信箱 *</label>
-                        <input type="email" id="regEmail" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="regPhone">聯絡電話 *</label>
-                        <input type="tel" id="regPhone" name="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="regExperience">運動經驗</label>
-                        <select id="regExperience" name="experience">
-                            <option value="beginner">初學者</option>
-                            <option value="intermediate">中級</option>
-                            <option value="advanced">進階</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="regNotes">備註</label>
-                        <textarea id="regNotes" name="notes" placeholder="特殊需求或問題..."></textarea>
-                    </div>
-                    <button type="submit" class="cta-button">確認報名</button>
-                </form>
-            `);
-            
-            document.getElementById('registerForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(e.target);
-                const data = {
-                    activityId: activityId,
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    experience: formData.get('experience'),
-                    notes: formData.get('notes'),
-                    timestamp: new Date().toISOString()
-                };
-                
-                try {
-                    const response = await fetch(API_ENDPOINTS.registerActivity, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        alert('報名成功！我們會盡快與您聯絡。');
-                        closeModal();
-                        // Refresh activities to update availability
-                        loadActivities();
-                    } else {
-                        throw new Error(result.error || '報名失敗');
-                    }
-                } catch (error) {
-                    console.error('Error registering for activity:', error);
-                    alert('報名失敗，請稍後再試或直接聯絡我們。');
-                }
-            });
-        }
+      // 搜尋活動統計
+      async function searchEventStats() {
+          const eventId = document.getElementById('searchEventId').value.trim();
+          const resultContainer = document.getElementById('statsResult');
+          
+          if (!eventId) {
+              showError('請輸入活動ID');
+              return;
+          }
 
-        // Show news detail
-        function showNewsDetail(newsItem) {
-            showModal(`
-                <h2>${newsItem.title}</h2>
-                <div class="news-date">${formatDate(newsItem.date)}</div>
-                <span class="news-category">${newsItem.category}</span>
-                <div style="margin-top: 1rem;">
-                    ${newsItem.content || newsItem.summary}
-                </div>
-                ${newsItem.images ? `
-                    <div style="margin-top: 2rem;">
-                        ${newsItem.images.map(img => `<img src="${img}" style="width: 100%; margin-bottom: 1rem; border-radius: 5px;">`).join('')}
-                    </div>
-                ` : ''}
-            `);
-        }
+          try {
+              showLoading('正在載入統計資料...');
+              
+              const response = await fetch(`${GAS_URL}?action=getEventStats&eventId=${eventId}`);
+              const data = await response.json();
+              
+              hideLoading();
 
-        // Show image modal
-        function showImageModal(image) {
-            showModal(`
-                <h2>${image.title}</h2>
-                <img src="${image.fullSize || image.thumbnail}" style="width: 100%; border-radius: 5px; margin-bottom: 1rem;">
-                <p>${image.description}</p>
-                <p><small>拍攝日期：${formatDate(image.date)}</small></p>
-            `);
-        }
+              if (data.success) {
+                  renderEventStats(data.stats, data.registrations);
+              } else {
+                  resultContainer.innerHTML = '<div class="error">查無此活動資料</div>';
+              }
+          } catch (error) {
+              hideLoading();
+              console.error('載入統計失敗:', error);
+              resultContainer.innerHTML = '<div class="error">載入失敗，請稍後再試</div>';
+          }
+      }
 
-        // Show modal
-        function showModal(content) {
-            document.getElementById('modalContent').innerHTML = content;
-            document.getElementById('modal').style.display = 'block';
-        }
+      // 渲染活動統計
+      function renderEventStats(stats, registrations) {
+          const resultContainer = document.getElementById('statsResult');
+          
+          const confirmedList = registrations.filter(r => r.status === '正取');
+          const waitingList = registrations.filter(r => r.status === '候補');
+          
+          resultContainer.innerHTML = `
+              <div class="stats-card">
+                  <h3 style="margin-bottom: 15px; color: #333;">📊 ${stats.eventName} - 統計資料</h3>
+                  
+                  <div class="stats-grid">
+                      <div class="stat-item">
+                          <div class="stat-number">${stats.totalRegistrations}</div>
+                          <div class="stat-label">總報名人數</div>
+                      </div>
+                      <div class="stat-item">
+                          <div class="stat-number">${stats.confirmedCount}</div>
+                          <div class="stat-label">正取人數</div>
+                      </div>
+                      <div class="stat-item">
+                          <div class="stat-number">${stats.waitingCount}</div>
+                          <div class="stat-label">候補人數</div>
+                      </div>
+                      <div class="stat-item">
+                          <div class="stat-number">${stats.availableSlots}</div>
+                          <div class="stat-label">剩餘名額</div>
+                      </div>
+                  </div>
+                  
+                  <div class="detail-row">
+                      <span class="detail-icon">📅</span>
+                      <span>活動日期：${formatDateTime(stats.eventDate)}</span>
+                  </div>
+                  <div class="detail-row">
+                      <span class="detail-icon">📍</span>
+                      <span>集合地點：${stats.meetingLocation}</span>
+                  </div>
+                  <div class="detail-row">
+                      <span class="detail-icon">⏱️</span>
+                      <span>活動時長：${stats.duration}</span>
+                  </div>
+              </div>
 
-        // Close modal
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
+              ${confirmedList.length > 0 ? `
+              <div class="registration-list">
+                  <div class="list-header">👥 正取名單 (${confirmedList.length}人)</div>
+                  ${confirmedList.map((reg, index) => `
+                      <div class="list-item">
+                          <div class="item-number">${index + 1}</div>
+                          <div class="item-info">
+                              <div class="item-name">${reg.name}</div>
+                              <div class="item-time">${formatDateTime(reg.registrationTime)}</div>
+                          </div>
+                      </div>
+                  `).join('')}
+              </div>
+              ` : ''}
 
-        // Setup animations
-        function setupAnimations() {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+              ${waitingList.length > 0 ? `
+              <div class="registration-list waitlist">
+                  <div class="list-header" style="background: #ffc107;">⏳ 候補名單 (${waitingList.length}人)</div>
+                  ${waitingList.map((reg, index) => `
+                      <div class="list-item">
+                          <div class="item-number">${index + 1}</div>
+                          <div class="item-info">
+                              <div class="item-name">${reg.name}</div>
+                              <div class="item-time">${formatDateTime(reg.registrationTime)}</div>
+                          </div>
+                      </div>
+                  `).join('')}
+              </div>
+              ` : ''}
+          `;
+      }
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in');
-                    }
-                });
-            }, observerOptions);
+      // 工具函數
+      function showLoading(message = '載入中...') {
+          const existingLoader = document.querySelector('.loading');
+          if (existingLoader) return;
+          
+          const loader = document.createElement('div');
+          loader.className = 'loading';
+          loader.innerHTML = `<div>${message}</div>`;
+          document.body.appendChild(loader);
+      }
 
-            // Observe all sections and cards
-            document.querySelectorAll('section, .activity-card, .news-item, .feature, .stat-card').forEach(element => {
-                observer.observe(element);
-            });
-        }
+      function hideLoading() {
+          const loader = document.querySelector('.loading');
+          if (loader) {
+              loader.remove();
+          }
+      }
 
-        // Utility functions
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
-        }
+      function showError(message) {
+          hideLoading();
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error';
+          errorDiv.textContent = message;
+          
+          // 插入到當前活動頁籤的頂部
+          const activeTab = document.querySelector('.tab-content.active');
+          activeTab.insertBefore(errorDiv, activeTab.firstChild);
+          
+          // 3秒後自動移除
+          setTimeout(() => {
+              if (errorDiv.parentNode) {
+                  errorDiv.remove();
+              }
+          }, 3000);
+      }
 
-        function showError(message) {
-            alert(message);
-        }
+      function showSuccess(message) {
+          hideLoading();
+          const successDiv = document.createElement('div');
+          successDiv.className = 'success';
+          successDiv.textContent = message;
+          
+          // 插入到當前活動頁籤的頂部
+          const activeTab = document.querySelector('.tab-content.active');
+          activeTab.insertBefore(successDiv, activeTab.firstChild);
+          
+          // 3秒後自動移除
+          setTimeout(() => {
+              if (successDiv.parentNode) {
+                  successDiv.remove();
+              }
+          }, 3000);
+      }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('zh-TW', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
+      // 頁面載入完成後初始化
+      document.addEventListener('DOMContentLoaded', function() {
+          initializeLiff();
+      });
 
-        function handleResize() {
-            // Handle responsive layout changes
-            const navLinks = document.getElementById('navLinks');
-            if (window.innerWidth > 768) {
-                navLinks.classList.remove('active');
-            }
-        }
+      // 處理頁籤點擊事件
+      document.addEventListener('click', function(e) {
+          if (e.target.classList.contains('nav-tab')) {
+              const tabName = e.target.textContent.trim();
+              let targetTab = '';
+              
+              switch(tabName) {
+                  case '活動列表':
+                      targetTab = 'events';
+                      break;
+                  case '報名表單':
+                      targetTab = 'register';
+                      break;
+                  case '統計查詢':
+                      targetTab = 'stats';
+                      break;
+              }
+              
+              if (targetTab) {
+                  switchTab(targetTab);
+              }
+          }
+      });
 
-        // Initialize Google Analytics (optional)
-        function initGA() {
-            // Add Google Analytics code here if needed
-        }
+      // 處理表單提交的 Enter 鍵
+      document.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+              if (e.target.id === 'searchEventId') {
+                  searchEventStats();
+              }
+          }
+      });
 
-        // Service Worker registration (for PWA features)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-    </script>
+      // 響應式處理
+      window.addEventListener('resize', function() {
+          if (swiper) {
+              swiper.update();
+          }
+      });
+
+      // LIFF 關閉處理
+      window.addEventListener('beforeunload', function() {
+          if (liff.isLoggedIn()) {
+              // 可以在這裡處理一些清理工作
+              console.log('LIFF 即將關閉');
+          }
+      });
+
+      // 錯誤處理
+      window.addEventListener('error', function(e) {
+          console.error('全域錯誤:', e.error);
+          showError('系統發生錯誤，請重新整理頁面');
+      });
+
+      // 網路狀態監控
+      window.addEventListener('online', function() {
+          showSuccess('網路連線已恢復');
+      });
+
+      window.addEventListener('offline', function() {
+          showError('網路連線中斷，請檢查網路狀態');
+      });
+  </script>
 </body>
 </html>
