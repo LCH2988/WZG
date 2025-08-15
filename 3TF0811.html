@@ -2,1009 +2,856 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>活動報名系統</title>
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <title>登山活動報名系統</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-      * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-      }
+    body { font-family:'Microsoft JhengHei',Arial,sans-serif; background:linear-gradient(135deg,#667eea,#764ba2); margin:0; color:#333; }
+    a { color:#667eea; }
+    /* 公用 */
+    .container { max-width:1200px; margin:0 auto; padding:20px; }
+    .card { background:#fff; border-radius:16px; padding:1.6rem; box-shadow:0 6px 24px rgba(0,0,0,.08); margin-bottom:20px; }
+    .btn { padding:9px 16px; border:none; border-radius:8px; cursor:pointer; font-size:.85rem; font-weight:600; background:#eee; }
+    .btn-primary { background:#667eea; color:#fff; }
+    .btn-primary:hover { background:#566cd6; }
+    .btn-danger { background:#e74c3c; color:#fff; }
+    .btn-danger:hover { background:#c0392b; }
+    .btn-outline { background:#fff; border:2px solid #667eea; color:#667eea; }
+    .btn-outline:hover { background:#667eea; color:#fff; }
+    .alert { padding:12px 14px; border-radius:10px; font-size:.8rem; margin-bottom:12px; }
+    .alert-success { background:#d4edda; color:#155724; }
+    .alert-error { background:#f8d7da; color:#721c24; }
+    .alert-info { background:#e3f2fd; color:#0d47a1; }
+    .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .hidden { display:none !important; }
 
-      body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          min-height: 100vh;
-          padding: 20px;
-      }
+    /* Header */
+    .header { background:#fff; border-radius:16px; padding:2rem; text-align:center; box-shadow:0 6px 25px rgba(0,0,0,.12); }
+    .header h1 { margin:0 0 .5rem; font-size:2.2rem; }
 
-      .container {
-          max-width: 400px;
-          margin: 0 auto;
-          background: white;
-          border-radius: 20px;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-          overflow: hidden;
-      }
+    /* Tabs (前台) */
+    .nav-tabs { display:flex; gap:8px; background:rgba(255,255,255,.9); padding:6px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.08); flex-wrap:wrap;}
+    .nav-tab { flex:1; padding:12px 10px; background:transparent; border:none; cursor:pointer; font-weight:600; border-radius:10px; transition:.25s; font-size:.85rem; }
+    .nav-tab.active { background:#667eea; color:#fff; }
 
-      .header {
-          background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
-          color: white;
-          padding: 20px;
-          text-align: center;
-      }
+    .tab-content { display:none; background:#fff; border-radius:16px; margin-top:18px; padding:1.6rem; box-shadow:0 6px 24px rgba(0,0,0,.08); }
+    .tab-content.active { display:block; }
 
-      .user-info {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          margin-bottom: 10px;
-      }
+    /* 活動 */
+    .activity-grid { display:grid; gap:1.2rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:1rem; }
+    .activity-card { background:#fff; border-radius:14px; padding:1rem 1.1rem 1.35rem; box-shadow:0 4px 16px rgba(0,0,0,.08); border-left:5px solid #667eea; display:flex; flex-direction:column; gap:.5rem; }
+    .activity-card:hover { box-shadow:0 8px 22px rgba(0,0,0,.15); transform:translateY(-3px); }
+    .activity-level { padding:4px 11px; border-radius:20px; font-size:.65rem; font-weight:600; background:#eef; letter-spacing:.5px; }
+    .status { padding:4px 12px; border-radius:16px; font-size:.65rem; font-weight:600; }
+    .status-open { background:#d4edda; color:#155724; }
+    .status-closed { background:#f8d7da; color:#721c24; }
+    .status-full { background:#fff3cd; color:#856404; }
+    .status-pending { background:#e1e8ff; color:#2c4d9e; }
+    .meta { font-size:.75rem; color:#555; display:flex; flex-direction:column; gap:2px; }
 
-      .user-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          border: 2px solid white;
-      }
+    /* 表單 */
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:.7rem; font-weight:600; margin-bottom:.3rem; letter-spacing:.5px; }
+    .form-group input, .form-group select { width:100%; padding:10px; border:2px solid #e2e6ef; border-radius:8px; font-size:.85rem; background:#fafbfc; }
+    .form-group input:focus, .form-group select:focus { outline:none; border-color:#667eea; background:#fff; }
 
-      .user-name {
-          font-size: 16px;
-          font-weight: 600;
-      }
+    /* Modal */
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:999; padding:25px; overflow:auto; }
+    .modal-content { background:#fff; max-width:600px; margin:40px auto; padding:1.6rem 1.7rem 2rem; border-radius:18px; position:relative; box-shadow:0 10px 35px rgba(0,0,0,.25); }
+    .close { position:absolute; top:10px; right:15px; font-size:26px; cursor:pointer; color:#888; }
+    .close:hover { color:#333; }
 
-      .header h1 {
-          font-size: 24px;
-          margin: 0;
-      }
+    /* 後台 */
+    #admin-app header { background:#4a56d6; color:#fff; padding:1rem 1.4rem; display:flex; justify-content:space-between; align-items:center; border-radius:12px; }
+    .admin-tabs { display:flex; gap:8px; margin:16px 0 10px; flex-wrap:wrap;}
+    .admin-tab { padding:10px 14px; background:#ffffff; border-radius:10px; cursor:pointer; font-weight:600; font-size:.75rem; box-shadow:0 4px 14px rgba(0,0,0,.06); transition:.25s; }
+    .admin-tab.active { background:#4a56d6; color:#fff; }
+    .panel { display:none; background:#fff; border-radius:14px; padding:1.2rem 1.3rem 1.4rem; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    .panel.active { display:block; }
+    table { border-collapse:collapse; width:100%; font-size:.72rem; }
+    th, td { padding:6px 8px; border:1px solid #e1e6ef; text-align:left; }
+    th { background:#f5f7fb; }
+    tr:hover { background:#fafcff; }
+    .grid { display:grid; gap:14px; }
+    .two-col { grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+    .section-title { margin:0 0 .8rem; font-size:.9rem; display:flex; align-items:center; gap:6px; }
 
-      .nav-tabs {
-          display: flex;
-          background: #f8f9fa;
-          border-bottom: 1px solid #dee2e6;
-      }
-
-      .nav-tab {
-          flex: 1;
-          padding: 15px;
-          text-align: center;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 500;
-          color: #6c757d;
-          transition: all 0.3s ease;
-      }
-
-      .nav-tab.active {
-          background: white;
-          color: #007bff;
-          border-bottom: 2px solid #007bff;
-      }
-
-      .tab-content {
-          display: none;
-          padding: 20px;
-      }
-
-      .tab-content.active {
-          display: block;
-      }
-
-      /* 活動卡片輪播 */
-      .swiper {
-          width: 100%;
-          height: 400px;
-          margin: 20px 0;
-      }
-
-      .event-card {
-          background: white;
-          border-radius: 15px;
-          box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-          overflow: hidden;
-          margin: 10px;
-      }
-
-      .event-header {
-          padding: 20px;
-          color: white;
-          text-align: center;
-          position: relative;
-      }
-
-      .event-header.hiking {
-          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      }
-
-      .event-header.running {
-          background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-      }
-
-      .event-header.cycling {
-          background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-      }
-
-      .event-icon {
-          font-size: 48px;
-          margin-bottom: 10px;
-      }
-
-      .event-title {
-          font-size: 20px;
-          font-weight: 600;
-          margin-bottom: 5px;
-      }
-
-      .event-subtitle {
-          font-size: 14px;
-          opacity: 0.9;
-      }
-
-      .event-details {
-          padding: 20px;
-      }
-
-      .detail-row {
-          display: flex;
-          align-items: center;
-          margin-bottom: 12px;
-          font-size: 14px;
-      }
-
-      .detail-icon {
-          width: 20px;
-          margin-right: 10px;
-          text-align: center;
-      }
-
-      .status-badge {
-          display: inline-block;
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 500;
-          margin-left: auto;
-      }
-
-      .status-available {
-          background: #d4edda;
-          color: #155724;
-      }
-
-      .status-full {
-          background: #f8d7da;
-          color: #721c24;
-      }
-
-      .event-actions {
-          padding: 0 20px 20px;
-          display: flex;
-          gap: 10px;
-      }
-
-      .btn {
-          flex: 1;
-          padding: 12px;
-          border: none;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-      }
-
-      .btn-primary {
-          background: #007bff;
-          color: white;
-      }
-
-      .btn-primary:hover {
-          background: #0056b3;
-      }
-
-      .btn-secondary {
-          background: #6c757d;
-          color: white;
-      }
-
-      .btn-secondary:hover {
-          background: #545b62;
-      }
-
-      /* 報名表單 */
-      .form-group {
-          margin-bottom: 20px;
-      }
-
-      .form-label {
-          display: block;
-          margin-bottom: 8px;
-          font-weight: 500;
-          color: #333;
-      }
-
-      .form-control {
-          width: 100%;
-          padding: 12px;
-          border: 2px solid #e9ecef;
-          border-radius: 8px;
-          font-size: 14px;
-          transition: border-color 0.3s ease;
-      }
-
-      .form-control:focus {
-          outline: none;
-          border-color: #007bff;
-      }
-
-      .form-control:disabled {
-          background: #f8f9fa;
-          color: #6c757d;
-      }
-
-      /* 統計查詢 */
-      .search-section {
-          margin-bottom: 20px;
-      }
-
-      .search-input {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 15px;
-      }
-
-      .stats-card {
-          background: #f8f9fa;
-          border-radius: 10px;
-          padding: 20px;
-          margin-bottom: 20px;
-      }
-
-      .stats-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 15px;
-          margin-bottom: 20px;
-      }
-
-      .stat-item {
-          text-align: center;
-          padding: 15px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      }
-
-      .stat-number {
-          font-size: 24px;
-          font-weight: 600;
-          color: #007bff;
-      }
-
-      .stat-label {
-          font-size: 12px;
-          color: #6c757d;
-          margin-top: 5px;
-      }
-
-      .registration-list {
-          background: white;
-          border-radius: 10px;
-          overflow: hidden;
-      }
-
-      .list-header {
-          background: #007bff;
-          color: white;
-          padding: 15px;
-          font-weight: 600;
-      }
-
-      .list-item {
-          display: flex;
-          align-items: center;
-          padding: 12px 15px;
-          border-bottom: 1px solid #e9ecef;
-      }
-
-      .list-item:last-child {
-          border-bottom: none;
-      }
-
-      .item-number {
-          width: 30px;
-          height: 30px;
-          background: #007bff;
-          color: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          font-weight: 600;
-          margin-right: 15px;
-      }
-
-      .item-info {
-          flex: 1;
-      }
-
-      .item-name {
-          font-weight: 500;
-          margin-bottom: 2px;
-      }
-
-      .item-time {
-          font-size: 12px;
-          color: #6c757d;
-      }
-
-      .waitlist .item-number {
-          background: #ffc107;
-      }
-
-      .loading {
-          text-align: center;
-          padding: 40px;
-          color: #6c757d;
-      }
-
-      .error {
-          background: #f8d7da;
-          color: #721c24;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-      }
-
-      .success {
-          background: #d4edda;
-          color: #155724;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-      }
-
-      @media (max-width: 480px) {
-          .container {
-              margin: 0;
-              border-radius: 0;
-              min-height: 100vh;
-          }
-          
-          body {
-              padding: 0;
-          }
-      }
+    @media(max-width:768px){
+      .activity-grid { grid-template-columns:1fr; }
+      .header h1 { font-size:1.8rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- 前台 APP -->
+  <div id="public-app">
+    <div class="container">
       <div class="header">
-          <div class="user-info" id="userInfo" style="display: none;">
-              <img class="user-avatar" id="userAvatar" src="" alt="用戶頭像">
-              <div class="user-name" id="userName"></div>
-          </div>
-          <h1>🏃‍♂️ 活動報名系統</h1>
+        <h1>🏔️ 登山活動報名系統</h1>
+        <p style="margin:0;">探索山林，挑戰自我</p>
       </div>
 
       <div class="nav-tabs">
-          <button class="nav-tab active" onclick="switchTab('events')">活動列表</button>
-          <button class="nav-tab" onclick="switchTab('register')">報名表單</button>
-          <button class="nav-tab" onclick="switchTab('stats')">統計查詢</button>
+        <button class="nav-tab active" onclick="switchTab('activities', this)">活動列表</button>
+        <button class="nav-tab" onclick="switchTab('my-registrations', this)">我的報名</button>
+        <button class="nav-tab" onclick="switchTab('member-register', this)">會員註冊</button>
+        <button class="nav-tab" onclick="openAdminLogin()">後台登入</button>
       </div>
 
-      <!-- 活動列表頁面 -->
-      <div id="eventsTab" class="tab-content active">
-          <div class="swiper">
-              <div class="swiper-wrapper" id="eventCards">
-                  <!-- 動態載入活動卡片 -->
-              </div>
-              <div class="swiper-pagination"></div>
+      <div id="activities-tab" class="tab-content active">
+        <h2 style="margin-top:0;">🎯 活動列表</h2>
+        <div id="activities-container">載入中...</div>
+      </div>
+
+      <div id="my-registrations-tab" class="tab-content">
+        <h2 style="margin-top:0;">📋 我的報名</h2>
+        <div class="form-group" style="max-width:420px;">
+          <label>Email 查詢：</label>
+          <input type="email" id="user-email" placeholder="you@example.com" />
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button class="btn btn-primary" onclick="loadUserRegistrations()">查詢</button>
+            <button class="btn" onclick="clearUserReg()">清除</button>
           </div>
+        </div>
+        <div id="user-registrations-container"></div>
       </div>
 
-      <!-- 報名表單頁面 -->
-      <div id="registerTab" class="tab-content">
-          <div id="registrationForm">
-              <div class="form-group">
-                  <label class="form-label">選擇活動</label>
-                  <select class="form-control" id="eventSelect" onchange="loadEventForm()">
-                      <option value="">請選擇活動</option>
-                  </select>
+      <div id="member-register-tab" class="tab-content">
+        <h2 style="margin-top:0;">🧾 會員註冊</h2>
+        <form id="member-register-form" onsubmit="registerMemberFront(event)" style="max-width:480px;">
+          <div id="member-register-alert"></div>
+          <div class="form-group"><label>姓名 *</label><input type="text" id="m-name" ></div>
+          <div class="form-group"><label>Email *</label><input type="email" id="m-email" ></div>
+          <div class="form-group"><label>密碼 *</label><input type="password" id="m-pw"  minlength="6"></div>
+          <div class="form-group"><label>電話</label><input type="text" id="m-phone" required></div>
+          <div class="form-group"><label>緊急聯絡人</label><input type="text" id="m-emg"></div>
+          <div class="form-group"><label>緊急聯絡人電話</label><input type="text" id="m-emg-phone"></div>
+          <button type="submit" class="btn btn-primary">建立會員</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 後台登入 Modal -->
+  <div class="modal" id="admin-login-modal">
+    <div class="modal-content" style="max-width:420px;">
+      <span class="close" onclick="closeModal('admin-login-modal')">&times;</span>
+      <h2 style="margin-top:0;">後台登入</h2>
+      <div id="login-alert"></div>
+      <form onsubmit="adminLogin(event)">
+        <div class="form-group"><label>Email</label><input type="email" id="admin-email" required></div>
+        <div class="form-group"><label>密碼</label><input type="password" id="admin-password" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">登入</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 報名 Modal -->
+  <div class="modal" id="registration-modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('registration-modal')">&times;</span>
+      <h2 style="margin-top:0;">📝 報名</h2>
+      <div id="registration-form-container"></div>
+    </div>
+  </div>
+
+  <!-- 活動詳情 Modal -->
+  <div class="modal" id="activity-detail-modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('activity-detail-modal')">&times;</span>
+      <div id="activity-detail-container"></div>
+    </div>
+  </div>
+
+  <!-- 後台 APP -->
+  <div id="admin-app" class="hidden">
+    <div class="container">
+      <header>
+        <h2 style="margin:0;font-size:1.1rem;">後台管理</h2>
+        <div class="flex">
+          <span id="admin-user" style="font-size:.7rem;"></span>
+          <button class="btn btn-outline" onclick="logoutAdmin()">登出</button>
+          <button class="btn" onclick="backToPublic()">前台</button>
+        </div>
+      </header>
+
+      <div class="admin-tabs">
+        <div class="admin-tab active" data-panel="activities-panel" onclick="switchPanel(this)">活動管理</div>
+        <div class="admin-tab" data-panel="registrations-panel" onclick="switchPanel(this)">報名清單</div>
+        <div class="admin-tab" data-panel="members-panel" onclick="switchPanel(this)">會員管理</div>
+      </div>
+
+      <!-- 活動管理 -->
+      <div id="activities-panel" class="panel active">
+        <h3 class="section-title">活動管理</h3>
+          <div class="grid two-col" id="activity-form-wrapper">
+          <div style="background:#fafbff; padding:14px 16px; border-radius:12px;">
+            <h4 style="margin-top:0;">新增 / 編輯活動</h4>
+            <div id="act-form-alert"></div>
+            <form id="act-form" onsubmit="saveActivity(event)">
+              <input type="hidden" id="act-id">
+              <div class="form-group"><label>名稱 *</label><input id="act-name" required></div>
+              <div class="form-group"><label>等級</label><input id="act-level"></div>
+              <div class="form-group"><label>出發日期 (YYYY-MM-DD)</label><input id="act-depart"></div>
+              <div class="form-group"><label>報名開始</label><input id="act-signup-start"></div>
+              <div class="form-group"><label>報名截止</label><input id="act-signup-end"></div>
+              <div class="form-group"><label>人數限制</label><input id="act-limit" type="number" min="0"></div>
+              <div class="form-group"><label>描述</label><input id="act-desc"></div>
+              <div class="flex">
+                <button type="submit" class="btn btn-primary">儲存</button>
+                <button type="button" class="btn" onclick="resetActivityForm()">清空</button>
               </div>
-
-              <div id="eventFormContainer" style="display: none;">
-                  <div class="form-group">
-                      <label class="form-label">姓名</label>
-                      <input type="text" class="form-control" id="userName" readonly>
-                  </div>
-
-                  <div class="form-group">
-                      <label class="form-label">聯絡電話</label>
-                      <input type="tel" class="form-control" id="userPhone" placeholder="請輸入手機號碼" required>
-                  </div>
-
-                  <div class="form-group">
-                      <label class="form-label">緊急聯絡人</label>
-                      <input type="text" class="form-control" id="emergencyContact" placeholder="緊急聯絡人姓名" required>
-                  </div>
-
-                  <div class="form-group">
-                      <label class="form-label">緊急聯絡電話</label>
-                      <input type="tel" class="form-control" id="emergencyPhone" placeholder="緊急聯絡人電話" required>
-                  </div>
-
-                  <div class="form-group">
-                      <label class="form-label">備註</label>
-                      <textarea class="form-control" id="notes" rows="3" placeholder="其他需要說明的事項（選填）"></textarea>
-                  </div>
-
-                  <button class="btn btn-primary" onclick="submitRegistration()" style="width: 100%;">
-                      🎯 立即報名
-                  </button>
-              </div>
+            </form>
           </div>
-      </div>
-
-      <!-- 統計查詢頁面 -->
-      <div id="statsTab" class="tab-content">
-          <div class="search-section">
-              <div class="search-input">
-                  <input type="text" class="form-control" id="searchEventId" placeholder="輸入活動ID (如: hiking, running)">
-                  <button class="btn btn-primary" onclick="searchEventStats()">查詢統計</button>
-              </div>
+          <div style="overflow:auto;">
+            <h4 style="margin-top:0;">活動列表</h4>
+            <div id="admin-activities-table">載入中...</div>
           </div>
-
-          <div id="statsResult"></div>
+        </div>
       </div>
+
+      <!-- 報名清單 -->
+      <div id="registrations-panel" class="panel">
+        <h3 class="section-title">報名清單</h3>
+        <div class="form-group" style="max-width:340px;">
+          <label>選擇活動</label>
+          <select id="reg-activity-select" onchange="loadActivityRegistrations()"></select>
+        </div>
+        <div style="margin:8px 0;">
+          <button class="btn" onclick="loadActivityRegistrations()">重新載入</button>
+          <button class="btn btn-primary" onclick="exportCSV()">匯出 CSV</button>
+        </div>
+        <div id="activity-registrations-table"></div>
+      </div>
+
+      <!-- 會員管理 -->
+      <div id="members-panel" class="panel">
+        <h3 class="section-title">會員管理</h3>
+        <div style="margin-bottom:10px;">
+          <button class="btn" onclick="loadMembers()">重新載入</button>
+        </div>
+        <div id="members-table">載入中...</div>
+        <div style="margin-top:20px; max-width:420px;">
+          <h4 style="margin-top:0;">重設會員密碼</h4>
+          <div id="reset-pw-alert"></div>
+          <form onsubmit="resetMemberPassword(event)">
+            <div class="form-group"><label>會員ID</label><input id="reset-member-id" required></div>
+            <div class="form-group"><label>新密碼</label><input id="reset-member-pw" required minlength="6"></div>
+            <button type="submit" class="btn btn-primary">重設密碼</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script>
-      // 設定常數
-      const GAS_URL = 'https://script.google.com/macros/s/AKfycbxIKulzVRZyV6xcN3Zoex3dsLqSEiOmlwnQg-BWkc0XBSR7DRvGwUzhMH08KrWVnJ_rqQ/exec';
-      const FALLBACK_LIFF_ID = '2007905012-o1yDNa92';
+    // ========== 前台 ==========
+    let activities = [];
+    let currentActivity = null;
+    let submitting = false;
 
-      // 全域變數
-      let liffProfile = null;
-      let eventConfigs = [];
-      let swiper = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      loadActivities();
+      autoResumeAdmin();
+    });
 
-      // LIFF 初始化
-      async function initializeLiff() {
-          try {
-              await liff.init({ liffId: FALLBACK_LIFF_ID });
-              
-              if (liff.isLoggedIn()) {
-                  liffProfile = await liff.getProfile();
-                  displayUserInfo(liffProfile);
-                  await loadEventConfigs();
-              } else {
-                  liff.login();
-              }
-          } catch (error) {
-              console.error('LIFF 初始化失敗:', error);
-              showError('系統初始化失敗，請重新整理頁面');
-          }
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab + '-tab').classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+
+    function loadActivities() {
+      const container = document.getElementById('activities-container');
+      container.textContent = '載入中...';
+      google.script.run
+        .withSuccessHandler(data => { activities = data || []; renderActivities(); })
+        .withFailureHandler(err => { container.innerHTML='<div class="alert alert-error">載入失敗</div>'; })
+        .getActivities();
+    }
+
+    function renderActivities() {
+      const container = document.getElementById('activities-container');
+      if (!activities.length) {
+        container.innerHTML = '<div>目前沒有活動</div>';
+        return;
       }
+      let html = '<div class="activity-grid">';
+      activities.forEach(a => {
+        const canReg = canRegisterActivity(a);
+        html += `
+          <div class="activity-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="activity-level">${a['活動等級']||''}</span>
+              <span class="status ${statusClass(a['狀態'])}">${a['狀態']}</span>
+            </div>
+            <div style="font-weight:700; font-size:.95rem;">${a['活動名稱']}</div>
+            <div class="meta">
+              <div>📅 出發：${fmtDate(a['出發日期'])}</div>
+              <div>📝 報名：${fmtDate(a['報名開始'])} ~ ${fmtDate(a['報名截止'])}</div>
+              <div>👥 人數：${a['已報名人數']}/${a['人數限制']}</div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:.5rem;">
+              <button class="btn btn-primary" onclick="showActivityDetail('${a['活動ID']}')">詳情</button>
+              <button class="btn btn-primary" onclick="openRegistrationForm('${a['活動ID']}')" ${!canReg?'disabled':''}>${canReg?'報名':'無法報名'}</button>
+            </div>
+          </div>`;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
 
-      // 顯示用戶資訊
-      function displayUserInfo(profile) {
-          const userInfo = document.getElementById('userInfo');
-          const userAvatar = document.getElementById('userAvatar');
-          const userName = document.getElementById('userName');
-          
-          userAvatar.src = profile.pictureUrl || 'https://via.placeholder.com/40';
-          userName.textContent = profile.displayName;
-          userInfo.style.display = 'flex';
-          
-          // 同時更新表單中的姓名
-          document.getElementById('userName').value = profile.displayName;
+    function statusClass(s) {
+      switch (s) {
+        case '報名中': return 'status-open';
+        case '報名截止': return 'status-closed';
+        case '已滿額': return 'status-full';
+        case '未開始': return 'status-pending';
+        default: return 'status-closed';
       }
+    }
+    function canRegisterActivity(a) {
+      if (a['狀態'] !== '報名中') return false;
+      const c = Number(a['已報名人數'])||0;
+      const l = Number(a['人數限制'])||0;
+      if (l>0 && c>=l) return false;
+      const now = new Date();
+      const start = new Date(a['報名開始']);
+      const end = new Date(a['報名截止']);
+      return now>=start && now<=end;
+    }
+    function fmtDate(d) {
+      if (!d) return '';
+      const dt = new Date(d);
+      if (isNaN(dt)) return d;
+      return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());
+    }
+    function pad(n){return n<10?'0'+n:n;}
+    function fmtDateTime(s) {
+      if (!s) return '';
+      const d = new Date(s);
+      if (isNaN(d)) return s;
+      return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    }
 
-      // 載入活動設定
-      async function loadEventConfigs() {
-          try {
-              const response = await fetch(`${GAS_URL}?action=getAllEvents`);
-              const data = await response.json();
-              
-              if (data.success) {
-                  eventConfigs = data.events;
-                  renderEventCards();
-                  populateEventSelect();
-              } else {
-                  showError('載入活動資料失敗');
-              }
-          } catch (error) {
-              console.error('載入活動失敗:', error);
-              showError('網路連線錯誤，請檢查網路狀態');
-          }
-      }
+    function showActivityDetail(id) {
+      const act = activities.find(a => a['活動ID']===id);
+      if (!act) return;
+      currentActivity = act;
+      const container = document.getElementById('activity-detail-container');
+      container.innerHTML = `
+        <h2 style="margin-top:0;">${act['活動名稱']}</h2>
+        <p><strong>等級：</strong>${act['活動等級']||''} | <strong>狀態：</strong>${act['狀態']}</p>
+        <p><strong>出發日期：</strong>${fmtDate(act['出發日期'])}</p>
+        <p><strong>報名期間：</strong>${fmtDate(act['報名開始'])} ~ ${fmtDate(act['報名截止'])}</p>
+        <p><strong>人數：</strong>${act['已報名人數']}/${act['人數限制']}</p>
+        <p><strong>描述：</strong>${act['描述']||'無'}</p>
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" onclick="closeModal('activity-detail-modal');openRegistrationForm('${act['活動ID']}')" ${!canRegisterActivity(act)?'disabled':''}>立即報名</button>
+        </div>
+      `;
+      openModal('activity-detail-modal');
+    }
 
-      // 渲染活動卡片
-      function renderEventCards() {
-          const container = document.getElementById('eventCards');
-          container.innerHTML = '';
+    function openRegistrationForm(id) {
+      const act = activities.find(a => a['活動ID']===id);
+      if (!act) return;
+      currentActivity = act;
+      const div = document.getElementById('registration-form-container');
+      div.innerHTML = `
+        <div id="reg-alert"></div>
+        <h3 style="margin-top:0;">${act['活動名稱']} - 報名</h3>
+        <form onsubmit="submitRegistrationFront(event)">
+          <div class="form-group"><label>姓名 *</label><input required id="reg-name"></div>
+          <div class="form-group"><label>電話 *</label><input  id="reg-phone"></div>
+          <div class="form-group"><label>Email *</label><input type="email"  id="reg-email"></div>
+          <div class="form-group"><label>緊急聯絡人 *</label><input  id="reg-emg"></div>
+          <div class="form-group"><label>緊急聯絡人電話 *</label><input  id="reg-emg-phone"></div>
+          <div style="text-align:right; margin-top:1rem;">
+            <button type="button" class="btn" onclick="closeModal('registration-modal')">取消</button>
+            <button type="submit" class="btn btn-primary" id="reg-submit-btn">送出</button>
+          </div>
+        </form>
+      `;
+      openModal('registration-modal');
+    }
 
-          eventConfigs.forEach(event => {
-              const card = createEventCard(event);
-              container.appendChild(card);
-          });
-
-          // 初始化 Swiper
-          if (swiper) {
-              swiper.destroy();
-          }
-          
-          swiper = new Swiper('.swiper', {
-              slidesPerView: 1,
-              spaceBetween: 20,
-              centeredSlides: true,
-              pagination: {
-                  el: '.swiper-pagination',
-                  clickable: true,
-              },
-              breakpoints: {
-                  640: {
-                      slidesPerView: 1.2,
-                  },
-              }
-          });
-      }
-
-      // 創建活動卡片
-      function createEventCard(event) {
-          const slide = document.createElement('div');
-          slide.className = 'swiper-slide';
-
-          const availableSlots = event.maxParticipants - (event.currentCount || 0);
-          const isAvailable = availableSlots > 0;
-          
-          slide.innerHTML = `
-              <div class="event-card">
-                  <div class="event-header ${event.category}">
-                      <div class="event-icon">${getEventIcon(event.category)}</div>
-                      <div class="event-title">${event.eventName}</div>
-                      <div class="event-subtitle">${event.description}</div>
-                  </div>
-                  
-                  <div class="event-details">
-                      <div class="detail-row">
-                          <span class="detail-icon">📅</span>
-                          <span>活動日期</span>
-                          <span>${formatDateTime(event.eventDate)}</span>
-                      </div>
-                      
-                      <div class="detail-row">
-                          <span class="detail-icon">🕐</span>
-                          <span>集合時間</span>
-                          <span>${formatDateTime(event.meetingTime)}</span>
-                      </div>
-                      
-                      <div class="detail-row">
-                          <span class="detail-icon">📍</span>
-                          <span>集合地點</span>
-                          <span>${event.meetingLocation}</span>
-                      </div>
-                      
-                      <div class="detail-row">
-                          <span class="detail-icon">⏱️</span>
-                          <span>活動時長</span>
-                          <span>${event.duration}</span>
-                      </div>
-                      
-                      <div class="detail-row">
-                          <span class="detail-icon">⭐</span>
-                          <span>難度等級</span>
-                          <span>${event.difficulty}</span>
-                      </div>
-                      
-                      <div class="detail-row">
-                          <span class="detail-icon">🎒</span>
-                          <span>攜帶物品</span>
-                          <span>${event.requiredItems}</span>
-                      </div>
-                      
-                      <div class="detail-row">
-                          <span class="detail-icon">👥</span>
-                          <span>報名狀況</span>
-                          <span>${event.currentCount || 0}/${event.maxParticipants} 人</span>
-                          <span class="status-badge ${isAvailable ? 'status-available' : 'status-full'}">
-                              ${isAvailable ? `還有${availableSlots}個名額` : '已額滿'}
-                          </span>
-                      </div>
-                  </div>
-                  
-                  <div class="event-actions">
-                      <button class="btn btn-primary" onclick="selectEventForRegistration('${event.category}')" ${!isAvailable ? 'disabled' : ''}>
-                          🎯 立即報名
-                      </button>
-                      <button class="btn btn-secondary" onclick="viewEventStats('${event.category}')">
-                          📊 查看名單
-                      </button>
-                  </div>
-              </div>
-          `;
-
-          return slide;
-      }
-
-      // 取得活動圖示
-      function getEventIcon(category) {
-          const icons = {
-              'hiking': '🏔️',
-              'running': '🏃‍♂️',
-              'cycling': '🚴‍♂️',
-              'swimming': '🏊‍♂️',
-              'climbing': '🧗‍♂️'
-          };
-          return icons[category] || '🎯';
-      }
-
-      // 格式化日期時間
-      function formatDateTime(dateStr) {
-          if (!dateStr) return '';
-          const date = new Date(dateStr);
-          return date.toLocaleString('zh-TW', {
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-          });
-      }
-
-      // 填充活動選擇下拉選單
-      function populateEventSelect() {
-          const select = document.getElementById('eventSelect');
-          select.innerHTML = '<option value="">請選擇活動</option>';
-          
-          eventConfigs.forEach(event => {
-              const option = document.createElement('option');
-              option.value = event.category;
-              option.textContent = event.eventName;
-              select.appendChild(option);
-          });
-      }
-
-      // 切換頁籤
-      function switchTab(tabName) {
-          // 更新頁籤樣式
-          document.querySelectorAll('.nav-tab').forEach(tab => {
-              tab.classList.remove('active');
-          });
-          event.target.classList.add('active');
-
-          // 顯示對應內容
-          document.querySelectorAll('.tab-content').forEach(content => {
-              content.classList.remove('active');
-          });
-          document.getElementById(tabName + 'Tab').classList.add('active');
-      }
-
-      // 選擇活動進行報名
-      function selectEventForRegistration(category) {
-          document.getElementById('eventSelect').value = category;
-          loadEventForm();
-          switchTab('register');
-          
-          // 更新頁籤外觀
-          document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-          document.querySelectorAll('.nav-tab')[1].classList.add('active');
-      }
-
-      // 載入活動表單
-      function loadEventForm() {
-          const selectedCategory = document.getElementById('eventSelect').value;
-          const formContainer = document.getElementById('eventFormContainer');
-          
-          if (selectedCategory) {
-              formContainer.style.display = 'block';
-              // 可以根據不同活動類型載入不同的表單欄位
+    function submitRegistrationFront(e) {
+      e.preventDefault();
+      if (submitting) return;
+      submitting = true;
+      const btn = document.getElementById('reg-submit-btn');
+      btn.disabled = true; btn.textContent='處理中...';
+      const alertDiv = document.getElementById('reg-alert');
+      alertDiv.innerHTML = '<div class="alert alert-info">送出中...</div>';
+      const data = {
+        activityId: currentActivity['活動ID'],
+        name: document.getElementById('reg-name').value.trim(),
+        phone: document.getElementById('reg-phone').value.trim(),
+        email: document.getElementById('reg-email').value.trim(),
+        emergencyContact: document.getElementById('reg-emg').value.trim(),
+        emergencyPhone: document.getElementById('reg-emg-phone').value.trim()
+      };
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            alertDiv.innerHTML = '<div class="alert alert-success">'+res.message+'<br>報名編號：'+res.registrationId+'</div>';
+            setTimeout(()=> {
+              closeModal('registration-modal');
+              loadActivities();
+            },1600);
           } else {
-              formContainer.style.display = 'none';
+            alertDiv.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
           }
+        })
+        .withFailureHandler(err => {
+          alertDiv.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
+        })
+        .submitRegistration(data);
+      setTimeout(()=> {
+        submitting = false;
+        btn.disabled=false;
+        btn.textContent='送出';
+      },2200);
+    }
+
+    function loadUserRegistrations() {
+      const email = document.getElementById('user-email').value.trim();
+      if (!email) { alert('請輸入 Email'); return; }
+      const box = document.getElementById('user-registrations-container');
+      box.innerHTML = '<div class="alert alert-info">載入中...</div>';
+      google.script.run
+        .withSuccessHandler(list => {
+          if (!list || !list.length) {
+            box.innerHTML = '<div>無報名紀錄</div>';
+            return;
+          }
+          let html='';
+          list.forEach(r => {
+            const act = r.activityInfo;
+            let canCancel = false;
+            if (act) {
+              const end = new Date(act['報名截止']);
+              canCancel = act['狀態']==='報名中' && new Date() <= end;
+            }
+            html += `
+              <div style="border:1px solid #eee; padding:10px 12px; border-radius:10px; margin-bottom:10px; background:#fff;">
+                <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                  <div>
+                    <strong>${act?act['活動名稱']:'(活動已刪除)'}</strong><br>
+                    編號：${r['報名ID']}<br>
+                    時間：${fmtDateTime(r['報名時間'])}
+                  </div>
+                  <div>
+                    ${canCancel? `<button class="btn btn-danger" onclick="cancelUserRegistration('${r['報名ID']}','${r['Email']}')">取消</button>`:'<span class="status status-closed">無法取消</span>'}
+                  </div>
+                </div>
+                ${act? `<div style="margin-top:6px; font-size:.65rem;">出發：${fmtDate(act['出發日期'])} | 人數：${act['已報名人數']}/${act['人數限制']}</div>`:''}
+              </div>`;
+          });
+          box.innerHTML = html;
+        })
+        .withFailureHandler(err => box.innerHTML='<div class="alert alert-error">載入失敗</div>')
+        .getUserRegistrations(email);
+    }
+
+    function cancelUserRegistration(id, email) {
+      if (!confirm('確定取消？')) return;
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          loadUserRegistrations();
+          loadActivities();
+        })
+        .withFailureHandler(err => alert('錯誤'))
+        .cancelRegistration(id, email);
+    }
+
+    function clearUserReg() {
+      document.getElementById('user-email').value='';
+      document.getElementById('user-registrations-container').innerHTML='';
+    }
+
+    function registerMemberFront(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('member-register-alert');
+      alertBox.innerHTML='';
+      const data = {
+        name: document.getElementById('m-name').value.trim(),
+        email: document.getElementById('m-email').value.trim(),
+        password: document.getElementById('m-pw').value,
+        phone: document.getElementById('m-phone').value.trim(),
+        emergencyContact: document.getElementById('m-emg').value.trim(),
+        emergencyPhone: document.getElementById('m-emg-phone').value.trim()
+      };
+      alertBox.innerHTML = '<div class="alert alert-info">送出中...</div>';
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            alertBox.innerHTML = '<div class="alert alert-success">註冊成功！</div>';
+            document.getElementById('member-register-form').reset();
+          } else {
+            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
+          }
+        })
+        .withFailureHandler(err => {
+          alertBox.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
+        })
+        .registerMember(data);
+    }
+
+    // ===== Modal 控制 =====
+    function openModal(id){ document.getElementById(id).style.display='block'; }
+    function closeModal(id){ document.getElementById(id).style.display='none'; if (id==='registration-modal') currentActivity=null; }
+    window.onclick = function(e){
+      ['registration-modal','activity-detail-modal','admin-login-modal'].forEach(mid=>{
+        const m = document.getElementById(mid);
+        if (e.target===m) closeModal(mid);
+      });
+    }
+
+    function openAdminLogin() {
+      openModal('admin-login-modal');
+    }
+
+    // ========== 後台登入與顯示 ==========
+    let adminToken = null;
+    let adminEmail = null;
+
+    function autoResumeAdmin() {
+      const t = localStorage.getItem('admin_token');
+      const mail = localStorage.getItem('admin_email');
+      if (t && mail) {
+        // 嘗試顯示後台（不重新驗證角色；若需嚴謹可新增後端驗證函式）
+        adminToken = t;
+        adminEmail = mail;
+        showAdmin();
+        loadAllAdminData();
       }
+    }
 
-      // 提交報名
-      async function submitRegistration() {
-          const formData = {
-              eventType: document.getElementById('eventSelect').value,
-              name: document.getElementById('userName').value,
-              phone: document.getElementById('userPhone').value,
-              emergencyContact: document.getElementById('emergencyContact').value,
-              emergencyPhone: document.getElementById('emergencyPhone').value,
-              notes: document.getElementById('notes').value,
-              userId: liffProfile?.userId || '',
-              displayName: liffProfile?.displayName || ''
-          };
-
-          // 驗證必填欄位
-          if (!formData.eventType || !formData.phone || !formData.emergencyContact || !formData.emergencyPhone) {
-              showError('請填寫所有必填欄位');
+    function adminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('admin-email').value.trim();
+      const pw = document.getElementById('admin-password').value;
+      const alertBox = document.getElementById('login-alert');
+      alertBox.innerHTML = '<div class="alert alert-info">登入中...</div>';
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            if (res.role !== 'admin') {
+              alertBox.innerHTML = '<div class="alert alert-error">此帳號無管理員權限</div>';
               return;
+            }
+            adminToken = res.token;
+            adminEmail = res.email;
+            localStorage.setItem('admin_token', adminToken);
+            localStorage.setItem('admin_email', adminEmail);
+            alertBox.innerHTML = '<div class="alert alert-success">登入成功</div>';
+            setTimeout(()=>{
+              closeModal('admin-login-modal');
+              showAdmin();
+              loadAllAdminData();
+            },500);
+          } else {
+            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
           }
+        })
+        .withFailureHandler(err => {
+          alertBox.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
+        })
+        .userLogin(email, pw);
+    }
 
-          try {
-              showLoading('正在提交報名...');
-              
-              const response = await fetch(GAS_URL, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                      action: 'register',
-                      ...formData
-                  })
-              });
+    function showAdmin() {
+      document.getElementById('public-app').classList.add('hidden');
+      document.getElementById('admin-app').classList.remove('hidden');
+      document.getElementById('admin-user').textContent = adminEmail || '';
+    }
 
-              const result = await response.json();
-              hideLoading();
+    function backToPublic() {
+      document.getElementById('admin-app').classList.add('hidden');
+      document.getElementById('public-app').classList.remove('hidden');
+    }
 
-              if (result.success) {
-                  showSuccess('報名成功！' + (result.message || ''));
-                  // 清空表單
-                  document.getElementById('userPhone').value = '';
-                  document.getElementById('emergencyContact').value = '';
-                  document.getElementById('emergencyPhone').value = '';
-                  document.getElementById('notes').value = '';
-                  
-                  // 重新載入活動資料
-                  await loadEventConfigs();
-              } else {
-                  showError(result.message || '報名失敗，請稍後再試');
-              }
-          } catch (error) {
-              hideLoading();
-              console.error('提交報名失敗:', error);
-              showError('網路錯誤，請檢查連線狀態');
+    function logoutAdmin() {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_email');
+      adminToken = null;
+      adminEmail = null;
+      backToPublic();
+    }
+
+    // ===== 後台 Tabs =====
+    function switchPanel(el) {
+      document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(el.dataset.panel).classList.add('active');
+    }
+
+    // ===== 載入全部後台資料 =====
+    function loadAllAdminData() {
+      loadAdminActivities();
+      loadMembers();
+    }
+
+    // ===== 活動（後台） =====
+    function loadAdminActivities() {
+      const wrap = document.getElementById('admin-activities-table');
+      wrap.textContent='載入中...';
+      google.script.run
+        .withSuccessHandler(data => {
+          const acts = data || [];
+          let html = '<table><thead><tr><th>ID</th><th>名稱</th><th>日期</th><th>報名期間</th><th>限制</th><th>人數</th><th>狀態</th><th>操作</th></tr></thead><tbody>';
+          acts.forEach(a => {
+            html += `<tr>
+              <td>${a['活動ID']}</td>
+              <td>${a['活動名稱']}</td>
+              <td>${a['出發日期']}</td>
+              <td>${a['報名開始']}<br>${a['報名截止']}</td>
+              <td>${a['人數限制']}</td>
+              <td>${a['已報名人數']}</td>
+              <td>${a['狀態']}</td>
+              <td>
+                <button class="btn btn-primary" onclick="editActivity('${a['活動ID']}')">編輯</button>
+                <button class="btn btn-danger" onclick="deleteActivity('${a['活動ID']}')">刪</button>
+                <div style="margin-top:4px;">
+                  <select onchange="forceStatus('${a['活動ID']}', this.value)">
+                    <option value="">狀態操作</option>
+                    <option value="未開始">未開始</option>
+                    <option value="報名中">報名中</option>
+                    <option value="報名截止">報名截止</option>
+                    <option value="已滿額">已滿額</option>
+                  </select>
+                </div>
+              </td>
+            </tr>`;
+          });
+          html+='</tbody></table>';
+          wrap.innerHTML = html;
+          // 更新報名清單下拉
+          const sel = document.getElementById('reg-activity-select');
+          sel.innerHTML = '<option value="">--選擇活動--</option>' + acts.map(a=> `<option value="${a['活動ID']}">${a['活動ID']} - ${a['活動名稱']}</option>`).join('');
+        })
+        .withFailureHandler(err => wrap.innerHTML='<div class="alert alert-error">載入失敗</div>')
+        .getActivities();
+    }
+
+    function resetActivityForm() {
+      document.getElementById('act-id').value='';
+      document.getElementById('act-form').reset();
+      document.getElementById('act-form-alert').innerHTML='';
+    }
+
+    function editActivity(id) {
+      google.script.run
+        .withSuccessHandler(a => {
+          if (!a) { alert('找不到活動'); return; }
+          document.getElementById('act-id').value = a['活動ID'];
+          document.getElementById('act-name').value = a['活動名稱'];
+          document.getElementById('act-level').value = a['活動等級']||'';
+          document.getElementById('act-depart').value = a['出發日期'];
+          document.getElementById('act-signup-start').value = a['報名開始'];
+          document.getElementById('act-signup-end').value = a['報名截止'];
+          document.getElementById('act-limit').value = a['人數限制'];
+          document.getElementById('act-desc').value = a['描述'] || '';
+        })
+        .getActivityDetails(id);
+    }
+
+    function saveActivity(e) {
+      e.preventDefault();
+      if (!adminToken) return alert('未登入');
+      const alertBox = document.getElementById('act-form-alert');
+      alertBox.innerHTML = '<div class="alert alert-info">處理中...</div>';
+      const data = {
+        id: document.getElementById('act-id').value.trim(),
+        name: document.getElementById('act-name').value.trim(),
+        level: document.getElementById('act-level').value.trim(),
+        departDate: document.getElementById('act-depart').value.trim(),
+        signupStart: document.getElementById('act-signup-start').value.trim(),
+        signupEnd: document.getElementById('act-signup-end').value.trim(),
+        limit: document.getElementById('act-limit').value.trim(),
+        desc: document.getElementById('act-desc').value.trim()
+      };
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            alertBox.innerHTML = '<div class="alert alert-success">'+res.message+'</div>';
+            loadAdminActivities();
+            resetActivityForm();
+          } else {
+            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
           }
-      }
+        })
+        .withFailureHandler(err => alertBox.innerHTML='<div class="alert alert-error">系統錯誤</div>')
+        .adminSaveActivity(adminToken, data);
+    }
 
-      // 查看活動統計
-      function viewEventStats(category) {
-          document.getElementById('searchEventId').value = category;
-          searchEventStats();
-          switchTab('stats');
-          
-          // 更新頁籤外觀
-          document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-          document.querySelectorAll('.nav-tab')[2].classList.add('active');
-      }
+    function deleteActivity(id) {
+      if (!confirm('確定刪除活動 '+id+'？')) return;
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          loadAdminActivities();
+        })
+        .withFailureHandler(err => alert('刪除失敗'))
+        .adminDeleteActivity(adminToken, id);
+    }
 
-      // 搜尋活動統計
-      async function searchEventStats() {
-          const eventId = document.getElementById('searchEventId').value.trim();
-          const resultContainer = document.getElementById('statsResult');
-          
-          if (!eventId) {
-              showError('請輸入活動ID');
-              return;
+    function forceStatus(id, st) {
+      if (!st) return;
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          loadAdminActivities();
+        })
+        .withFailureHandler(err => alert('操作失敗'))
+        .adminForceStatus(adminToken, id, st);
+    }
+
+    // ===== 報名清單（後台） =====
+    function loadActivityRegistrations() {
+      const actId = document.getElementById('reg-activity-select').value;
+      const wrap = document.getElementById('activity-registrations-table');
+      if (!actId) { wrap.innerHTML='請選擇活動'; return; }
+      wrap.innerHTML='載入中...';
+      google.script.run
+        .withSuccessHandler(list => {
+          if (list.error) {
+            wrap.innerHTML = '<div class="alert alert-error">'+list.message+'</div>';
+            return;
           }
-
-          try {
-              showLoading('正在載入統計資料...');
-              
-              const response = await fetch(`${GAS_URL}?action=getEventStats&eventId=${eventId}`);
-              const data = await response.json();
-              
-              hideLoading();
-
-              if (data.success) {
-                  renderEventStats(data.stats, data.registrations);
-              } else {
-                  resultContainer.innerHTML = '<div class="error">查無此活動資料</div>';
-              }
-          } catch (error) {
-              hideLoading();
-              console.error('載入統計失敗:', error);
-              resultContainer.innerHTML = '<div class="error">載入失敗，請稍後再試</div>';
+          if (!list.length) {
+            wrap.innerHTML = '<div>尚無報名</div>';
+            return;
           }
-      }
+          let html = '<table><thead><tr>';
+          const header = Object.keys(list[0]);
+          html += header.map(h=> '<th>'+h+'</th>').join('');
+          html += '</tr></thead><tbody>';
+          list.forEach(r => {
+            html += '<tr>'+ header.map(h=> '<td>'+(r[h]||'')+'</td>').join('') +'</tr>';
+          });
+          html += '</tbody></table>';
+          wrap.innerHTML = html;
+        })
+        .withFailureHandler(err => wrap.innerHTML='<div class="alert alert-error">載入錯誤</div>')
+        .adminGetRegistrationsByActivity(adminToken, actId);
+    }
 
-      // 渲染活動統計
-      function renderEventStats(stats, registrations) {
-          const resultContainer = document.getElementById('statsResult');
-          
-          const confirmedList = registrations.filter(r => r.status === '正取');
-          const waitingList = registrations.filter(r => r.status === '候補');
-          
-          resultContainer.innerHTML = `
-              <div class="stats-card">
-                  <h3 style="margin-bottom: 15px; color: #333;">📊 ${stats.eventName} - 統計資料</h3>
-                  
-                  <div class="stats-grid">
-                      <div class="stat-item">
-                          <div class="stat-number">${stats.totalRegistrations}</div>
-                          <div class="stat-label">總報名人數</div>
-                      </div>
-                      <div class="stat-item">
-                          <div class="stat-number">${stats.confirmedCount}</div>
-                          <div class="stat-label">正取人數</div>
-                      </div>
-                      <div class="stat-item">
-                          <div class="stat-number">${stats.waitingCount}</div>
-                          <div class="stat-label">候補人數</div>
-                      </div>
-                      <div class="stat-item">
-                          <div class="stat-number">${stats.availableSlots}</div>
-                          <div class="stat-label">剩餘名額</div>
-                      </div>
-                  </div>
-                  
-                  <div class="detail-row">
-                      <span class="detail-icon">📅</span>
-                      <span>活動日期：${formatDateTime(stats.eventDate)}</span>
-                  </div>
-                  <div class="detail-row">
-                      <span class="detail-icon">📍</span>
-                      <span>集合地點：${stats.meetingLocation}</span>
-                  </div>
-                  <div class="detail-row">
-                      <span class="detail-icon">⏱️</span>
-                      <span>活動時長：${stats.duration}</span>
-                  </div>
-              </div>
-
-              ${confirmedList.length > 0 ? `
-              <div class="registration-list">
-                  <div class="list-header">👥 正取名單 (${confirmedList.length}人)</div>
-                  ${confirmedList.map((reg, index) => `
-                      <div class="list-item">
-                          <div class="item-number">${index + 1}</div>
-                          <div class="item-info">
-                              <div class="item-name">${reg.name}</div>
-                              <div class="item-time">${formatDateTime(reg.registrationTime)}</div>
-                          </div>
-                      </div>
-                  `).join('')}
-              </div>
-              ` : ''}
-
-              ${waitingList.length > 0 ? `
-              <div class="registration-list waitlist">
-                  <div class="list-header" style="background: #ffc107;">⏳ 候補名單 (${waitingList.length}人)</div>
-                  ${waitingList.map((reg, index) => `
-                      <div class="list-item">
-                          <div class="item-number">${index + 1}</div>
-                          <div class="item-info">
-                              <div class="item-name">${reg.name}</div>
-                              <div class="item-time">${formatDateTime(reg.registrationTime)}</div>
-                          </div>
-                      </div>
-                  `).join('')}
-              </div>
-              ` : ''}
-          `;
-      }
-
-      // 工具函數
-      function showLoading(message = '載入中...') {
-          const existingLoader = document.querySelector('.loading');
-          if (existingLoader) return;
-          
-          const loader = document.createElement('div');
-          loader.className = 'loading';
-          loader.innerHTML = `<div>${message}</div>`;
-          document.body.appendChild(loader);
-      }
-
-      function hideLoading() {
-          const loader = document.querySelector('.loading');
-          if (loader) {
-              loader.remove();
+    function exportCSV() {
+      const actId = document.getElementById('reg-activity-select').value;
+      if (!actId) { alert('請先選擇活動'); return; }
+      google.script.run
+        .withSuccessHandler(csv => {
+          if (typeof csv === 'object' && csv.error) {
+            alert(csv.message || '匯出失敗');
+            return;
           }
-      }
+          const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = actId + '_registrations.csv';
+          a.click();
+          URL.revokeObjectURL(url);
+        })
+        .adminExportRegistrationsCSV(adminToken, actId);
+    }
 
-      function showError(message) {
-          hideLoading();
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'error';
-          errorDiv.textContent = message;
-          
-          // 插入到當前活動頁籤的頂部
-          const activeTab = document.querySelector('.tab-content.active');
-          activeTab.insertBefore(errorDiv, activeTab.firstChild);
-          
-          // 3秒後自動移除
-          setTimeout(() => {
-              if (errorDiv.parentNode) {
-                  errorDiv.remove();
-              }
-          }, 3000);
-      }
-
-      function showSuccess(message) {
-          hideLoading();
-          const successDiv = document.createElement('div');
-          successDiv.className = 'success';
-          successDiv.textContent = message;
-          
-          // 插入到當前活動頁籤的頂部
-          const activeTab = document.querySelector('.tab-content.active');
-          activeTab.insertBefore(successDiv, activeTab.firstChild);
-          
-          // 3秒後自動移除
-          setTimeout(() => {
-              if (successDiv.parentNode) {
-                  successDiv.remove();
-              }
-          }, 3000);
-      }
-
-      // 頁面載入完成後初始化
-      document.addEventListener('DOMContentLoaded', function() {
-          initializeLiff();
-      });
-
-      // 處理頁籤點擊事件
-      document.addEventListener('click', function(e) {
-          if (e.target.classList.contains('nav-tab')) {
-              const tabName = e.target.textContent.trim();
-              let targetTab = '';
-              
-              switch(tabName) {
-                  case '活動列表':
-                      targetTab = 'events';
-                      break;
-                  case '報名表單':
-                      targetTab = 'register';
-                      break;
-                  case '統計查詢':
-                      targetTab = 'stats';
-                      break;
-              }
-              
-              if (targetTab) {
-                  switchTab(targetTab);
-              }
+    // ===== 會員管理（後台） =====
+    function loadMembers() {
+      const wrap = document.getElementById('members-table');
+      wrap.textContent='載入中...';
+      google.script.run
+        .withSuccessHandler(list => {
+          if (list.error) {
+            wrap.innerHTML = '<div class="alert alert-error">'+list.message+'</div>';
+            return;
           }
-      });
-
-      // 處理表單提交的 Enter 鍵
-      document.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-              if (e.target.id === 'searchEventId') {
-                  searchEventStats();
-              }
+          if (!list.length) {
+            wrap.innerHTML = '<div>尚無會員</div>';
+            return;
           }
-      });
+          let html = '<table><thead><tr><th>ID</th><th>姓名</th><th>Email</th><th>電話</th><th>緊急聯絡</th><th>角色</th><th>狀態</th><th>狀態操作</th><th>角色操作</th></tr></thead><tbody>';
+          list.forEach(m => {
+            html += `<tr>
+              <td>${m['會員ID']}</td>
+              <td>${m['姓名']}</td>
+              <td>${m['Email']}</td>
+              <td>${m['電話']}</td>
+              <td>${m['緊急聯絡人']}/${m['緊急聯絡電話']}</td>
+              <td>${m['角色']}</td>
+              <td>${m['狀態']}</td>
+              <td>
+                <select onchange="updateMemberStatus('${m['會員ID']}', this.value)">
+                  <option value="">狀態</option>
+                  <option value="active">active</option>
+                  <option value="inactive">inactive</option>
+                </select>
+              </td>
+              <td>
+                <select onchange="updateMemberRole('${m['會員ID']}', this.value)">
+                  <option value="">角色</option>
+                  <option value="member">member</option>
+                  <option value="staff">staff</option>
+                  <option value="admin">admin</option>
+                </select>
+              </td>
+            </tr>`;
+          });
+          html += '</tbody></table>';
+          wrap.innerHTML = html;
+        })
+        .withFailureHandler(err => wrap.innerHTML='<div class="alert alert-error">載入失敗</div>')
+        .adminGetMembers(adminToken);
+    }
 
-      // 響應式處理
-      window.addEventListener('resize', function() {
-          if (swiper) {
-              swiper.update();
+    function updateMemberStatus(id, st) {
+      if (!st) return;
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          loadMembers();
+        })
+        .withFailureHandler(err => alert('更新失敗'))
+        .adminUpdateMemberStatus(adminToken, id, st);
+    }
+
+    function updateMemberRole(id, role) {
+      if (!role) return;
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          loadMembers();
+        })
+        .withFailureHandler(err => alert('更新角色失敗'))
+        .adminUpdateMemberRole(adminToken, id, role);
+    }
+
+    function resetMemberPassword(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('reset-pw-alert');
+      alertBox.innerHTML = '<div class="alert alert-info">處理中...</div>';
+      const memberId = document.getElementById('reset-member-id').value.trim();
+      const pw = document.getElementById('reset-member-pw').value;
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            alertBox.innerHTML = '<div class="alert alert-success">'+res.message+'</div>';
+            e.target.reset();
+          } else {
+            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
           }
-      });
-
-      // LIFF 關閉處理
-      window.addEventListener('beforeunload', function() {
-          if (liff.isLoggedIn()) {
-              // 可以在這裡處理一些清理工作
-              console.log('LIFF 即將關閉');
-          }
-      });
-
-      // 錯誤處理
-      window.addEventListener('error', function(e) {
-          console.error('全域錯誤:', e.error);
-          showError('系統發生錯誤，請重新整理頁面');
-      });
-
-      // 網路狀態監控
-      window.addEventListener('online', function() {
-          showSuccess('網路連線已恢復');
-      });
-
-      window.addEventListener('offline', function() {
-          showError('網路連線中斷，請檢查網路狀態');
-      });
+        })
+        .withFailureHandler(err => {
+          alertBox.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
+        })
+        .adminResetMemberPassword(adminToken, memberId, pw);
+    }
   </script>
 </body>
 </html>
