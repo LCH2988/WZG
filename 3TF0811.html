@@ -1,857 +1,1413 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <title>登山活動報名系統</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body { font-family:'Microsoft JhengHei',Arial,sans-serif; background:linear-gradient(135deg,#667eea,#764ba2); margin:0; color:#333; }
-    a { color:#667eea; }
-    /* 公用 */
-    .container { max-width:1200px; margin:0 auto; padding:20px; }
-    .card { background:#fff; border-radius:16px; padding:1.6rem; box-shadow:0 6px 24px rgba(0,0,0,.08); margin-bottom:20px; }
-    .btn { padding:9px 16px; border:none; border-radius:8px; cursor:pointer; font-size:.85rem; font-weight:600; background:#eee; }
-    .btn-primary { background:#667eea; color:#fff; }
-    .btn-primary:hover { background:#566cd6; }
-    .btn-danger { background:#e74c3c; color:#fff; }
-    .btn-danger:hover { background:#c0392b; }
-    .btn-outline { background:#fff; border:2px solid #667eea; color:#667eea; }
-    .btn-outline:hover { background:#667eea; color:#fff; }
-    .alert { padding:12px 14px; border-radius:10px; font-size:.8rem; margin-bottom:12px; }
-    .alert-success { background:#d4edda; color:#155724; }
-    .alert-error { background:#f8d7da; color:#721c24; }
-    .alert-info { background:#e3f2fd; color:#0d47a1; }
-    .flex { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .hidden { display:none !important; }
+// === Google Apps Script 主程式 ===
+// === 參數設定 ===
+var spreadSheetConfig = SpreadsheetApp.getActive();
+var sheetConfig = spreadSheetConfig.getSheetByName("#A1_主檔設定");
+var sheetConfigData = sheetConfig.getSheetValues(3, 3, 20, 3);
+var LINE_CHANNEL_ACCESS_TOKEN = sheetConfigData[0][0].replace(/\r?\n|\r/g, "");
+var SPREADSHEET_ID = sheetConfigData[8][0];
+var sheetid = sheetConfigData[2][0];
+var dataBackup = SpreadsheetApp.openById(sheetid).getSheetByName("聊天紀錄備份");
+var PDpass = SpreadsheetApp.openById(sheetid).getSheetByName("#A2_權限設定");
 
-    /* Header */
-    .header { background:#fff; border-radius:16px; padding:2rem; text-align:center; box-shadow:0 6px 25px rgba(0,0,0,.12); }
-    .header h1 { margin:0 0 .5rem; font-size:2.2rem; }
+const LINE_ADMIN_USER_ID = sheetConfigData[10][0];
+const ADMIN_SHEET_NAME = "管理員設定";
+const FORM_CONFIG_SHEET_NAME = "表單設定";
 
-    /* Tabs (前台) */
-    .nav-tabs { display:flex; gap:8px; background:rgba(255,255,255,.9); padding:6px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.08); flex-wrap:wrap;}
-    .nav-tab { flex:1; padding:12px 10px; background:transparent; border:none; cursor:pointer; font-weight:600; border-radius:10px; transition:.25s; font-size:.85rem; }
-    .nav-tab.active { background:#667eea; color:#fff; }
+// ================== 系統設定 ==================
+const EVENTS_SHEET_NAME = 'Events';
+const REGISTRATIONS_SHEET_NAME = 'Registrations';
 
-    .tab-content { display:none; background:#fff; border-radius:16px; margin-top:18px; padding:1.6rem; box-shadow:0 6px 24px rgba(0,0,0,.08); }
-    .tab-content.active { display:block; }
 
-    /* 活動 */
-    .activity-grid { display:grid; gap:1.2rem; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:1rem; }
-    .activity-card { background:#fff; border-radius:14px; padding:1rem 1.1rem 1.35rem; box-shadow:0 4px 16px rgba(0,0,0,.08); border-left:5px solid #667eea; display:flex; flex-direction:column; gap:.5rem; }
-    .activity-card:hover { box-shadow:0 8px 22px rgba(0,0,0,.15); transform:translateY(-3px); }
-    .activity-level { padding:4px 11px; border-radius:20px; font-size:.65rem; font-weight:600; background:#eef; letter-spacing:.5px; }
-    .status { padding:4px 12px; border-radius:16px; font-size:.65rem; font-weight:600; }
-    .status-open { background:#d4edda; color:#155724; }
-    .status-closed { background:#f8d7da; color:#721c24; }
-    .status-full { background:#fff3cd; color:#856404; }
-    .status-pending { background:#e1e8ff; color:#2c4d9e; }
-    .meta { font-size:.75rem; color:#555; display:flex; flex-direction:column; gap:2px; }
-
-    /* 表單 */
-    .form-group { margin-bottom:1rem; }
-    .form-group label { display:block; font-size:.7rem; font-weight:600; margin-bottom:.3rem; letter-spacing:.5px; }
-    .form-group input, .form-group select { width:100%; padding:10px; border:2px solid #e2e6ef; border-radius:8px; font-size:.85rem; background:#fafbfc; }
-    .form-group input:focus, .form-group select:focus { outline:none; border-color:#667eea; background:#fff; }
-
-    /* Modal */
-    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:999; padding:25px; overflow:auto; }
-    .modal-content { background:#fff; max-width:600px; margin:40px auto; padding:1.6rem 1.7rem 2rem; border-radius:18px; position:relative; box-shadow:0 10px 35px rgba(0,0,0,.25); }
-    .close { position:absolute; top:10px; right:15px; font-size:26px; cursor:pointer; color:#888; }
-    .close:hover { color:#333; }
-
-    /* 後台 */
-    #admin-app header { background:#4a56d6; color:#fff; padding:1rem 1.4rem; display:flex; justify-content:space-between; align-items:center; border-radius:12px; }
-    .admin-tabs { display:flex; gap:8px; margin:16px 0 10px; flex-wrap:wrap;}
-    .admin-tab { padding:10px 14px; background:#ffffff; border-radius:10px; cursor:pointer; font-weight:600; font-size:.75rem; box-shadow:0 4px 14px rgba(0,0,0,.06); transition:.25s; }
-    .admin-tab.active { background:#4a56d6; color:#fff; }
-    .panel { display:none; background:#fff; border-radius:14px; padding:1.2rem 1.3rem 1.4rem; box-shadow:0 6px 18px rgba(0,0,0,.06); }
-    .panel.active { display:block; }
-    table { border-collapse:collapse; width:100%; font-size:.72rem; }
-    th, td { padding:6px 8px; border:1px solid #e1e6ef; text-align:left; }
-    th { background:#f5f7fb; }
-    tr:hover { background:#fafcff; }
-    .grid { display:grid; gap:14px; }
-    .two-col { grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
-    .section-title { margin:0 0 .8rem; font-size:.9rem; display:flex; align-items:center; gap:6px; }
-
-    @media(max-width:768px){
-      .activity-grid { grid-template-columns:1fr; }
-      .header h1 { font-size:1.8rem; }
-    }
-  </style>
-</head>
-<body>
-  <!-- 前台 APP -->
-  <div id="public-app">
-    <div class="container">
-      <div class="header">
-        <h1>🏔️ 登山活動報名系統</h1>
-        <p style="margin:0;">探索山林，挑戰自我</p>
-      </div>
-
-      <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('activities', this)">活動列表</button>
-        <button class="nav-tab" onclick="switchTab('my-registrations', this)">我的報名</button>
-        <button class="nav-tab" onclick="switchTab('member-register', this)">會員註冊</button>
-        <button class="nav-tab" onclick="openAdminLogin()">後台登入</button>
-      </div>
-
-      <div id="activities-tab" class="tab-content active">
-        <h2 style="margin-top:0;">🎯 活動列表</h2>
-        <div id="activities-container">載入中...</div>
-      </div>
-
-      <div id="my-registrations-tab" class="tab-content">
-        <h2 style="margin-top:0;">📋 我的報名</h2>
-        <div class="form-group" style="max-width:420px;">
-          <label>Email 查詢：</label>
-          <input type="email" id="user-email" placeholder="you@example.com" />
-          <div style="margin-top:8px; display:flex; gap:8px;">
-            <button class="btn btn-primary" onclick="loadUserRegistrations()">查詢</button>
-            <button class="btn" onclick="clearUserReg()">清除</button>
-          </div>
-        </div>
-        <div id="user-registrations-container"></div>
-      </div>
-
-      <div id="member-register-tab" class="tab-content">
-        <h2 style="margin-top:0;">🧾 會員註冊</h2>
-        <form id="member-register-form" onsubmit="registerMemberFront(event)" style="max-width:480px;">
-          <div id="member-register-alert"></div>
-          <div class="form-group"><label>姓名 *</label><input type="text" id="m-name" ></div>
-          <div class="form-group"><label>Email *</label><input type="email" id="m-email" ></div>
-          <div class="form-group"><label>密碼 *</label><input type="password" id="m-pw"  minlength="6"></div>
-          <div class="form-group"><label>電話</label><input type="text" id="m-phone" required></div>
-          <div class="form-group"><label>緊急聯絡人</label><input type="text" id="m-emg"></div>
-          <div class="form-group"><label>緊急聯絡人電話</label><input type="text" id="m-emg-phone"></div>
-          <button type="submit" class="btn btn-primary">建立會員</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- 後台登入 Modal -->
-  <div class="modal" id="admin-login-modal">
-    <div class="modal-content" style="max-width:420px;">
-      <span class="close" onclick="closeModal('admin-login-modal')">&times;</span>
-      <h2 style="margin-top:0;">後台登入</h2>
-      <div id="login-alert"></div>
-      <form onsubmit="adminLogin(event)">
-        <div class="form-group"><label>Email</label><input type="email" id="admin-email" required></div>
-        <div class="form-group"><label>密碼</label><input type="password" id="admin-password" required></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">登入</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- 報名 Modal -->
-  <div class="modal" id="registration-modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('registration-modal')">&times;</span>
-      <h2 style="margin-top:0;">📝 報名</h2>
-      <div id="registration-form-container"></div>
-    </div>
-  </div>
-
-  <!-- 活動詳情 Modal -->
-  <div class="modal" id="activity-detail-modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('activity-detail-modal')">&times;</span>
-      <div id="activity-detail-container"></div>
-    </div>
-  </div>
-
-  <!-- 後台 APP -->
-  <div id="admin-app" class="hidden">
-    <div class="container">
-      <header>
-        <h2 style="margin:0;font-size:1.1rem;">後台管理</h2>
-        <div class="flex">
-          <span id="admin-user" style="font-size:.7rem;"></span>
-          <button class="btn btn-outline" onclick="logoutAdmin()">登出</button>
-          <button class="btn" onclick="backToPublic()">前台</button>
-        </div>
-      </header>
-
-      <div class="admin-tabs">
-        <div class="admin-tab active" data-panel="activities-panel" onclick="switchPanel(this)">活動管理</div>
-        <div class="admin-tab" data-panel="registrations-panel" onclick="switchPanel(this)">報名清單</div>
-        <div class="admin-tab" data-panel="members-panel" onclick="switchPanel(this)">會員管理</div>
-      </div>
-
-      <!-- 活動管理 -->
-      <div id="activities-panel" class="panel active">
-        <h3 class="section-title">活動管理</h3>
-          <div class="grid two-col" id="activity-form-wrapper">
-          <div style="background:#fafbff; padding:14px 16px; border-radius:12px;">
-            <h4 style="margin-top:0;">新增 / 編輯活動</h4>
-            <div id="act-form-alert"></div>
-            <form id="act-form" onsubmit="saveActivity(event)">
-              <input type="hidden" id="act-id">
-              <div class="form-group"><label>名稱 *</label><input id="act-name" required></div>
-              <div class="form-group"><label>等級</label><input id="act-level"></div>
-              <div class="form-group"><label>出發日期 (YYYY-MM-DD)</label><input id="act-depart"></div>
-              <div class="form-group"><label>報名開始</label><input id="act-signup-start"></div>
-              <div class="form-group"><label>報名截止</label><input id="act-signup-end"></div>
-              <div class="form-group"><label>人數限制</label><input id="act-limit" type="number" min="0"></div>
-              <div class="form-group"><label>描述</label><input id="act-desc"></div>
-              <div class="flex">
-                <button type="submit" class="btn btn-primary">儲存</button>
-                <button type="button" class="btn" onclick="resetActivityForm()">清空</button>
-              </div>
-            </form>
-          </div>
-          <div style="overflow:auto;">
-            <h4 style="margin-top:0;">活動列表</h4>
-            <div id="admin-activities-table">載入中...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 報名清單 -->
-      <div id="registrations-panel" class="panel">
-        <h3 class="section-title">報名清單</h3>
-        <div class="form-group" style="max-width:340px;">
-          <label>選擇活動</label>
-          <select id="reg-activity-select" onchange="loadActivityRegistrations()"></select>
-        </div>
-        <div style="margin:8px 0;">
-          <button class="btn" onclick="loadActivityRegistrations()">重新載入</button>
-          <button class="btn btn-primary" onclick="exportCSV()">匯出 CSV</button>
-        </div>
-        <div id="activity-registrations-table"></div>
-      </div>
-
-      <!-- 會員管理 -->
-      <div id="members-panel" class="panel">
-        <h3 class="section-title">會員管理</h3>
-        <div style="margin-bottom:10px;">
-          <button class="btn" onclick="loadMembers()">重新載入</button>
-        </div>
-        <div id="members-table">載入中...</div>
-        <div style="margin-top:20px; max-width:420px;">
-          <h4 style="margin-top:0;">重設會員密碼</h4>
-          <div id="reset-pw-alert"></div>
-          <form onsubmit="resetMemberPassword(event)">
-            <div class="form-group"><label>會員ID</label><input id="reset-member-id" required></div>
-            <div class="form-group"><label>新密碼</label><input id="reset-member-pw" required minlength="6"></div>
-            <button type="submit" class="btn btn-primary">重設密碼</button>
-          </form>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    // ========== 前台 ==========
-    let activities = [];
-    let currentActivity = null;
-    let submitting = false;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadActivities();
-      autoResumeAdmin();
+// ================== GET 請求處理 ==================
+function doGet(e) {
+try {
+  console.log('[doGet] 收到請求:', e.parameter);
+  
+  const action = e.parameter.action;
+  
+  if (!action) {
+    return createJsonResponse({
+      success: false,
+      message: '缺少 action 參數'
     });
-
-    function switchTab(tab, btn) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-      document.getElementById(tab + '-tab').classList.add('active');
-      if (btn) btn.classList.add('active');
-    }
-
-    function loadActivities() {
-      const container = document.getElementById('activities-container');
-      container.textContent = '載入中...';
-      google.script.run
-        .withSuccessHandler(data => { activities = data || []; renderActivities(); })
-        .withFailureHandler(err => { container.innerHTML='<div class="alert alert-error">載入失敗</div>'; })
-        .getActivities();
-    }
-
-    function renderActivities() {
-      const container = document.getElementById('activities-container');
-      if (!activities.length) {
-        container.innerHTML = '<div>目前沒有活動</div>';
-        return;
+  }
+  
+  switch (action) {
+    case 'getAllEvents':
+      try {
+        const events = getAllEvents();
+        console.log('[doGet] 載入活動數量:', events.length);
+        
+        return createJsonResponse({
+          success: true,
+          events: events,
+          message: events.length > 0 ? `載入 ${events.length} 個活動` : '目前沒有活動'
+        });
+      } catch (error) {
+        console.error('[doGet] getAllEvents 錯誤:', error);
+        return createJsonResponse({
+          success: false,
+          message: '載入活動失敗: ' + error.message,
+          error: error.toString()
+        });
       }
-      let html = '<div class="activity-grid">';
-      activities.forEach(a => {
-        const canReg = canRegisterActivity(a);
-        html += `
-          <div class="activity-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="activity-level">${a['活動等級']||''}</span>
-              <span class="status ${statusClass(a['狀態'])}">${a['狀態']}</span>
-            </div>
-            <div style="font-weight:700; font-size:.95rem;">${a['活動名稱']}</div>
-            <div class="meta">
-              <div>📅 出發：${fmtDate(a['出發日期'])}</div>
-              <div>📝 報名：${fmtDate(a['報名開始'])} ~ ${fmtDate(a['報名截止'])}</div>
-              <div>👥 人數：${a['已報名人數']}/${a['人數限制']}</div>
-            </div>
-            <div style="display:flex; gap:8px; margin-top:.5rem;">
-              <button class="btn btn-primary" onclick="showActivityDetail('${a['活動ID']}')">詳情</button>
-              <button class="btn btn-primary" onclick="openRegistrationForm('${a['活動ID']}')" ${!canReg?'disabled':''}>${canReg?'報名':'無法報名'}</button>
-            </div>
-          </div>`;
+      
+    case 'register':
+      // 處理前端報名請求（透過 GET 參數避免 CORS）
+      try {
+        const registrationData = {
+          eventType: e.parameter.eventType,
+          name: e.parameter.name,
+          phone: e.parameter.phone,
+          age: e.parameter.age,
+          emergencyContact: e.parameter.emergencyContact,
+          emergencyPhone: e.parameter.emergencyPhone,
+          emergencyRelation: e.parameter.emergencyRelation,
+          healthCondition: e.parameter.healthCondition || '',
+          notes: e.parameter.notes || '',
+          userId: e.parameter.userId,
+          displayName: e.parameter.displayName,
+          timestamp: e.parameter.timestamp || new Date().toISOString()
+        };
+        
+        console.log('[doGet] 處理前端報名:', registrationData.eventType, registrationData.name);
+        
+        // 使用共用的報名處理函數
+        const result = handleRegistration(registrationData);
+        return createJsonResponse(result);
+        
+      } catch (error) {
+        console.error('[doGet] register 錯誤:', error);
+        return createJsonResponse({
+          success: false,
+          message: '報名處理失敗: ' + error.message
+        });
+      }
+      
+    case 'getEventStats':
+      const eventId = e.parameter.eventId;
+      if (!eventId) {
+        return createJsonResponse({
+          success: false,
+          message: '缺少 eventId 參數'
+        });
+      }
+      
+      try {
+        const stats = getEventStats(eventId);
+        const registrations = getEventRegistrations(eventId);
+        
+        return createJsonResponse({
+          success: true,
+          stats: stats,
+          registrations: registrations
+        });
+      } catch (error) {
+        console.error('[doGet] getEventStats 錯誤:', error);
+        return createJsonResponse({
+          success: false,
+          message: '載入統計失敗: ' + error.message
+        });
+      }
+      
+    case 'test':
+      return createJsonResponse({
+        success: true,
+        message: 'GAS 服務正常運作',
+        timestamp: new Date().toISOString(),
+        method: 'GET'
       });
-      html += '</div>';
-      container.innerHTML = html;
-    }
-
-    function statusClass(s) {
-      switch (s) {
-        case '報名中': return 'status-open';
-        case '報名截止': return 'status-closed';
-        case '已滿額': return 'status-full';
-        case '未開始': return 'status-pending';
-        default: return 'status-closed';
-      }
-    }
-    function canRegisterActivity(a) {
-      if (a['狀態'] !== '報名中') return false;
-      const c = Number(a['已報名人數'])||0;
-      const l = Number(a['人數限制'])||0;
-      if (l>0 && c>=l) return false;
-      const now = new Date();
-      const start = new Date(a['報名開始']);
-      const end = new Date(a['報名截止']);
-      return now>=start && now<=end;
-    }
-    function fmtDate(d) {
-      if (!d) return '';
-      const dt = new Date(d);
-      if (isNaN(dt)) return d;
-      return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());
-    }
-    function pad(n){return n<10?'0'+n:n;}
-    function fmtDateTime(s) {
-      if (!s) return '';
-      const d = new Date(s);
-      if (isNaN(d)) return s;
-      return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
-    }
-
-    function showActivityDetail(id) {
-      const act = activities.find(a => a['活動ID']===id);
-      if (!act) return;
-      currentActivity = act;
-      const container = document.getElementById('activity-detail-container');
-      container.innerHTML = `
-        <h2 style="margin-top:0;">${act['活動名稱']}</h2>
-        <p><strong>等級：</strong>${act['活動等級']||''} | <strong>狀態：</strong>${act['狀態']}</p>
-        <p><strong>出發日期：</strong>${fmtDate(act['出發日期'])}</p>
-        <p><strong>報名期間：</strong>${fmtDate(act['報名開始'])} ~ ${fmtDate(act['報名截止'])}</p>
-        <p><strong>人數：</strong>${act['已報名人數']}/${act['人數限制']}</p>
-        <p><strong>描述：</strong>${act['描述']||'無'}</p>
-        <div style="margin-top:1rem;">
-          <button class="btn btn-primary" onclick="closeModal('activity-detail-modal');openRegistrationForm('${act['活動ID']}')" ${!canRegisterActivity(act)?'disabled':''}>立即報名</button>
-        </div>
-      `;
-      openModal('activity-detail-modal');
-    }
-
-    function openRegistrationForm(id) {
-      const act = activities.find(a => a['活動ID']===id);
-      if (!act) return;
-      currentActivity = act;
-      const div = document.getElementById('registration-form-container');
-      div.innerHTML = `
-        <div id="reg-alert"></div>
-        <h3 style="margin-top:0;">${act['活動名稱']} - 報名</h3>
-        <form onsubmit="submitRegistrationFront(event)">
-          <div class="form-group"><label>姓名 *</label><input required id="reg-name"></div>
-          <div class="form-group"><label>電話 *</label><input  id="reg-phone"></div>
-          <div class="form-group"><label>Email *</label><input type="email"  id="reg-email"></div>
-          <div class="form-group"><label>緊急聯絡人 *</label><input  id="reg-emg"></div>
-          <div class="form-group"><label>緊急聯絡人電話 *</label><input  id="reg-emg-phone"></div>
-          <div style="text-align:right; margin-top:1rem;">
-            <button type="button" class="btn" onclick="closeModal('registration-modal')">取消</button>
-            <button type="submit" class="btn btn-primary" id="reg-submit-btn">送出</button>
-          </div>
-        </form>
-      `;
-      openModal('registration-modal');
-    }
-
-    function submitRegistrationFront(e) {
-      e.preventDefault();
-      if (submitting) return;
-      submitting = true;
-      const btn = document.getElementById('reg-submit-btn');
-      btn.disabled = true; btn.textContent='處理中...';
-      const alertDiv = document.getElementById('reg-alert');
-      alertDiv.innerHTML = '<div class="alert alert-info">送出中...</div>';
-      const data = {
-        activityId: currentActivity['活動ID'],
-        name: document.getElementById('reg-name').value.trim(),
-        phone: document.getElementById('reg-phone').value.trim(),
-        email: document.getElementById('reg-email').value.trim(),
-        emergencyContact: document.getElementById('reg-emg').value.trim(),
-        emergencyPhone: document.getElementById('reg-emg-phone').value.trim()
-      };
-      google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            alertDiv.innerHTML = '<div class="alert alert-success">'+res.message+'<br>報名編號：'+res.registrationId+'</div>';
-            setTimeout(()=> {
-              closeModal('registration-modal');
-              loadActivities();
-            },1600);
-          } else {
-            alertDiv.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
-          }
-        })
-        .withFailureHandler(err => {
-          alertDiv.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
-        })
-        .submitRegistration(data);
-      setTimeout(()=> {
-        submitting = false;
-        btn.disabled=false;
-        btn.textContent='送出';
-      },2200);
-    }
-
-    function loadUserRegistrations() {
-      const email = document.getElementById('user-email').value.trim();
-      if (!email) { alert('請輸入 Email'); return; }
-      const box = document.getElementById('user-registrations-container');
-      box.innerHTML = '<div class="alert alert-info">載入中...</div>';
-      google.script.run
-        .withSuccessHandler(list => {
-          if (!list || !list.length) {
-            box.innerHTML = '<div>無報名紀錄</div>';
-            return;
-          }
-          let html='';
-          list.forEach(r => {
-            const act = r.activityInfo;
-            let canCancel = false;
-            if (act) {
-              const end = new Date(act['報名截止']);
-              canCancel = act['狀態']==='報名中' && new Date() <= end;
-            }
-            html += `
-              <div style="border:1px solid #eee; padding:10px 12px; border-radius:10px; margin-bottom:10px; background:#fff;">
-                <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                  <div>
-                    <strong>${act?act['活動名稱']:'(活動已刪除)'}</strong><br>
-                    編號：${r['報名ID']}<br>
-                    時間：${fmtDateTime(r['報名時間'])}
-                  </div>
-                  <div>
-                    ${canCancel? `<button class="btn btn-danger" onclick="cancelUserRegistration('${r['報名ID']}','${r['Email']}')">取消</button>`:'<span class="status status-closed">無法取消</span>'}
-                  </div>
-                </div>
-                ${act? `<div style="margin-top:6px; font-size:.65rem;">出發：${fmtDate(act['出發日期'])} | 人數：${act['已報名人數']}/${act['人數限制']}</div>`:''}
-              </div>`;
-          });
-          box.innerHTML = html;
-        })
-        .withFailureHandler(err => box.innerHTML='<div class="alert alert-error">載入失敗</div>')
-        .getUserRegistrations(email);
-    }
-
-    function cancelUserRegistration(id, email) {
-      if (!confirm('確定取消？')) return;
-      google.script.run
-        .withSuccessHandler(res => {
-          alert(res.message);
-          loadUserRegistrations();
-          loadActivities();
-        })
-        .withFailureHandler(err => alert('錯誤'))
-        .cancelRegistration(id, email);
-    }
-
-    function clearUserReg() {
-      document.getElementById('user-email').value='';
-      document.getElementById('user-registrations-container').innerHTML='';
-    }
-
-    function registerMemberFront(e) {
-      e.preventDefault();
-      const alertBox = document.getElementById('member-register-alert');
-      alertBox.innerHTML='';
-      const data = {
-        name: document.getElementById('m-name').value.trim(),
-        email: document.getElementById('m-email').value.trim(),
-        password: document.getElementById('m-pw').value,
-        phone: document.getElementById('m-phone').value.trim(),
-        emergencyContact: document.getElementById('m-emg').value.trim(),
-        emergencyPhone: document.getElementById('m-emg-phone').value.trim()
-      };
-      alertBox.innerHTML = '<div class="alert alert-info">送出中...</div>';
-      google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            alertBox.innerHTML = '<div class="alert alert-success">註冊成功！</div>';
-            document.getElementById('member-register-form').reset();
-          } else {
-            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
-          }
-        })
-        .withFailureHandler(err => {
-          alertBox.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
-        })
-        .registerMember(data);
-    }
-
-    // ===== Modal 控制 =====
-    function openModal(id){ document.getElementById(id).style.display='block'; }
-    function closeModal(id){ document.getElementById(id).style.display='none'; if (id==='registration-modal') currentActivity=null; }
-    window.onclick = function(e){
-      ['registration-modal','activity-detail-modal','admin-login-modal'].forEach(mid=>{
-        const m = document.getElementById(mid);
-        if (e.target===m) closeModal(mid);
+      
+    default:
+      return createJsonResponse({
+        success: false,
+        message: '不支援的 action: ' + action
       });
+  }
+  
+} catch (error) {
+  console.error('[doGet] 全域錯誤:', error);
+  return createJsonResponse({
+    success: false,
+    message: '伺服器錯誤: ' + error.message,
+    error: error.toString()
+  });
+}
+}
+
+// ================== POST 請求處理 ==================
+function doPost(e) {
+try {
+  const requestBody = JSON.parse(e.postData.contents || '{}');
+  
+  // 檢查是否為 LINE Webhook
+  if (requestBody.events) {
+    console.log('[doPost] 處理 LINE Webhook');
+    return handleLineWebhook(requestBody);
+  }
+  
+  // 原有的報名 API 處理
+  const action = requestBody.action || '';
+  console.log(`[doPost] Action: ${action}`, requestBody);
+  
+  switch (action) {
+    case 'register':
+      console.log('[doPost] 處理 POST 報名請求');
+      return createJsonResponse(handleRegistration(requestBody));
+      
+    case 'test':
+      return createJsonResponse({
+        success: true,
+        message: 'GAS 服務正常運作',
+        timestamp: new Date().toISOString(),
+        method: 'POST'
+      });
+      
+    default:
+      return createJsonResponse({
+        success: false,
+        message: '未知的操作類型: ' + action
+      });
+  }
+} catch (error) {
+  console.error('[doPost Error]', error);
+  return createJsonResponse({
+    success: false,
+    message: '伺服器錯誤: ' + error.message
+  });
+}
+}
+
+// ================== 增強的 JSON 回應函數 ==================
+function createJsonResponse(data) {
+const response = ContentService.createTextOutput(JSON.stringify(data));
+response.setMimeType(ContentService.MimeType.JSON);
+
+// 設定 CORS 標頭
+response.setHeaders({
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400'
+});
+
+return response;
+}
+
+// ================== 取得所有活動 ==================
+function getAllEvents() {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = spreadsheet.getSheetByName(EVENTS_SHEET_NAME);
+  
+  if (!sheet) {
+    console.log('活動資料表不存在，返回空陣列');
+    return [];
+  }
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) {
+    console.log('活動資料表無資料，返回空陣列');
+    return [];
+  }
+  
+  const headers = data[0];
+  const events = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row.join('').trim() === '') continue; // 跳過空行
+    
+    const event = {};
+    headers.forEach((header, index) => {
+      event[header] = row[index];
+    });
+    
+    // 標準化欄位名稱
+    event.category = event.EventID || event.category;
+    event.eventName = event.EventName || event.eventName;
+    event.description = event.Description || event.description || '';
+    event.eventDate = formatDateToISO(event.EventDate || event.eventDate);
+    event.meetingTime = formatDateToISO(event.MeetingTime || event.meetingTime);
+    event.meetingLocation = event.MeetingLocation || event.meetingLocation || '';
+    event.duration = event.Duration || event.duration || '';
+    event.difficulty = event.Difficulty || event.difficulty || '';
+    event.requiredItems = event.RequiredItems || event.requiredItems || '';
+    event.maxParticipants = Number(event.MaxParticipants || event.maxParticipants || 0);
+    
+    // 重新計算當前報名人數
+    event.currentCount = getCurrentRegistrationCount(event.category);
+    
+    events.push(event);
+  }
+  
+  console.log(`[getAllEvents] 載入 ${events.length} 個活動`);
+  return events;
+} catch (error) {
+  console.error('[getAllEvents Error]', error);
+  return [];
+}
+}
+
+// ================== 處理報名 ==================
+function handleRegistration(data) {
+const lock = LockService.getScriptLock();
+
+try {
+  // 取得鎖定，避免併發問題
+  lock.tryLock(30000);
+  
+  // 驗證必要欄位
+  const requiredFields = ['eventType', 'name', 'phone', 'age', 'emergencyContact', 'emergencyPhone', 'emergencyRelation'];
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      return {
+        success: false,
+        message: `缺少必要欄位: ${field}`
+      };
     }
-
-    function openAdminLogin() {
-      openModal('admin-login-modal');
+  }
+  
+  // 檢查活動是否存在
+  const events = getAllEvents();
+  const event = events.find(e => e.category === data.eventType);
+  if (!event) {
+    return {
+      success: false,
+      message: '找不到指定的活動'
+    };
+  }
+  
+  // 檢查是否已經報名過
+  if (isAlreadyRegistered(data.eventType, data.userId)) {
+    return {
+      success: false,
+      message: '您已經報名過此活動了'
+    };
+  }
+  
+  // 計算當前正取人數
+  const currentConfirmed = getCurrentRegistrationCount(data.eventType, '正取');
+  const maxParticipants = Number(event.maxParticipants);
+  const status = currentConfirmed < maxParticipants ? '正取' : '候補';
+  
+  // 寫入報名資料
+  const registrationData = {
+    timestamp: new Date(),
+    eventId: data.eventType,
+    userId: data.userId || '',
+    displayName: data.displayName || '',
+    name: data.name,
+    phone: data.phone,
+    age: data.age,
+    emergencyContact: data.emergencyContact,
+    emergencyPhone: data.emergencyPhone,
+    emergencyRelation: data.emergencyRelation,
+    healthCondition: data.healthCondition || '',
+    notes: data.notes || '',
+    status: status,
+    registrationTime: new Date().toISOString()
+  };
+  
+  const success = saveRegistration(registrationData);
+  
+  if (success) {
+    // 發送 LINE 通知（如果有設定）
+    try {
+      sendLineNotification(registrationData, event);
+    } catch (notifyError) {
+      console.error('[LINE通知錯誤]', notifyError);
+      // 通知失敗不影響報名成功
     }
+    
+    return {
+      success: true,
+      message: `報名成功！您的狀態是：${status}`,
+      status: status,
+      registrationNumber: currentConfirmed + 1
+    };
+  } else {
+    return {
+      success: false,
+      message: '報名資料儲存失敗，請稍後再試'
+    };
+  }
+  
+} catch (error) {
+  console.error('[Registration Error]', error);
+  return {
+    success: false,
+    message: '報名處理失敗: ' + error.message
+  };
+} finally {
+  lock.releaseLock();
+}
+}
 
-    // ========== 後台登入與顯示 ==========
-    let adminToken = null;
-    let adminEmail = null;
+// ================== 儲存報名資料 ==================
+function saveRegistration(data) {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  
+  // 如果報名表不存在，建立它
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(REGISTRATIONS_SHEET_NAME);
+    const headers = [
+      'Timestamp', 'EventID', 'UserID', 'DisplayName', 'Name', 'Phone', 'Age',
+      'EmergencyContact', 'EmergencyPhone', 'EmergencyRelation',
+      'HealthCondition', 'Notes', 'Status', 'RegistrationTime'
+    ];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+  }
+  
+  const values = [
+    data.timestamp,
+    data.eventId,
+    data.userId,
+    data.displayName,
+    data.name,
+    data.phone,
+    data.age,
+    data.emergencyContact,
+    data.emergencyPhone,
+    data.emergencyRelation,
+    data.healthCondition,
+    data.notes,
+    data.status,
+    data.registrationTime
+  ];
+  
+  sheet.appendRow(values);
+  return true;
+  
+} catch (error) {
+  console.error('[Save Registration Error]', error);
+  return false;
+}
+}
 
-    function autoResumeAdmin() {
-      const t = localStorage.getItem('admin_token');
-      const mail = localStorage.getItem('admin_email');
-      if (t && mail) {
-        // 嘗試顯示後台（不重新驗證角色；若需嚴謹可新增後端驗證函式）
-        adminToken = t;
-        adminEmail = mail;
-        showAdmin();
-        loadAllAdminData();
+// ================== 檢查重複報名 ==================
+function isAlreadyRegistered(eventId, userId) {
+if (!userId) return false;
+
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  
+  if (!sheet) return false;
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return false;
+  
+  // 找到 EventID 和 UserID 欄位的索引
+  const headers = data[0];
+  const eventIdIndex = headers.indexOf('EventID');
+  const userIdIndex = headers.indexOf('UserID');
+  
+  if (eventIdIndex === -1 || userIdIndex === -1) return false;
+  
+  // 檢查是否已存在相同的 EventID 和 UserID
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][eventIdIndex] === eventId && data[i][userIdIndex] === userId) {
+      return true;
+    }
+  }
+  
+  return false;
+} catch (error) {
+  console.error('[Check Duplicate Error]', error);
+  return false;
+}
+}
+
+// ================== 取得當前報名人數 ==================
+function getCurrentRegistrationCount(eventId, statusFilter = null) {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  
+  if (!sheet) return 0;
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return 0;
+  
+  const headers = data[0];
+  const eventIdIndex = headers.indexOf('EventID');
+  const statusIndex = headers.indexOf('Status');
+  
+  if (eventIdIndex === -1) return 0;
+  
+  let count = 0;
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][eventIdIndex] === eventId) {
+      if (!statusFilter || (statusIndex !== -1 && data[i][statusIndex] === statusFilter)) {
+        count++;
       }
     }
+  }
+  
+  return count;
+} catch (error) {
+  console.error('[Get Registration Count Error]', error);
+  return 0;
+}
+}
 
-    function adminLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('admin-email').value.trim();
-      const pw = document.getElementById('admin-password').value;
-      const alertBox = document.getElementById('login-alert');
-      alertBox.innerHTML = '<div class="alert alert-info">登入中...</div>';
-      google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            if (res.role !== 'admin') {
-              alertBox.innerHTML = '<div class="alert alert-error">此帳號無管理員權限</div>';
-              return;
-            }
-            adminToken = res.token;
-            adminEmail = res.email;
-            localStorage.setItem('admin_token', adminToken);
-            localStorage.setItem('admin_email', adminEmail);
-            alertBox.innerHTML = '<div class="alert alert-success">登入成功</div>';
-            setTimeout(()=>{
-              closeModal('admin-login-modal');
-              showAdmin();
-              loadAllAdminData();
-            },500);
-          } else {
-            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
-          }
-        })
-        .withFailureHandler(err => {
-          alertBox.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
-        })
-        .userLogin(email, pw);
+// ================== 取得活動統計 ==================
+function getEventStats(eventId) {
+try {
+  if (!eventId) {
+    return {
+      success: false,
+      message: '請提供活動代號'
+    };
+  }
+  
+  // 取得活動資訊
+  const events = getAllEvents();
+  const event = events.find(e => e.category === eventId);
+  
+  if (!event) {
+    return {
+      success: false,
+      message: '找不到指定的活動'
+    };
+  }
+  
+  // 取得報名資料
+  const registrations = getEventRegistrations(eventId);
+  const confirmedCount = registrations.filter(r => r.status === '正取').length;
+  const waitingCount = registrations.filter(r => r.status === '候補').length;
+  const totalRegistrations = registrations.length;
+  const maxParticipants = Number(event.maxParticipants) || 0;
+  const availableSlots = Math.max(0, maxParticipants - confirmedCount);
+  
+  return {
+    success: true,
+    stats: {
+      eventName: event.eventName,
+      eventDate: event.eventDate,
+      meetingLocation: event.meetingLocation,
+      duration: event.duration,
+      maxParticipants: maxParticipants,
+      totalRegistrations: totalRegistrations,
+      confirmedCount: confirmedCount,
+      waitingCount: waitingCount,
+      availableSlots: availableSlots
+    },
+    registrations: registrations
+  };
+  
+} catch (error) {
+  console.error('[Get Event Stats Error]', error);
+  return {
+    success: false,
+    message: '取得統計資料失敗: ' + error.message
+  };
+}
+}
+
+// ================== 取得活動報名名單 ==================
+function getEventRegistrations(eventId) {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  
+  if (!sheet) return [];
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return [];
+  
+  const headers = data[0];
+  const registrations = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row.join('').trim() === '') continue;
+    
+    const registration = {};
+    headers.forEach((header, index) => {
+      registration[header.toLowerCase()] = row[index];
+    });
+    
+    // 標準化欄位名稱
+    registration.eventId = registration.eventid || registration.eventId;
+    registration.name = registration.name || registration.displayname;
+    registration.registrationTime = registration.registrationtime || registration.timestamp;
+    
+    if (registration.eventId === eventId) {
+      registrations.push(registration);
     }
+  }
+  
+  // 按報名時間排序
+  registrations.sort((a, b) => {
+    const timeA = new Date(a.registrationTime || a.timestamp);
+    const timeB = new Date(b.registrationTime || b.timestamp);
+    return timeA - timeB;
+  });
+  
+  return registrations;
+} catch (error) {
+  console.error('[Get Event Registrations Error]', error);
+  return [];
+}
+}
 
-    function showAdmin() {
-      document.getElementById('public-app').classList.add('hidden');
-      document.getElementById('admin-app').classList.remove('hidden');
-      document.getElementById('admin-user').textContent = adminEmail || '';
+// ================== LINE Bot 指令處理 ==================
+function handleLineWebhook(requestBody) {
+try {
+  const events = requestBody.events || [];
+  
+  events.forEach(event => {
+    if (event.type === 'message' && event.message.type === 'text') {
+      handleTextMessage(event);
     }
+  });
+  
+  return ContentService.createTextOutput('OK');
+} catch (error) {
+  console.error('[LINE Webhook Error]', error);
+  return ContentService.createTextOutput('ERROR');
+}
+}
 
-    function backToPublic() {
-      document.getElementById('admin-app').classList.add('hidden');
-      document.getElementById('public-app').classList.remove('hidden');
-    }
+// ================== 文字訊息處理 ==================
+function handleTextMessage(event) {
+const userId = event.source.userId;
+const messageText = event.message.text.trim();
+const replyToken = event.replyToken;
 
-    function logoutAdmin() {
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_email');
-      adminToken = null;
-      adminEmail = null;
-      backToPublic();
-    }
+console.log(`[收到訊息] ${userId}: ${messageText}`);
 
-    // ===== 後台 Tabs =====
-    function switchPanel(el) {
-      document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-      el.classList.add('active');
-      document.getElementById(el.dataset.panel).classList.add('active');
-    }
+try {
+  // 解析指令
+  const commandResult = parseCommand(messageText);
+  
+  if (commandResult.success) {
+    // 執行指令
+    const result = executeCommand(commandResult.command, userId, event.source);
+    replyToUser(replyToken, result.message);
+  } else {
+    // 指令格式錯誤，顯示說明
+    const helpMessage = getHelpMessage();
+    replyToUser(replyToken, helpMessage);
+  }
+  
+} catch (error) {
+  console.error('[處理文字訊息錯誤]', error);
+  replyToUser(replyToken, '❌ 系統處理錯誤，請稍後再試或聯絡管理員');
+}
+}
 
-    // ===== 載入全部後台資料 =====
-    function loadAllAdminData() {
-      loadAdminActivities();
-      loadMembers();
-    }
+// ================== 指令解析 ==================
+function parseCommand(text) {
+// 移除多餘空格並轉換為小寫
+const cleanText = text.replace(/\s+/g, ' ').trim();
 
-    // ===== 活動（後台） =====
-    function loadAdminActivities() {
-      const wrap = document.getElementById('admin-activities-table');
-      wrap.textContent='載入中...';
-      google.script.run
-        .withSuccessHandler(data => {
-          const acts = data || [];
-          let html = '<table><thead><tr><th>ID</th><th>名稱</th><th>日期</th><th>報名期間</th><th>限制</th><th>人數</th><th>狀態</th><th>操作</th></tr></thead><tbody>';
-          acts.forEach(a => {
-            html += `<tr>
-              <td>${a['活動ID']}</td>
-              <td>${a['活動名稱']}</td>
-              <td>${a['出發日期']}</td>
-              <td>${a['報名開始']}<br>${a['報名截止']}</td>
-              <td>${a['人數限制']}</td>
-              <td>${a['已報名人數']}</td>
-              <td>${a['狀態']}</td>
-              <td>
-                <button class="btn btn-primary" onclick="editActivity('${a['活動ID']}')">編輯</button>
-                <button class="btn btn-danger" onclick="deleteActivity('${a['活動ID']}')">刪</button>
-                <div style="margin-top:4px;">
-                  <select onchange="forceStatus('${a['活動ID']}', this.value)">
-                    <option value="">狀態操作</option>
-                    <option value="未開始">未開始</option>
-                    <option value="報名中">報名中</option>
-                    <option value="報名截止">報名截止</option>
-                    <option value="已滿額">已滿額</option>
-                  </select>
-                </div>
-              </td>
-            </tr>`;
-          });
-          html+='</tbody></table>';
-          wrap.innerHTML = html;
-          // 更新報名清單下拉
-          const sel = document.getElementById('reg-activity-select');
-          sel.innerHTML = '<option value="">--選擇活動--</option>' + acts.map(a=> `<option value="${a['活動ID']}">${a['活動ID']} - ${a['活動名稱']}</option>`).join('');
-        })
-        .withFailureHandler(err => wrap.innerHTML='<div class="alert alert-error">載入失敗</div>')
-        .getActivities();
-    }
+// 指令格式檢查
+const patterns = {
+  // 簡易報名: 活動ID+姓名
+  simpleRegister: /^([a-zA-Z]+)\+(.+)$/,
+  
+  // 多人報名: 活動ID+姓名1+姓名2+...
+  multiRegister: /^([a-zA-Z]+)\+(.+\+.+)$/,
+  
+  // 查詢活動: 查詢 或 活動列表
+  listEvents: /^(查詢|活動列表|list|events)$/i,
+  
+  // 查看報名狀態: 我的報名 或 報名狀態
+  myRegistrations: /^(我的報名|報名狀態|my|status)$/i,
+  
+  // 取消報名: 取消+活動ID
+  cancelRegistration: /^(取消|cancel)\+([a-zA-Z]+)$/i,
+  
+  // 活動詳情: 詳情+活動ID
+  eventDetails: /^(詳情|detail|info)\+([a-zA-Z]+)$/i,
+  
+  // 幫助: 幫助 或 help
+  help: /^(幫助|help|說明|\?)$/i
+};
 
-    function resetActivityForm() {
-      document.getElementById('act-id').value='';
-      document.getElementById('act-form').reset();
-      document.getElementById('act-form-alert').innerHTML='';
-    }
+// 檢查各種指令格式
+for (const [commandType, pattern] of Object.entries(patterns)) {
+  const match = cleanText.match(pattern);
+  if (match) {
+    return {
+      success: true,
+      command: {
+        type: commandType,
+        matches: match,
+        originalText: text
+      }
+    };
+  }
+}
 
-    function editActivity(id) {
-      google.script.run
-        .withSuccessHandler(a => {
-          if (!a) { alert('找不到活動'); return; }
-          document.getElementById('act-id').value = a['活動ID'];
-          document.getElementById('act-name').value = a['活動名稱'];
-          document.getElementById('act-level').value = a['活動等級']||'';
-          document.getElementById('act-depart').value = a['出發日期'];
-          document.getElementById('act-signup-start').value = a['報名開始'];
-          document.getElementById('act-signup-end').value = a['報名截止'];
-          document.getElementById('act-limit').value = a['人數限制'];
-          document.getElementById('act-desc').value = a['描述'] || '';
-        })
-        .getActivityDetails(id);
-    }
+return {
+  success: false,
+  message: '指令格式不正確'
+};
+}
 
-    function saveActivity(e) {
-      e.preventDefault();
-      if (!adminToken) return alert('未登入');
-      const alertBox = document.getElementById('act-form-alert');
-      alertBox.innerHTML = '<div class="alert alert-info">處理中...</div>';
-      const data = {
-        id: document.getElementById('act-id').value.trim(),
-        name: document.getElementById('act-name').value.trim(),
-        level: document.getElementById('act-level').value.trim(),
-        departDate: document.getElementById('act-depart').value.trim(),
-        signupStart: document.getElementById('act-signup-start').value.trim(),
-        signupEnd: document.getElementById('act-signup-end').value.trim(),
-        limit: document.getElementById('act-limit').value.trim(),
-        desc: document.getElementById('act-desc').value.trim()
+// ================== 指令執行 ==================
+function executeCommand(command, userId, source) {
+const commandType = command.type;
+const matches = command.matches;
+
+switch (commandType) {
+  case 'simpleRegister':
+    return handleSimpleRegister(matches[1], matches[2], userId, source);
+    
+  case 'multiRegister':
+    return handleMultiRegister(matches[1], matches[2], userId, source);
+    
+  case 'listEvents':
+    return handleListEvents();
+    
+  case 'myRegistrations':
+    return handleMyRegistrations(userId);
+    
+  case 'cancelRegistration':
+    return handleCancelRegistration(matches[2], userId);
+    
+  case 'eventDetails':
+    return handleEventDetails(matches[2]);
+    
+  case 'help':
+    return { message: getHelpMessage() };
+    
+  default:
+    return { message: '❌ 未知的指令類型' };
+}
+}
+
+// ================== 簡易報名處理 ==================
+function handleSimpleRegister(eventId, name, userId, source) {
+try {
+  // 檢查活動是否存在
+  const events = getAllEvents();
+  const event = events.find(e => e.category.toLowerCase() === eventId.toLowerCase());
+  
+  if (!event) {
+    return {
+      message: `❌ 找不到活動代號「${eventId}」\n\n📋 可用活動代號：\n${getEventListText()}`
+    };
+  }
+  
+  // 檢查是否已報名
+  if (isAlreadyRegistered(event.category, userId)) {
+    return {
+      message: `⚠️ 您已經報名過「${event.eventName}」了！\n\n如需取消報名，請輸入：取消+${event.category}`
+    };
+  }
+  
+  // 取得用戶資料
+  const userProfile = getUserProfile(userId);
+  
+  // 建立報名資料（使用預設值）
+  const registrationData = {
+    eventType: event.category,
+    name: name,
+    phone: userProfile.phone || '請稍後補充',
+    age: userProfile.age || '請稍後補充',
+    emergencyContact: '請稍後補充',
+    emergencyPhone: '請稍後補充',
+    emergencyRelation: '請稍後補充',
+    healthCondition: '無特殊狀況',
+    notes: 'LINE Bot 快速報名',
+    userId: userId,
+    displayName: userProfile.displayName || name,
+    registrationMethod: 'LINE_BOT_SIMPLE'
+  };
+  
+  // 執行報名
+  const result = handleRegistration(registrationData);
+  
+  if (result.success) {
+    const message = `✅ 報名成功！
+    
+🎯 活動：${event.eventName}
+👤 姓名：${name}
+📊 狀態：${result.status}
+📅 活動日期：${formatDate(event.eventDate)}
+📍 集合地點：${event.meetingLocation}
+
+⚠️ 重要提醒：
+請點擊下方連結補充完整資料（電話、年齡、緊急聯絡人等）：
+${getLiffUrl()}
+
+💡 其他指令：
+• 查看我的報名：我的報名
+• 取消報名：取消+${event.category}
+• 活動詳情：詳情+${event.category}`;
+
+    return { message: message };
+  } else {
+    return { message: `❌ 報名失敗：${result.message}` };
+  }
+  
+} catch (error) {
+  console.error('[簡易報名錯誤]', error);
+  return { message: '❌ 報名處理失敗，請稍後再試' };
+}
+}
+
+// ================== 多人報名處理 ==================
+function handleMultiRegister(eventId, namesString, userId, source) {
+try {
+  // 解析姓名列表
+  const names = namesString.split('+').map(name => name.trim()).filter(name => name);
+  
+  if (names.length === 0) {
+    return { message: '❌ 請提供至少一個姓名' };
+  }
+  
+  if (names.length > 5) {
+    return { message: '❌ 一次最多只能報名 5 個人' };
+  }
+  
+  // 檢查活動是否存在
+  const events = getAllEvents();
+  const event = events.find(e => e.category.toLowerCase() === eventId.toLowerCase());
+  
+  if (!event) {
+    return {
+      message: `❌ 找不到活動代號「${eventId}」\n\n📋 可用活動代號：\n${getEventListText()}`
+    };
+  }
+  
+  // 檢查剩餘名額
+  const currentCount = getCurrentRegistrationCount(event.category, '正取');
+  const maxParticipants = Number(event.maxParticipants) || 0;
+  const availableSlots = maxParticipants - currentCount;
+  
+  if (availableSlots < names.length) {
+    return {
+      message: `⚠️ 剩餘名額不足！
+      
+🎯 活動：${event.eventName}
+👥 剩餘名額：${availableSlots} 名
+📝 您要報名：${names.length} 名
+
+💡 建議：
+• 減少報名人數
+• 或使用候補報名`
+    };
+  }
+  
+  // 取得用戶資料
+  const userProfile = getUserProfile(userId);
+  const results = [];
+  const successCount = { count: 0 };
+  const failedNames = [];
+  
+  // 逐一處理每個報名
+  names.forEach((name, index) => {
+    try {
+      const registrationData = {
+        eventType: event.category,
+        name: name,
+        phone: userProfile.phone || '請稍後補充',
+        age: userProfile.age || '請稍後補充',
+        emergencyContact: '請稍後補充',
+        emergencyPhone: '請稍後補充',
+        emergencyRelation: '請稍後補充',
+        healthCondition: '無特殊狀況',
+        notes: `LINE Bot 多人報名 (${index + 1}/${names.length})`,
+        userId: `${userId}_${index}`, // 避免重複檢查
+        displayName: name,
+        registrationMethod: 'LINE_BOT_MULTI',
+        primaryUserId: userId // 記錄主要報名者
       };
-      google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            alertBox.innerHTML = '<div class="alert alert-success">'+res.message+'</div>';
-            loadAdminActivities();
-            resetActivityForm();
-          } else {
-            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
-          }
-        })
-        .withFailureHandler(err => alertBox.innerHTML='<div class="alert alert-error">系統錯誤</div>')
-        .adminSaveActivity(adminToken, data);
+      
+      const result = handleRegistration(registrationData);
+      
+      if (result.success) {
+        successCount.count++;
+        results.push(`✅ ${name}：${result.status}`);
+      } else {
+        failedNames.push(name);
+        results.push(`❌ ${name}：${result.message}`);
+      }
+      
+    } catch (error) {
+      failedNames.push(name);
+      results.push(`❌ ${name}：處理失敗`);
     }
+  });
+  
+  // 組合回覆訊息
+  let message = `📊 多人報名結果：\n\n🎯 活動：${event.eventName}\n👥 報名人數：${names.length} 名\n✅ 成功：${successCount.count} 名\n❌ 失敗：${failedNames.length} 名\n\n📋 詳細結果：\n${results.join('\n')}`;
+  
+  if (successCount.count > 0) {
+    message += `\n\n⚠️ 重要提醒：\n請點擊下方連結為每位報名者補充完整資料：\n${getLiffUrl()}`;
+  }
+  
+  if (failedNames.length > 0) {
+    message += `\n\n💡 失敗的報名可以重新嘗試：\n${failedNames.map(name => `${eventId}+${name}`).join('\n')}`;
+  }
+  
+  return { message: message };
+  
+} catch (error) {
+  console.error('[多人報名錯誤]', error);
+  return { message: '❌ 多人報名處理失敗，請稍後再試' };
+}
+}
 
-    function deleteActivity(id) {
-      if (!confirm('確定刪除活動 '+id+'？')) return;
-      google.script.run
-        .withSuccessHandler(res => {
-          alert(res.message);
-          loadAdminActivities();
-        })
-        .withFailureHandler(err => alert('刪除失敗'))
-        .adminDeleteActivity(adminToken, id);
-    }
+// ================== 查詢活動列表 (續) ==================
+function handleListEvents() {
+try {
+  const events = getAllEvents();
+  
+  if (events.length === 0) {
+    return { message: '📋 目前沒有可報名的活動' };
+  }
+  
+  let message = '📋 目前可報名活動：\n\n';
+  
+  events.forEach(event => {
+    const current = getCurrentRegistrationCount(event.category, '正取');
+    const max = Number(event.maxParticipants) || 0;
+    const available = max - current;
+    
+    let statusEmoji = '✅';
+    if (available <= 0) statusEmoji = '🔴';
+    else if (available <= 3) statusEmoji = '🟡';
+    
+    message += `${statusEmoji} ${event.category.toUpperCase()}\n`;
+    message += `   ${event.eventName}\n`;
+    message += `   📅 ${formatDate(event.eventDate)}\n`;
+    message += `   👥 ${current}/${max} 人 (剩餘${available}名)\n`;
+    message += `   💡 報名：${event.category}+您的姓名\n\n`;
+  });
+  
+  message += `📖 使用說明：\n`;
+  message += `• 簡易報名：活動ID+姓名\n`;
+  message += `• 多人報名：活動ID+姓名1+姓名2\n`;
+  message += `• 活動詳情：詳情+活動ID\n`;
+  message += `• 我的報名：我的報名`;
+  
+  return { message: message };
+  
+} catch (error) {
+  console.error('[查詢活動列表錯誤]', error);
+  return { message: '❌ 查詢活動列表失敗' };
+}
+}
 
-    function forceStatus(id, st) {
-      if (!st) return;
-      google.script.run
-        .withSuccessHandler(res => {
-          alert(res.message);
-          loadAdminActivities();
-        })
-        .withFailureHandler(err => alert('操作失敗'))
-        .adminForceStatus(adminToken, id, st);
+// ================== 查看我的報名 ==================
+function handleMyRegistrations(userId) {
+try {
+  const myRegistrations = getUserRegistrations(userId);
+  
+  if (myRegistrations.length === 0) {
+    return { 
+      message: `📋 您目前沒有任何報名記錄\n\n💡 開始報名：\n• 查看活動：查詢\n• 報名格式：活動ID+姓名` 
+    };
+  }
+  
+  let message = '📋 您的報名記錄：\n\n';
+  
+  myRegistrations.forEach((registration, index) => {
+    const event = getAllEvents().find(e => e.category === registration.eventid);
+    const eventName = event ? event.eventName : registration.eventid;
+    
+    let statusEmoji = '✅';
+    if (registration.status === '候補') statusEmoji = '⏳';
+    else if (registration.status === '已取消') statusEmoji = '❌';
+    
+    message += `${index + 1}. ${statusEmoji} ${eventName}\n`;
+    message += `   👤 ${registration.name}\n`;
+    message += `   📊 狀態：${registration.status}\n`;
+    message += `   📅 報名時間：${formatDate(registration.registrationtime)}\n`;
+    
+    if (registration.status !== '已取消') {
+      message += `   💡 取消：取消+${registration.eventid}\n`;
     }
+    
+    message += '\n';
+  });
+  
+  message += `🔧 其他功能：\n`;
+  message += `• 查看活動：查詢\n`;
+  message += `• 活動詳情：詳情+活動ID\n`;
+  message += `• 補充資料：${getLiffUrl()}`;
+  
+  return { message: message };
+  
+} catch (error) {
+  console.error('[查看我的報名錯誤]', error);
+  return { message: '❌ 查詢報名記錄失敗' };
+}
+}
 
-    // ===== 報名清單（後台） =====
-    function loadActivityRegistrations() {
-      const actId = document.getElementById('reg-activity-select').value;
-      const wrap = document.getElementById('activity-registrations-table');
-      if (!actId) { wrap.innerHTML='請選擇活動'; return; }
-      wrap.innerHTML='載入中...';
-      google.script.run
-        .withSuccessHandler(list => {
-          if (list.error) {
-            wrap.innerHTML = '<div class="alert alert-error">'+list.message+'</div>';
-            return;
-          }
-          if (!list.length) {
-            wrap.innerHTML = '<div>尚無報名</div>';
-            return;
-          }
-          let html = '<table><thead><tr>';
-          const header = Object.keys(list[0]);
-          html += header.map(h=> '<th>'+h+'</th>').join('');
-          html += '</tr></thead><tbody>';
-          list.forEach(r => {
-            html += '<tr>'+ header.map(h=> '<td>'+(r[h]||'')+'</td>').join('') +'</tr>';
-          });
-          html += '</tbody></table>';
-          wrap.innerHTML = html;
-        })
-        .withFailureHandler(err => wrap.innerHTML='<div class="alert alert-error">載入錯誤</div>')
-        .adminGetRegistrationsByActivity(adminToken, actId);
-    }
+// ================== 取消報名 ==================
+function handleCancelRegistration(eventId, userId) {
+try {
+  // 檢查是否有該活動的報名記錄
+  const userRegistrations = getUserRegistrations(userId);
+  const registration = userRegistrations.find(r => 
+    r.eventid.toLowerCase() === eventId.toLowerCase() && 
+    r.status !== '已取消'
+  );
+  
+  if (!registration) {
+    return { 
+      message: `❌ 找不到活動「${eventId}」的報名記錄\n\n💡 查看您的報名：我的報名` 
+    };
+  }
+  
+  // 執行取消報名
+  const success = cancelUserRegistration(registration.eventid, userId);
+  
+  if (success) {
+    const event = getAllEvents().find(e => e.category === registration.eventid);
+    const eventName = event ? event.eventName : registration.eventid;
+    
+    return { 
+      message: `✅ 取消報名成功！\n\n🎯 活動：${eventName}\n👤 姓名：${registration.name}\n📅 取消時間：${formatDate(new Date())}\n\n💡 如需重新報名：${registration.eventid}+${registration.name}` 
+    };
+  } else {
+    return { message: '❌ 取消報名失敗，請稍後再試或聯絡管理員' };
+  }
+  
+} catch (error) {
+  console.error('[取消報名錯誤]', error);
+  return { message: '❌ 取消報名處理失敗' };
+}
+}
 
-    function exportCSV() {
-      const actId = document.getElementById('reg-activity-select').value;
-      if (!actId) { alert('請先選擇活動'); return; }
-      google.script.run
-        .withSuccessHandler(csv => {
-          if (typeof csv === 'object' && csv.error) {
-            alert(csv.message || '匯出失敗');
-            return;
-          }
-          const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = actId + '_registrations.csv';
-          a.click();
-          URL.revokeObjectURL(url);
-        })
-        .adminExportRegistrationsCSV(adminToken, actId);
-    }
+// ================== 活動詳情 ==================
+function handleEventDetails(eventId) {
+try {
+  const events = getAllEvents();
+  const event = events.find(e => e.category.toLowerCase() === eventId.toLowerCase());
+  
+  if (!event) {
+    return { 
+      message: `❌ 找不到活動代號「${eventId}」\n\n📋 可用活動代號：\n${getEventListText()}` 
+    };
+  }
+  
+  const current = getCurrentRegistrationCount(event.category, '正取');
+  const waiting = getCurrentRegistrationCount(event.category, '候補');
+  const max = Number(event.maxParticipants) || 0;
+  const available = max - current;
+  
+  let statusText = '✅ 可報名';
+  if (available <= 0) statusText = '🔴 已額滿';
+  else if (available <= 3) statusText = `🟡 僅剩 ${available} 名`;
+  
+  const message = `🎯 ${event.eventName}
+  
+📋 活動詳情：
+${event.description || '暫無詳細說明'}
 
-    // ===== 會員管理（後台） =====
-    function loadMembers() {
-      const wrap = document.getElementById('members-table');
-      wrap.textContent='載入中...';
-      google.script.run
-        .withSuccessHandler(list => {
-          if (list.error) {
-            wrap.innerHTML = '<div class="alert alert-error">'+list.message+'</div>';
-            return;
-          }
-          if (!list.length) {
-            wrap.innerHTML = '<div>尚無會員</div>';
-            return;
-          }
-          let html = '<table><thead><tr><th>ID</th><th>姓名</th><th>Email</th><th>電話</th><th>緊急聯絡</th><th>角色</th><th>狀態</th><th>狀態操作</th><th>角色操作</th></tr></thead><tbody>';
-          list.forEach(m => {
-            html += `<tr>
-              <td>${m['會員ID']}</td>
-              <td>${m['姓名']}</td>
-              <td>${m['Email']}</td>
-              <td>${m['電話']}</td>
-              <td>${m['緊急聯絡人']}/${m['緊急聯絡電話']}</td>
-              <td>${m['角色']}</td>
-              <td>${m['狀態']}</td>
-              <td>
-                <select onchange="updateMemberStatus('${m['會員ID']}', this.value)">
-                  <option value="">狀態</option>
-                  <option value="active">active</option>
-                  <option value="inactive">inactive</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updateMemberRole('${m['會員ID']}', this.value)">
-                  <option value="">角色</option>
-                  <option value="member">member</option>
-                  <option value="staff">staff</option>
-                  <option value="admin">admin</option>
-                </select>
-              </td>
-            </tr>`;
-          });
-          html += '</tbody></table>';
-          wrap.innerHTML = html;
-        })
-        .withFailureHandler(err => wrap.innerHTML='<div class="alert alert-error">載入失敗</div>')
-        .adminGetMembers(adminToken);
-    }
+📅 活動資訊：
+• 活動日期：${formatDate(event.eventDate)}
+• 集合時間：${formatDate(event.meetingTime)}
+• 集合地點：${event.meetingLocation || '待公布'}
+• 活動時長：${event.duration || '待確認'}
+• 難度等級：${event.difficulty || '一般'}
 
-    function updateMemberStatus(id, st) {
-      if (!st) return;
-      google.script.run
-        .withSuccessHandler(res => {
-          alert(res.message);
-          loadMembers();
-        })
-        .withFailureHandler(err => alert('更新失敗'))
-        .adminUpdateMemberStatus(adminToken, id, st);
-    }
+🎒 攜帶物品：
+${event.requiredItems || '請依個人需求準備'}
 
-    function updateMemberRole(id, role) {
-      if (!role) return;
-      google.script.run
-        .withSuccessHandler(res => {
-          alert(res.message);
-          loadMembers();
-        })
-        .withFailureHandler(err => alert('更新角色失敗'))
-        .adminUpdateMemberRole(adminToken, id, role);
-    }
+👥 報名狀況：
+• 狀態：${statusText}
+• 正取：${current}/${max} 人
+• 候補：${waiting} 人
+• 剩餘：${available} 名
 
-    function resetMemberPassword(e) {
-      e.preventDefault();
-      const alertBox = document.getElementById('reset-pw-alert');
-      alertBox.innerHTML = '<div class="alert alert-info">處理中...</div>';
-      const memberId = document.getElementById('reset-member-id').value.trim();
-      const pw = document.getElementById('reset-member-pw').value;
-      google.script.run
-        .withSuccessHandler(res => {
-          if (res.success) {
-            alertBox.innerHTML = '<div class="alert alert-success">'+res.message+'</div>';
-            e.target.reset();
-          } else {
-            alertBox.innerHTML = '<div class="alert alert-error">'+res.message+'</div>';
-          }
-        })
-        .withFailureHandler(err => {
-          alertBox.innerHTML = '<div class="alert alert-error">系統錯誤</div>';
-        })
-        .adminResetMemberPassword(adminToken, memberId, pw);
+💡 快速報名：
+${event.category}+您的姓名
+
+🔗 完整報名：
+${getLiffUrl()}`;
+  
+  return { message: message };
+  
+} catch (error) {
+  console.error('[活動詳情錯誤]', error);
+  return { message: '❌ 查詢活動詳情失敗' };
+}
+}
+
+// ================== 輔助函數 ==================
+
+// 取得用戶資料
+function getUserProfile(userId) {
+try {
+  // 這裡可以從 LINE API 取得用戶資料，或從資料庫查詢
+  // 暫時返回基本資料
+  return {
+    displayName: '用戶',
+    phone: null,
+    age: null
+  };
+} catch (error) {
+  console.error('[取得用戶資料錯誤]', error);
+  return {
+    displayName: '用戶',
+    phone: null,
+    age: null
+  };
+}
+}
+
+// 取得用戶報名記錄
+function getUserRegistrations(userId) {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  
+  if (!sheet) return [];
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return [];
+  
+  const headers = data[0];
+  const userRegistrations = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row.join('').trim() === '') continue;
+    
+    const registration = {};
+    headers.forEach((header, index) => {
+      registration[header.toLowerCase()] = row[index];
+    });
+    
+    // 檢查是否為該用戶的報名（包含多人報名的情況）
+    if (registration.userid === userId || 
+        (registration.primaryuserid && registration.primaryuserid === userId)) {
+      userRegistrations.push(registration);
     }
-  </script>
-</body>
-</html>
+  }
+  
+  return userRegistrations;
+} catch (error) {
+  console.error('[取得用戶報名記錄錯誤]', error);
+  return [];
+}
+}
+
+// 取消用戶報名
+function cancelUserRegistration(eventId, userId) {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  
+  if (!sheet) return false;
+  
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const eventIdIndex = headers.findIndex(h => h.toLowerCase() === 'eventid');
+  const userIdIndex = headers.findIndex(h => h.toLowerCase() === 'userid');
+  const statusIndex = headers.findIndex(h => h.toLowerCase() === 'status');
+  
+  if (eventIdIndex === -1 || userIdIndex === -1 || statusIndex === -1) {
+    return false;
+  }
+  
+  // 找到並更新狀態
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][eventIdIndex] === eventId && 
+        data[i][userIdIndex] === userId && 
+        data[i][statusIndex] !== '已取消') {
+      
+      sheet.getRange(i + 1, statusIndex + 1).setValue('已取消');
+      return true;
+    }
+  }
+  
+  return false;
+} catch (error) {
+  console.error('[取消報名錯誤]', error);
+  return false;
+}
+}
+
+// 取得活動列表文字
+function getEventListText() {
+try {
+  const events = getAllEvents();
+  return events.map(event => 
+    `• ${event.category.toUpperCase()}: ${event.eventName}`
+  ).join('\n');
+} catch (error) {
+  return '無法載入活動列表';
+}
+}
+
+// 取得 LIFF URL
+function getLiffUrl() {
+// 請替換為您的實際 LIFF URL
+return 'https://liff.line.me/2007905012-o1yDNa92';
+}
+
+// 取得幫助訊息
+function getHelpMessage() {
+return `📖 三鐵 LINE Bot 使用說明
+
+🎯 報名指令：
+• 簡易報名：活動ID+姓名
+範例：hiking+王小明
+
+• 多人報名：活動ID+姓名1+姓名2
+範例：hiking+王小明+李小華
+
+📋 查詢指令：
+• 活動列表：查詢 或 活動列表
+• 我的報名：我的報名 或 報名狀態
+• 活動詳情：詳情+活動ID
+範例：詳情+hiking
+
+🔧 管理指令：
+• 取消報名：取消+活動ID
+範例：取消+hiking
+• 幫助說明：幫助 或 help
+
+💡 注意事項：
+• 活動ID不分大小寫
+• 透過 Bot 報名後請記得補充完整資料
+• 完整功能請使用：${getLiffUrl()}
+
+❓ 需要協助請聯絡管理員`;
+}
+
+// 回覆用戶訊息
+function replyToUser(replyToken, message) {
+if (!LINE_CHANNEL_ACCESS_TOKEN) {
+  console.log('[LINE回覆] 未設定 Channel Access Token');
+  return;
+}
+
+try {
+  const payload = {
+    replyToken: replyToken,
+    messages: [{
+      type: 'text',
+      text: message
+    }]
+  };
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`
+    },
+    payload: JSON.stringify(payload)
+  };
+  
+  const response = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/reply', options);
+  console.log('[LINE回覆] 發送成功', response.getResponseCode());
+  
+} catch (error) {
+  console.error('[LINE回覆錯誤]', error);
+}
+}
+
+// ================== LINE 通知功能 ==================
+function sendLineNotification(registrationData, eventData) {
+if (!LINE_CHANNEL_ACCESS_TOKEN || !LINE_ADMIN_USER_ID) {
+  console.log('[LINE通知] 未設定 LINE Bot Token 或管理員 ID');
+  return;
+}
+
+try {
+  const message = `🎯 新的活動報名通知
+
+📋 活動名稱：${eventData.eventName}
+👤 報名者：${registrationData.name}
+📞 電話：${registrationData.phone}
+🎭 年齡：${registrationData.age}歲
+📊 狀態：${registrationData.status}
+🚨 緊急聯絡人：${registrationData.emergencyContact}（${registrationData.emergencyRelation}）
+📱 緊急聯絡電話：${registrationData.emergencyPhone}
+⏰ 報名時間：${Utilities.formatDate(new Date(), 'Asia/Taipei', 'MM/dd HH:mm')}
+
+${registrationData.healthCondition ? `💊 健康狀況：${registrationData.healthCondition}` : ''}
+${registrationData.notes ? `📝 備註：${registrationData.notes}` : ''}`;
+
+  const payload = {
+    to: LINE_ADMIN_USER_ID,
+    messages: [{
+      type: 'text',
+      text: message
+    }]
+  };
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`
+    },
+    payload: JSON.stringify(payload)
+  };
+  
+  const response = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', options);
+  console.log('[LINE通知] 發送成功', response.getResponseCode());
+  
+} catch (error) {
+  console.error('[LINE通知錯誤]', error);
+  throw error;
+}
+}
+
+
+
+function formatDateToISO(dateValue) {
+if (!dateValue) return '';
+
+try {
+  let date;
+  if (dateValue instanceof Date) {
+    date = dateValue;
+  } else if (typeof dateValue === 'string') {
+    date = new Date(dateValue);
+  } else if (typeof dateValue === 'number') {
+    date = new Date(dateValue);
+  } else {
+    return '';
+  }
+  
+  if (isNaN(date.getTime())) return '';
+  
+  return date.toISOString();
+} catch (error) {
+  console.error('[Date Format Error]', dateValue, error);
+  return '';
+}
+}
+
+function formatDate(dateString) {
+if (!dateString) return '';
+
+try {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  
+  return date.toLocaleString('zh-TW', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'short'
+  });
+} catch (error) {
+  return '';
+}
+}
+
+// ================== 初始化函數 ==================
+function initializeSheets() {
+try {
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  
+  // 建立活動資料表
+  let eventsSheet = spreadsheet.getSheetByName(EVENTS_SHEET_NAME);
+  if (!eventsSheet) {
+    eventsSheet = spreadsheet.insertSheet(EVENTS_SHEET_NAME);
+    const eventHeaders = [
+      'EventID', 'EventName', 'Description', 'EventDate', 'MeetingTime',
+      'MeetingLocation', 'Duration', 'Difficulty', 'RequiredItems', 'MaxParticipants'
+    ];
+    eventsSheet.getRange(1, 1, 1, eventHeaders.length).setValues([eventHeaders]);
+    eventsSheet.getRange(1, 1, 1, eventHeaders.length).setFontWeight('bold');
+  }
+  
+  // 建立報名資料表
+  let registrationsSheet = spreadsheet.getSheetByName(REGISTRATIONS_SHEET_NAME);
+  if (!registrationsSheet) {
+    registrationsSheet = spreadsheet.insertSheet(REGISTRATIONS_SHEET_NAME);
+    const registrationHeaders = [
+      'Timestamp', 'EventID', 'UserID', 'DisplayName', 'Name', 'Phone', 'Age',
+      'EmergencyContact', 'EmergencyPhone', 'EmergencyRelation',
+      'HealthCondition', 'Notes', 'Status', 'RegistrationTime'
+    ];
+    registrationsSheet.getRange(1, 1, 1, registrationHeaders.length).setValues([registrationHeaders]);
+    registrationsSheet.getRange(1, 1, 1, registrationHeaders.length).setFontWeight('bold');
+  }
+  
+  console.log('工作表初始化完成');
+  return '工作表初始化成功！';
+  
+} catch (error) {
+  console.error('[Initialize Sheets Error]', error);
+  return '工作表初始化失敗: ' + error.message;
+}
+}
+
+// ================== 測試函數 ==================
+function testGetAllEvents() {
+const events = getAllEvents();
+console.log('所有活動:', events);
+return events;
+}
+
+function testRegistration() {
+const testData = {
+  eventType: 'hiking',
+  name: '測試用戶',
+  phone: '0912345678',
+  age: '65',
+  emergencyContact: '測試聯絡人',
+  emergencyPhone: '0987654321',
+  emergencyRelation: '子女',
+  healthCondition: '無特殊狀況',
+  notes: '測試報名',
+  userId: 'test-user-123',
+  displayName: '測試用戶'
+};
+
+const result = handleRegistration(testData);
+console.log('測試報名結果:', result);
+return result;
+}
+
+function testEventStats() {
+const stats = getEventStats('hiking');
+console.log('活動統計:', stats);
+return stats;
+}
+
+function testCommandParsing() {
+const testCommands = [
+  'hiking+王小明',
+  'CULTURE+李小華+張三+王五',
+  '查詢',
+  '我的報名',
+  '取消+hiking',
+  '詳情+culture',
+  'help',
+  '無效指令'
+];
+
+testCommands.forEach(cmd => {
+  const result = parseCommand(cmd);
+  console.log(`指令: "${cmd}" => `, result);
+});
+}
+
+function testLineMessage() {
+const mockEvent = {
+  type: 'message',
+  message: {
+    type: 'text',
+    text: 'hiking+測試用戶'
+  },
+  source: {
+    userId: 'test-user-123'
+  },
+  replyToken: 'test-reply-token'
+};
+
+handleTextMessage(mockEvent);
+}
