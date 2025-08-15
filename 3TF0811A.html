@@ -370,6 +370,10 @@
                     <input type="email" id="registerEmail" name="email" required>
                 </div>
                 <div class="form-group">
+                    <label for="registerPassword">密碼 *</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-group">
                     <label for="registerPhone">電話</label>
                     <input type="tel" id="registerPhone" name="phone">
                 </div>
@@ -402,6 +406,10 @@
                     <label for="loginEmail">電子郵件 *</label>
                     <input type="email" id="loginEmail" name="email" required>
                 </div>
+                <div class="form-group">
+                    <label for="loginPassword">密碼 *</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">登入</button>
             </form>
             <div id="loginMessage"></div>
@@ -410,8 +418,7 @@
     
     <script>
         // 全域變數
-        // const API_URL = window.location.origin + window.location.pathname;
-        const API_URL = "https://script.google.com/macros/s/AKfycbwvjM9sKLfbP0JXWIGjtx7XR8liXorWN5NHf3B9jQGnZH725MdTfGNvuVYWUmaffzXs/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbybfeSbHbLAVAb6Afgr5A2DON5xL7HrYbCXHpN5xqTc3xOh8oXov_xugX3mWAkumrH_/exec";
         
         // 頁面載入時執行
         document.addEventListener('DOMContentLoaded', function() {
@@ -472,7 +479,7 @@
                 <div class="event-title">${event.name}</div>
                 <div class="event-info">⏰ ${event.time}</div>
                 <div class="event-info">📍 ${event.location}</div>
-                <div class="event-info">👥 限制人數: ${event.maxParticipants}人</div>
+                <div class="event-info">👥 限制人數: ${event.maxParticipants}人 (已報名: ${event.currentParticipants})</div>
                 <div class="event-fee">💰 費用: NT$ ${event.fee}</div>
             `;
             
@@ -488,10 +495,22 @@
                 action: 'register',
                 name: formData.get('name'),
                 email: formData.get('email'),
+                password: formData.get('password'),
                 phone: formData.get('phone'),
                 birthday: formData.get('birthday'),
                 gender: formData.get('gender')
             };
+            
+            // 前端驗證
+            if (!isValidEmail(data.email)) {
+                showMessage('registerMessage', 'error', '電子郵件格式不正確');
+                return;
+            }
+            
+            if (data.password.length < 6) {
+                showMessage('registerMessage', 'error', '密碼至少需要6個字元');
+                return;
+            }
             
             const messageDiv = document.getElementById('registerMessage');
             messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>註冊中...</p></div>';
@@ -506,18 +525,18 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    messageDiv.innerHTML = `<div class="alert alert-success">${result.message}<br>會員ID: ${result.memberId}</div>`;
+                    showMessage('registerMessage', 'success', `${result.message}<br>會員ID: ${result.memberId}`);
                     document.getElementById('registerForm').reset();
                     setTimeout(() => {
                         closeModal('registerModal');
                         openModal('loginModal');
-                    }, 2000);
+                    }, 3000);
                 } else {
-                    messageDiv.innerHTML = `<div class="alert alert-error">${result.message}</div>`;
+                    showMessage('registerMessage', 'error', result.message);
                 }
             } catch (error) {
                 console.error('註冊錯誤:', error);
-                messageDiv.innerHTML = '<div class="alert alert-error">註冊時發生錯誤，請稍後再試</div>';
+                showMessage('registerMessage', 'error', '註冊時發生錯誤，請稍後再試');
             }
         }
         
@@ -528,8 +547,15 @@
             const formData = new FormData(e.target);
             const data = {
                 action: 'login',
-                email: formData.get('email')
+                email: formData.get('email'),
+                password: formData.get('password')
             };
+            
+            // 前端驗證
+            if (!isValidEmail(data.email)) {
+                showMessage('loginMessage', 'error', '電子郵件格式不正確');
+                return;
+            }
             
             const messageDiv = document.getElementById('loginMessage');
             messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>登入中...</p></div>';
@@ -544,21 +570,35 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    messageDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+                    showMessage('loginMessage', 'success', result.message);
                     
-                    // 儲存會員資料到 localStorage
+                    // 儲存會員資料和會話令牌到 localStorage
                     localStorage.setItem('memberInfo', JSON.stringify(result.member));
+                    localStorage.setItem('sessionToken', result.sessionToken);
                     
                     setTimeout(() => {
                         window.location.href = '?page=member';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    messageDiv.innerHTML = `<div class="alert alert-error">${result.message}</div>`;
+                    showMessage('loginMessage', 'error', result.message);
                 }
             } catch (error) {
                 console.error('登入錯誤:', error);
-                messageDiv.innerHTML = '<div class="alert alert-error">登入時發生錯誤，請稍後再試</div>';
+                showMessage('loginMessage', 'error', '登入時發生錯誤，請稍後再試');
             }
+        }
+        
+        // 顯示訊息
+        function showMessage(elementId, type, message) {
+            const messageDiv = document.getElementById(elementId);
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            messageDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+        }
+        
+        // 驗證電子郵件格式
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
         
         // 開啟模態框
