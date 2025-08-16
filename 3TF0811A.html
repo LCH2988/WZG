@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>會員專區 - 三鐵協會</title>
+    <title>三鐵協會管理系統</title>
     <style>
         * {
             margin: 0;
@@ -48,21 +48,15 @@
             font-weight: bold;
         }
         
-        .user-info {
+        .nav-buttons {
             display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .welcome-text {
-            color: #333;
-            font-weight: bold;
+            gap: 10px;
         }
         
         .btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
@@ -83,17 +77,55 @@
             border: 2px solid #667eea;
         }
         
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
-        .section {
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .events-section {
             background: rgba(255, 255, 255, 0.95);
             padding: 2rem;
             border-radius: 15px;
@@ -101,16 +133,11 @@
             margin-bottom: 2rem;
         }
         
-        .section h2 {
-            color: #667eea;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-        
         .events-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            margin-top: 1.5rem;
         }
         
         .event-card {
@@ -119,7 +146,6 @@
             padding: 1.5rem;
             background: #f9f9f9;
             transition: all 0.3s ease;
-            position: relative;
         }
         
         .event-card:hover {
@@ -151,41 +177,75 @@
             color: #e74c3c;
             font-weight: bold;
             font-size: 1.1rem;
-            margin: 0.5rem 0;
+            margin-top: 0.5rem;
         }
         
-        .event-actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 10px;
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
         }
         
-        .registration-card {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 1.5rem;
-            background: #f0f8ff;
-            margin-bottom: 1rem;
-            border-left: 4px solid #667eea;
-        }
-        
-        .registration-status {
-            display: inline-block;
-            padding: 4px 12px;
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 2rem;
             border-radius: 15px;
-            font-size: 0.8rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
             margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
         }
         
-        .status-registered {
-            background: #d4edda;
-            color: #155724;
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
         }
         
-        .status-cancelled {
-            background: #f8d7da;
-            color: #721c24;
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
         }
         
         .loading {
@@ -228,26 +288,19 @@
             border: 1px solid #f5c6cb;
         }
         
-        .empty-state {
-            text-align: center;
-            color: #666;
-            padding: 2rem;
-            font-style: italic;
-        }
-        
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 gap: 1rem;
             }
             
-            .user-info {
-                flex-direction: column;
-                text-align: center;
+            .hero h2 {
+                font-size: 2rem;
             }
             
-            .event-actions {
-                flex-direction: column;
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
             }
         }
     </style>
@@ -258,18 +311,40 @@
             <div class="logo">
                 <h1>🏊‍♂️🚴‍♂️🏃‍♂️ 三鐵協會</h1>
             </div>
-            <div class="user-info">
-                <span class="welcome-text" id="welcomeText">歡迎，會員</span>
-                <a href="/" class="btn btn-secondary">回首頁</a>
-                <button class="btn btn-danger" onclick="logout()">登出</button>
+            <div class="nav-buttons">
+                <button class="btn btn-primary" onclick="openModal('registerModal')">會員註冊</button>
+                <button class="btn btn-secondary" onclick="openModal('loginModal')">會員登入</button>
+                <a href="?page=admin" class="btn btn-secondary">管理後台</a>
             </div>
         </div>
     </header>
     
     <div class="container">
-        <!-- 可報名活動 -->
-        <div class="section">
-            <h2>🎯 可報名活動</h2>
+        <div class="hero">
+            <h2>歡迎來到三鐵協會</h2>
+            <p>游泳、自行車、跑步 - 挑戰極限，超越自我</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🏊‍♂️</div>
+                <h3>游泳訓練</h3>
+                <p>專業游泳教練指導，從基礎到進階技巧全面提升</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚴‍♂️</div>
+                <h3>自行車騎乘</h3>
+                <p>團體騎乘活動，探索美麗路線，提升耐力與技術</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏃‍♂️</div>
+                <h3>跑步訓練</h3>
+                <p>系統化跑步訓練，建立正確跑姿，提升跑步效率</p>
+            </div>
+        </div>
+        
+        <div class="events-section">
+            <h2>🎯 近期活動</h2>
             <div class="loading" id="eventsLoading">
                 <div class="spinner"></div>
                 <p>載入活動資料中...</p>
@@ -278,17 +353,66 @@
                 <!-- 活動列表將在這裡動態載入 -->
             </div>
         </div>
-        
-        <!-- 我的報名記錄 -->
-        <div class="section">
-            <h2>📋 我的報名記錄</h2>
-            <div class="loading" id="registrationsLoading">
-                <div class="spinner"></div>
-                <p>載入報名記錄中...</p>
-            </div>
-            <div id="registrationsContainer">
-                <!-- 報名記錄將在這裡動態載入 -->
-            </div>
+    </div>
+    
+    <!-- 註冊模態框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>會員註冊</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">姓名 *</label>
+                    <input type="text" id="registerName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">電子郵件 *</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">密碼 *</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">電話</label>
+                    <input type="tel" id="registerPhone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="registerBirthday">生日</label>
+                    <input type="date" id="registerBirthday" name="birthday">
+                </div>
+                <div class="form-group">
+                    <label for="registerGender">性別</label>
+                    <select id="registerGender" name="gender">
+                        <option value="">請選擇</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">註冊</button>
+            </form>
+            <div id="registerMessage"></div>
+        </div>
+    </div>
+    
+    <!-- 登入模態框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>會員登入</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">電子郵件 *</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密碼 *</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">登入</button>
+            </form>
+            <div id="loginMessage"></div>
         </div>
     </div>
     
@@ -296,56 +420,14 @@
         // 全域變數
         const API_URL = "https://script.google.com/macros/s/AKfycbybfeSbHbLAVAb6Afgr5A2DON5xL7HrYbCXHpN5xqTc3xOh8oXov_xugX3mWAkumrH_/exec";
         
-        let currentMember = null;
-        let sessionToken = null;
-        
         // 頁面載入時執行
-        document.addEventListener('DOMContentLoaded', async function() {
-            // 檢查登入狀態
-            const memberInfo = localStorage.getItem('memberInfo');
-            sessionToken = localStorage.getItem('sessionToken');
-            
-            if (!memberInfo || !sessionToken) {
-                alert('請先登入');
-                window.location.href = '/';
-                return;
-            }
-            
-            // 檢查會話是否有效
-            const sessionValid = await checkSession();
-            if (!sessionValid) {
-                alert('會話已過期，請重新登入');
-                logout();
-                return;
-            }
-            
-            currentMember = JSON.parse(memberInfo);
-            document.getElementById('welcomeText').textContent = `歡迎，${currentMember.name}`;
-            
-            // 載入資料
+        document.addEventListener('DOMContentLoaded', function() {
             loadEvents();
-            loadUserRegistrations();
+            
+            // 表單提交事件
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
         });
-        
-        // 檢查會話
-        async function checkSession() {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'checkSession',
-                        sessionToken: sessionToken
-                    })
-                });
-                
-                const result = await response.json();
-                return result.success;
-            } catch (error) {
-                console.error('會話檢查錯誤:', error);
-                return false;
-            }
-        }
         
         // 載入活動列表
         async function loadEvents() {
@@ -366,7 +448,7 @@
                 
                 if (data.success) {
                     if (data.events.length === 0) {
-                        grid.innerHTML = '<div class="empty-state">目前沒有開放報名的活動</div>';
+                        grid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1;">目前沒有開放報名的活動</p>';
                     } else {
                         data.events.forEach(event => {
                             const eventCard = createEventCard(event);
@@ -374,11 +456,11 @@
                         });
                     }
                 } else {
-                    grid.innerHTML = '<div class="empty-state" style="color: #e74c3c;">載入活動失敗</div>';
+                    grid.innerHTML = '<p style="text-align: center; color: #e74c3c; grid-column: 1/-1;">載入活動失敗</p>';
                 }
             } catch (error) {
                 console.error('載入活動錯誤:', error);
-                grid.innerHTML = '<div class="empty-state" style="color: #e74c3c;">載入活動時發生錯誤</div>';
+                grid.innerHTML = '<p style="text-align: center; color: #e74c3c; grid-column: 1/-1;">載入活動時發生錯誤</p>';
             } finally {
                 loading.style.display = 'none';
             }
@@ -399,149 +481,143 @@
                 <div class="event-info">📍 ${event.location}</div>
                 <div class="event-info">👥 限制人數: ${event.maxParticipants}人 (已報名: ${event.currentParticipants})</div>
                 <div class="event-fee">💰 費用: NT$ ${event.fee}</div>
-                <div class="event-actions">
-                    <button class="btn btn-primary" onclick="registerEvent('${event.id}')">立即報名</button>
-                </div>
             `;
             
             return card;
         }
         
-        // 報名活動
-        async function registerEvent(eventId) {
-            if (!confirm('確定要報名此活動嗎？')) {
+        // 處理註冊
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                action: 'register',
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                phone: formData.get('phone'),
+                birthday: formData.get('birthday'),
+                gender: formData.get('gender')
+            };
+            
+            // 前端驗證
+            if (!isValidEmail(data.email)) {
+                showMessage('registerMessage', 'error', '電子郵件格式不正確');
                 return;
             }
+            
+            if (data.password.length < 6) {
+                showMessage('registerMessage', 'error', '密碼至少需要6個字元');
+                return;
+            }
+            
+            const messageDiv = document.getElementById('registerMessage');
+            messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>註冊中...</p></div>';
             
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'registerEvent',
-                        memberId: currentMember.id,
-                        eventId: eventId
-                    })
+                    body: JSON.stringify(data)
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert(result.message);
-                    loadEvents(); // 重新載入活動列表
-                    loadUserRegistrations(); // 重新載入報名記錄
+                    showMessage('registerMessage', 'success', `${result.message}<br>會員ID: ${result.memberId}`);
+                    document.getElementById('registerForm').reset();
+                    setTimeout(() => {
+                        closeModal('registerModal');
+                        openModal('loginModal');
+                    }, 3000);
                 } else {
-                    alert(result.message);
+                    showMessage('registerMessage', 'error', result.message);
                 }
             } catch (error) {
-                console.error('報名錯誤:', error);
-                alert('報名時發生錯誤，請稍後再試');
+                console.error('註冊錯誤:', error);
+                showMessage('registerMessage', 'error', '註冊時發生錯誤，請稍後再試');
             }
         }
         
-        // 載入使用者報名記錄
-        async function loadUserRegistrations() {
-            const loading = document.getElementById('registrationsLoading');
-            const container = document.getElementById('registrationsContainer');
+        // 處理登入
+        async function handleLogin(e) {
+            e.preventDefault();
             
-            loading.style.display = 'block';
-            container.innerHTML = '';
+            const formData = new FormData(e.target);
+            const data = {
+                action: 'login',
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
             
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'getUserRegistrations',
-                        memberId: currentMember.id
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (data.registrations.length === 0) {
-                        container.innerHTML = '<div class="empty-state">您還沒有報名任何活動</div>';
-                    } else {
-                        data.registrations.forEach(registration => {
-                            const registrationCard = createRegistrationCard(registration);
-                            container.appendChild(registrationCard);
-                        });
-                    }
-                } else {
-                    container.innerHTML = '<div class="empty-state" style="color: #e74c3c;">載入報名記錄失敗</div>';
-                }
-            } catch (error) {
-                console.error('載入報名記錄錯誤:', error);
-                container.innerHTML = '<div class="empty-state" style="color: #e74c3c;">載入報名記錄時發生錯誤</div>';
-            } finally {
-                loading.style.display = 'none';
-            }
-        }
-        
-        // 創建報名記錄卡片
-        function createRegistrationCard(registration) {
-            const card = document.createElement('div');
-            card.className = 'registration-card';
-            
-            const eventDate = new Date(registration.eventDate);
-            const registrationDate = new Date(registration.registrationDate);
-            const formattedEventDate = eventDate.toLocaleDateString('zh-TW');
-            const formattedRegistrationDate = registrationDate.toLocaleDateString('zh-TW');
-            
-            card.innerHTML = `
-                <div class="registration-status status-registered">已報名</div>
-                <div class="event-title">${registration.eventName}</div>
-                <div class="event-info">📅 活動日期: ${formattedEventDate}</div>
-                <div class="event-info">⏰ 活動時間: ${registration.eventTime}</div>
-                <div class="event-info">📍 活動地點: ${registration.location}</div>
-                <div class="event-fee">💰 費用: NT$ ${registration.fee}</div>
-                <div class="event-info">📝 報名日期: ${formattedRegistrationDate}</div>
-                <div class="event-actions">
-                    <button class="btn btn-danger" onclick="cancelRegistration('${registration.registrationId}')">取消報名</button>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        // 取消報名
-        async function cancelRegistration(registrationId) {
-            if (!confirm('確定要取消報名嗎？')) {
+            // 前端驗證
+            if (!isValidEmail(data.email)) {
+                showMessage('loginMessage', 'error', '電子郵件格式不正確');
                 return;
             }
             
+            const messageDiv = document.getElementById('loginMessage');
+            messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>登入中...</p></div>';
+            
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'cancelRegistration',
-                        registrationId: registrationId
-                    })
+                    body: JSON.stringify(data)
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert(result.message);
-                    loadEvents(); // 重新載入活動列表
-                    loadUserRegistrations(); // 重新載入報名記錄
+                    showMessage('loginMessage', 'success', result.message);
+                    
+                    // 儲存會員資料和會話令牌到 localStorage
+                    localStorage.setItem('memberInfo', JSON.stringify(result.member));
+                    localStorage.setItem('sessionToken', result.sessionToken);
+                    
+                    setTimeout(() => {
+                        window.location.href = '?page=member';
+                    }, 1500);
                 } else {
-                    alert(result.message);
+                    showMessage('loginMessage', 'error', result.message);
                 }
             } catch (error) {
-                console.error('取消報名錯誤:', error);
-                alert('取消報名時發生錯誤，請稍後再試');
+                console.error('登入錯誤:', error);
+                showMessage('loginMessage', 'error', '登入時發生錯誤，請稍後再試');
             }
         }
         
-        // 登出
-        function logout() {
-            if (confirm('確定要登出嗎？')) {
-                localStorage.removeItem('memberInfo');
-                localStorage.removeItem('sessionToken');
-                window.location.href = '/';
+        // 顯示訊息
+        function showMessage(elementId, type, message) {
+            const messageDiv = document.getElementById(elementId);
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            messageDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+        }
+        
+        // 驗證電子郵件格式
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // 開啟模態框
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            // 清除之前的訊息
+            const messageDiv = document.getElementById(modalId.replace('Modal', 'Message'));
+            if (messageDiv) messageDiv.innerHTML = '';
+        }
+        
+        // 關閉模態框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 點擊模態框外部關閉
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
         }
     </script>
