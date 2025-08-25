@@ -1,492 +1,754 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>威振宮中元普渡活動</title>
-  <base target="_top">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>《此生必划》水陸雙活力報名表</title>
+  <meta name="description" content="台灣帕金森病友群益促進會《此生必划》水陸雙活力活動報名系統">
   <style>
-      * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-      }
-      
-      body {
-          font-family: 'Microsoft JhengHei', Arial, sans-serif;
-          line-height: 1.6;
-          background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-          min-height: 100vh;
-          padding: 20px;
-      }
-      
-      .container {
-          max-width: 800px;
-          margin: 0 auto;
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-          overflow: hidden;
-      }
-      
-      .header {
-          background: linear-gradient(45deg, #d4af37, #ffd700);
-          text-align: center;
-          padding: 30px 20px;
-          color: #8b0000;
-      }
-      
-      .header h1 {
-          font-size: 2.5em;
-          margin-bottom: 10px;
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-      
-      .header h2 {
-          font-size: 2em;
-          margin-bottom: 20px;
-      }
-      
-      .content {
-          padding: 30px;
-      }
-      
-      .event-info {
-          background: #fff8dc;
-          border: 3px solid #d4af37;
-          border-radius: 15px;
-          padding: 25px;
-          margin-bottom: 30px;
-          text-align: center;
-      }
-      
-      .event-info h3 {
-          color: #8b0000;
-          font-size: 1.5em;
-          margin-bottom: 15px;
-      }
-      
-      .date-time {
-          font-size: 1.2em;
-          color: #d2691e;
-          margin: 10px 0;
-          font-weight: bold;
-      }
-      
-      .quick-donate {
-          background: linear-gradient(135deg, #4caf50, #45a049);
-          border-radius: 15px;
-          padding: 25px;
-          margin-bottom: 30px;
-          color: white;
-      }
-      
-      .quick-donate h3 {
-          text-align: center;
-          font-size: 1.5em;
-          margin-bottom: 20px;
-      }
-      
-      .donate-buttons {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          justify-content: center;
-          margin-bottom: 20px;
-      }
-      
-      .donate-btn {
-          background: #fff;
-          color: #4caf50;
-          border: 2px solid #fff;
-          padding: 12px 20px;
-          border-radius: 25px;
-          cursor: pointer;
-          font-weight: bold;
-          font-size: 1.1em;
-          transition: all 0.3s;
-          min-width: 120px;
-      }
-      
-      .donate-btn:hover, .donate-btn.active {
-          background: #4caf50;
-          color: #fff;
-          transform: scale(1.05);
-      }
-      
-      .donation-form {
-          background: #f0f8ff;
-          border: 2px solid #4682b4;
-          border-radius: 15px;
-          padding: 25px;
-          margin-bottom: 30px;
-      }
-      
-      .donation-form h3 {
-          color: #4682b4;
-          font-size: 1.4em;
-          margin-bottom: 20px;
-          text-align: center;
-      }
-      
-      .form-group {
-          margin-bottom: 15px;
-      }
-      
-      .form-group label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
-          color: #333;
-      }
-      
-      .form-group input, .form-group select, .form-group textarea {
-          width: 100%;
-          padding: 12px;
-          border: 2px solid #ddd;
-          border-radius: 8px;
-          font-size: 1em;
-          transition: border-color 0.3s;
-      }
-      
-      .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-          outline: none;
-          border-color: #4682b4;
-      }
-      
-      .form-row {
-          display: flex;
-          gap: 15px;
-      }
-      
-      .form-row .form-group {
-          flex: 1;
-      }
-      
-      .submit-btn {
-          background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-          color: white;
-          border: none;
-          padding: 15px 30px;
-          border-radius: 25px;
-          font-size: 1.2em;
-          font-weight: bold;
-          cursor: pointer;
-          width: 100%;
-          transition: all 0.3s;
-      }
-      
-      .submit-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-      }
-      
-      .bank-info {
-          background: #ffffff;
-          border: 1px solid #ddd;
-          border-radius: 10px;
-          padding: 20px;
-          margin: 15px 0;
-      }
-      
-      .bank-info p {
-          margin: 8px 0;
-          font-size: 1.1em;
-      }
-      
-      .bank-info strong {
-          color: #8b0000;
-      }
-      
-      .participant-list {
-          background: #f5f5dc;
-          border: 2px solid #daa520;
-          border-radius: 15px;
-          padding: 25px;
-      }
-      
-      .participant-list h3 {
-          color: #8b4513;
-          font-size: 1.4em;
-          margin-bottom: 20px;
-          text-align: center;
-      }
-      
-      .participant-list ol {
-          font-size: 1.1em;
-          line-height: 2;
-          color: #2f4f4f;
-      }
-      
-      .participant-list li {
-          padding: 5px 0;
-          border-bottom: 1px dotted #daa520;
-      }
-      
-      .emoji {
-          font-size: 1.2em;
-      }
-      
-      .highlight {
-          background: linear-gradient(120deg, #a8e6cf 0%, #dcedc1 100%);
-          padding: 15px;
-          border-radius: 10px;
-          margin: 15px 0;
-          border-left: 5px solid #4caf50;
-      }
-      
-      .footer {
-          text-align: center;
-          padding: 20px;
-          background: #f8f8f8;
-          color: #666;
-          font-style: italic;
-      }
-      
-      .success-message {
-          background: #d4edda;
-          color: #155724;
-          border: 1px solid #c3e6cb;
-          border-radius: 10px;
-          padding: 15px;
-          margin: 20px 0;
-          display: none;
-      }
-      
-      .total-display {
-          background: #fff3cd;
-          border: 1px solid #ffeaa7;
-          border-radius: 10px;
-          padding: 15px;
-          margin: 15px 0;
-          text-align: center;
-          font-size: 1.2em;
-          font-weight: bold;
-          color: #856404;
-      }
-      
-      @media (max-width: 600px) {
-          .header h1 {
-              font-size: 2em;
-          }
-          
-          .header h2 {
-              font-size: 1.5em;
-          }
-          
-          .content {
-              padding: 20px;
-          }
-          
-          .form-row {
-              flex-direction: column;
-          }
-          
-          .donate-buttons {
-              flex-direction: column;
-              align-items: center;
-          }
-      }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Microsoft JhengHei', Arial, sans-serif;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      min-height:100vh;
+      padding:20px;
+      color:#222;
+    }
+    .container {
+      max-width:950px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 20px 45px rgba(0,0,0,.12);
+      overflow:hidden;
+    }
+    .header {
+      background:linear-gradient(135deg,#4CAF50,#2e7d32);
+      color:#fff;
+      padding:34px 28px;
+      text-align:center;
+    }
+    .header h1 { font-size:30px; font-weight:700; margin-bottom:8px; letter-spacing:1px; }
+    .header .subtitle { font-size:20px; margin-bottom:6px; color:#ffe9b9; font-weight:500; }
+    .header p { font-size:15px; opacity:.92; }
+    .activity-info {
+      background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+      padding:28px;
+      border-left:6px solid #1976D2;
+    }
+    .activity-info h2 {
+      color:#0d5fae;
+      margin-bottom:18px;
+      font-size:23px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .info-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .info-item {
+      background:#fff;
+      padding:16px 18px;
+      border-radius:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,.08);
+      position:relative;
+    }
+    .info-item h3 {
+      color:#2e7d32; margin-bottom:8px; font-size:16px; font-weight:600;
+    }
+    .info-item p { line-height:1.55; font-size:14.5px; }
+    .highlights {
+      background:#fff8e1;
+      padding:20px 22px;
+      border-radius:12px;
+      border-left:5px solid #ff9800;
+      line-height:1.6;
+      font-size:15px;
+    }
+    .highlights h3 { margin-bottom:10px; color:#e27100; font-size:17px; }
+    .form-container { padding:42px 40px 38px; }
+    #messageContainer { margin-bottom:10px; }
+    .form-group { margin-bottom:24px; }
+    .form-group label {
+      display:flex;
+      font-weight:600;
+      color:#333;
+      font-size:15.5px;
+      margin-bottom:8px;
+      align-items:center;
+      gap:6px;
+    }
+    .required { color:#e53935; font-weight:700; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width:100%;
+      padding:13px 15px;
+      border:2px solid #e0e0e0;
+      border-radius:10px;
+      font-size:15.5px;
+      transition:border-color .28s ease, box-shadow .28s ease;
+      background:#fcfcfc;
+    }
+    .form-group textarea { resize:vertical; min-height:110px; }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline:none;
+      border-color:#4CAF50;
+      box-shadow:0 0 0 3px rgba(76,175,80,.15);
+      background:#fff;
+    }
+    .form-row {
+      display:grid;
+      gap:22px;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    }
+    .radio-group {
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .radio-item {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 16px;
+      border:2px solid #e0e0e0;
+      border-radius:10px;
+      cursor:pointer;
+      transition:.25s;
+      background:#fff;
+      font-size:14.5px;
+      user-select:none;
+    }
+    .radio-item input[type="radio"] { transform:scale(1.15); cursor:pointer; }
+    .radio-item:hover { border-color:#4CAF50; background:#f5fbf5; }
+    .radio-item input:checked + span { font-weight:600; color:#2e7d32; }
+    .inline-hint {
+      font-size:12.5px;
+      color:#666;
+      margin-top:4px;
+    }
+    .submit-btn {
+      background:linear-gradient(135deg,#4CAF50,#2e7d32);
+      color:#fff;
+      padding:17px 40px;
+      border:none;
+      border-radius:12px;
+      font-size:19px;
+      font-weight:600;
+      cursor:pointer;
+      width:100%;
+      letter-spacing:.5px;
+      transition:.35s;
+      position:relative;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+    }
+    .submit-btn:hover:not(:disabled) {
+      transform:translateY(-3px);
+      box-shadow:0 12px 26px rgba(46,125,50,.35);
+    }
+    .submit-btn:disabled {
+      background:#bdbdbd;
+      cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
+    }
+    .loading { display:none; }
+    .spinner {
+      width:22px; height:22px;
+      border:3px solid rgba(255,255,255,.75);
+      border-top:3px solid transparent;
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .registration-list {
+      background:#f6f8fb;
+      padding:38px 34px 50px;
+      border-top:1px solid #e0e0e0;
+    }
+    .registration-list h2 {
+      color:#2e7d32;
+      margin-bottom:18px;
+      text-align:center;
+      font-size:24px;
+      font-weight:700;
+    }
+    .participant-count {
+      text-align:center;
+      margin-bottom:22px;
+      font-size:17px;
+      color:#2e7d32;
+      font-weight:600;
+    }
+    .filter-bar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:center;
+      margin-bottom:18px;
+    }
+    .filter-bar button {
+      background:#fff;
+      border:1px solid #cfd8dc;
+      padding:7px 16px;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:13.5px;
+      transition:.25s;
+    }
+    .filter-bar button.active,
+    .filter-bar button:hover {
+      background:#2e7d32;
+      color:#fff;
+      border-color:#2e7d32;
+    }
+    .participant-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+      gap:16px;
+    }
+    .participant-card {
+      background:#fff;
+      padding:15px 14px 14px;
+      border-radius:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,.06);
+      text-align:center;
+      border-left:5px solid #4CAF50;
+      position:relative;
+      overflow:hidden;
+    }
+    .participant-card .participant-name {
+      font-weight:600;
+      font-size:15px;
+      color:#333;
+      margin-bottom:6px;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+      overflow:hidden;
+    }
+    .participant-card .participant-identity {
+      font-size:12.5px;
+      color:#2e7d32;
+      background:#e6f6ea;
+      padding:4px 9px;
+      border-radius:30px;
+      display:inline-block;
+      font-weight:600;
+      letter-spacing:.5px;
+    }
+    .error-message,
+    .success-message,
+    .info-message {
+      padding:15px 18px;
+      border-radius:10px;
+      margin:8px 0 22px;
+      line-height:1.5;
+      font-size:14.5px;
+      position:relative;
+    }
+    .error-message {
+      background:#ffebee;
+      color:#c62828;
+      border-left:6px solid #f44336;
+    }
+    .success-message {
+      background:#e8f5e9;
+      color:#1b5e20;
+      border-left:6px solid #43a047;
+    }
+    .info-message {
+      background:#e3f2fd;
+      color:#0d47a1;
+      border-left:6px solid #1976d2;
+    }
+    .setup-instructions {
+      background:#fff3e0;
+      padding:20px 22px;
+      border-radius:10px;
+      margin:18px 0 30px;
+      border-left:6px solid #ff9800;
+      font-size:14.5px;
+      line-height:1.55;
+    }
+    .setup-instructions h3 {
+      color:#e27100;
+      margin-bottom:10px;
+      font-size:17px;
+      font-weight:700;
+    }
+    footer {
+      padding:26px 18px 40px;
+      text-align:center;
+      font-size:12.5px;
+      color:#555;
+      background:#fafafa;
+    }
+    footer a { color:#2e7d32; text-decoration:none; font-weight:600; }
+    footer a:hover { text-decoration:underline; }
+    @media (max-width:780px) {
+      .form-container { padding:28px 22px 34px; }
+      .registration-list { padding:34px 22px 42px; }
+      .header { padding:26px 20px; }
+      .header h1 { font-size:26px; }
+      .header .subtitle { font-size:18px; }
+      .participant-grid { grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-      <div class="header">
-          <h1><span class="emoji">⛩️</span>威振宮<span class="emoji">⛩️</span></h1>
-          <h2><span class="emoji">🛐</span>中元普渡<span class="emoji">🛐</span></h2>
+    <div class="header">
+      <h1>台灣帕金森病友群益促進會</h1>
+      <div class="subtitle">💓《此生必划》水陸雙活力 × 秋季最美微旅行🚣‍♂️</div>
+      <p>🌺 陽明山花卉綻放 × 雙溪藥草秘境 × 台北無障礙獨木舟碼頭</p>
+    </div>
+
+    <section class="activity-info">
+      <h2>🌟 活動資訊</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <h3>📅 活動時間</h3>
+          <p>2025/09/20(六) – 09/21(日)<br>09:30 – 17:00</p>
+        </div>
+          <div class="info-item">
+          <h3>📍 活動地點</h3>
+          <p>台北市北投洲美【雙溪無障礙碼頭】<br>河美街32-8號旁</p>
+        </div>
+        <div class="info-item">
+          <h3>🚌 報到方式</h3>
+          <p><strong>復康巴士：</strong>09:00 松山火車站集合<br><strong>自行抵達：</strong>09:30 碼頭報到</p>
+        </div>
+        <div class="info-item">
+          <h3>🌿 活動特色</h3>
+          <p>水上新視界 × 健康活力 × 知性綠遊<br>專業教練一對一護划，安全百分百！</p>
+        </div>
       </div>
-      
-      <div class="content">
-          <div class="event-info">
-              <h3><span class="emoji">⏰</span> 活動時間</h3>
-              <div class="date-time">國曆 9月7日 星期日</div>
-              <div class="date-time">農曆 7月16日 星期日</div>
-              <div class="date-time">下午 13:00</div>
-              
-              <div class="highlight">
-                  <p><strong>歡迎大家共同贊普~</strong></p>
-                  <p>1個單位 1000元</p>
-                  <p>所有物資捐贈需要幫助的團體</p>
-              </div>
-          </div>
-          
-          <div class="quick-donate">
-              <h3><span class="emoji">⚡</span> 快速認捐</h3>
-              <div class="donate-buttons">
-                  <button class="donate-btn" onclick="selectAmount(1)">1單位<br>NT$1,000</button>
-                  <button class="donate-btn" onclick="selectAmount(2)">2單位<br>NT$2,000</button>
-                  <button class="donate-btn" onclick="selectAmount(3)">3單位<br>NT$3,000</button>
-                  <button class="donate-btn" onclick="selectAmount(5)">5單位<br>NT$5,000</button>
-                  <button class="donate-btn" onclick="selectAmount(10)">10單位<br>NT$10,000</button>
-                  <button class="donate-btn" onclick="selectCustom()">自訂金額</button>
-              </div>
-              <div class="total-display" id="totalDisplay" style="display: none;">
-                  選擇金額：NT$ <span id="selectedAmount">0</span>
-              </div>
-          </div>
-          
-          <div class="donation-form">
-              <h3><span class="emoji">📝</span> 認捐表單</h3>
-              <form id="donationForm">
-                  <div class="form-row">
-                      <div class="form-group">
-                          <label for="donorName">姓名/機構名稱 *</label>
-                          <input type="text" id="donorName" name="donorName" required>
-                      </div>
-                      <div class="form-group">
-                          <label for="donorPhone">聯絡電話 *</label>
-                          <input type="tel" id="donorPhone" name="donorPhone" >
-                      </div>
-                  </div>
-                  
-                  <div class="form-row">
-                      <div class="form-group">
-                          <label for="units">認捐單位數 *</label>
-                          <input type="number" id="units" name="units" min="1" value="1" required>
-                      </div>
-                      <div class="form-group">
-                          <label for="amount">認捐金額 *</label>
-                          <input type="number" id="amount" name="amount" value="1000" readonly>
-                      </div>
-                  </div>
-                  
-                  <div class="form-group">
-                      <label for="email">電子郵件</label>
-                      <input type="email" id="email" name="email">
-                  </div>
-                  
-                  <div class="form-group">
-                      <label for="address">地址</label>
-                      <input type="text" id="address" name="address">
-                  </div>
-                  
-                  <div class="form-group">
-                      <label for="notes">備註</label>
-                      <textarea id="notes" name="notes" rows="3" placeholder="如有特殊需求或備註事項，請在此填寫"></textarea>
-                  </div>
-                  
-                  <button type="submit" class="submit-btn">
-                      <span class="emoji">🙏</span> 確認認捐
-                  </button>
-              </form>
-              
-              <div class="success-message" id="successMessage">
-                  <h4>🎉 認捐成功！</h4>
-                  <p>感謝您的善心捐助，我們將盡快與您聯繫確認相關事宜。</p>
-                  <p>請記得將款項匯至指定帳戶，並保留匯款收據。</p>
-              </div>
-          </div>
-          
-          <div class="donation-info">
-              <h3><span class="emoji">🏦</span> 匯款資訊</h3>
-              <div class="bank-info">
-                  <p><strong>匯款銀行：</strong>土地銀行 代號005</p>
-                  <p><strong>匯款分行：</strong>內壢分行</p>
-                  <p><strong>匯款帳號：</strong>145001007228</p>
-                  <p><strong>戶名：</strong>桃園市威振關懷慈善協會</p>
-              </div>
-              <div class="highlight">
-                  <p><strong>📞 匯款後請聯繫：</strong></p>
-                  <p>請將匯款收據傳送至廟方，並註明您的姓名與聯絡方式</p>
-              </div>
-          </div>
-          
-          <div class="participant-list">
-              <h3><span class="emoji">📝</span> 贊普接龍名單</h3>
-              <ol id="participantList">
-                  <li>馥鋒企業 × 1</li>
-                  <li>惠笙科技 × 1</li>
-                  <li>覺能國際 × 1</li>
-                  <li>潘振豐闔家 × 1</li>
-                  <li>廖小莉 × 1</li>
-                  <li>振瀚建設 × 1</li>
-              </ol>
-          </div>
+      <div class="highlights">
+        <h3>✨ 行程亮點</h3>
+        <p><strong>🍒 9/20(六)</strong> 上午：陽明山花卉中心  下午：獨木舟 / 小遊艇 / SUP 體驗</p>
+        <p><strong>🍒 9/21(日)</strong> 上午：雙溪自然中心藥草香氛  下午：水上體驗續行</p>
+        <p><strong>💡 可選：</strong>僅參加陸上（手搖車或電輪）微旅行行程</p>
       </div>
-      
-      <div class="footer">
-          <p>功德無量 🙏 共襄盛舉</p>
+    </section>
+
+    <div class="form-container">
+      <div id="messageContainer"></div>
+
+      <div class="setup-instructions" id="setupInstructions">
+        <h3>⚙️ 系統尚未完成串接</h3>
+        <p>目前為「示範模式」，資料不會寫入雲端。請完成下列步驟啟用正式功能：</p>
+        <ol style="padding-left:20px; margin:10px 0 8px; line-height:1.5;">
+          <li>建立 Google 試算表，命名（例如：RegistrationDB）</li>
+          <li>第一列建立欄位：Timestamp, Name, Gender, Phone, Birthday, IDNumber, Identity, Remarks, Email</li>
+          <li>打開 試算表 → 擴充功能 → Apps Script → 貼上後端程式碼 → 儲存</li>
+          <li>部署 → 新部署 → 類型：網路應用程式 → 誰可存取：任何人</li>
+          <li>取得部署網址，貼回本檔案 SCRIPT_URL 常數</li>
+        </ol>
+        <p><strong>狀態：</strong><span style="color:#e27100;">等待串接</span></p>
       </div>
+
+      <form id="registrationForm" autocomplete="off" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">姓名 <span class="required">*</span></label>
+            <input id="name" name="name" type="text" required maxlength="30" placeholder="請輸入姓名">
+            <div class="inline-hint">請與證件相同，保險用途</div>
+          </div>
+          <div class="form-group">
+            <label for="gender">性別 <span class="required">*</span></label>
+            <select id="gender" name="gender" required>
+              <option value="">請選擇</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">聯絡電話 <span class="required">*</span></label>
+          <input id="phone" name="phone" type="tel" placeholder="例：0912-345-678" required>
+          <div class="inline-hint">僅供聯繫，不公開</div>
+        </div>
+
+          <div class="form-row">
+          <div class="form-group">
+            <label for="birthday">生日 <span class="required">*</span></label>
+            <input id="birthday" name="birthday" type="date" required>
+          </div>
+          <div class="form-group">
+            <label for="idNumber">身分證字號 <span class="required">*</span></label>
+            <input id="idNumber" name="idNumber" type="text" maxlength="10" placeholder="請輸入身分證字號" required>
+            <div class="inline-hint">僅供保險投保與覆核，不公開</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>參與身份 <span class="required">*</span></label>
+          <div class="radio-group" id="identityGroup">
+            <label class="radio-item">
+              <input type="radio" name="identity" value="病友" required><span>病友</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="identity" value="家屬" required><span>家屬</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="identity" value="照顧者" required><span>照顧者</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="identity" value="志工" required><span>志工</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="identity" value="其他" required><span>其他</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email（選填）</label>
+          <input id="email" name="email" type="email" placeholder="若需 email 通知可填寫">
+        </div>
+
+        <div class="form-group">
+          <label for="remarks">備註 / 特殊需求</label>
+          <textarea id="remarks" name="remarks" placeholder="交通需求、飲食限制、輔具協助、慢性病史(選填)…"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="btn-text">🚣‍♂️ 送出報名</span>
+          <div class="loading"><div class="spinner"></div></div>
+        </button>
+      </form>
+    </div>
+
+    <div class="registration-list">
+      <h2>📋 目前報名名單</h2>
+      <div class="participant-count" id="participantCount">載入中...</div>
+
+      <div class="filter-bar" id="filterBar" style="display:none;">
+        <button data-filter="全部" class="active">全部</button>
+        <button data-filter="病友">病友</button>
+        <button data-filter="家屬">家屬</button>
+        <button data-filter="照顧者">照顧者</button>
+        <button data-filter="志工">志工</button>
+        <button data-filter="其他">其他</button>
+      </div>
+
+      <div class="participant-grid" id="participantList">
+        <div style="text-align:center; padding:40px;">
+          <div class="spinner" style="margin:0 auto 14px;"></div>
+          <p style="color:#666;">正在載入報名名單...</p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      本系統僅供活動報名與管理。個人資料依個資法規定妥善保存，不對外公開。<br>
+      如需撤回或更正資料，請聯絡主辦單位。<br><br>
+      &copy; 2025 台灣帕金森病友群益促進會
+    </footer>
   </div>
 
   <script>
-      let selectedUnits = 1;
-      
-      function selectAmount(units) {
-          selectedUnits = units;
-          const amount = units * 1000;
-          
-          // 更新按鈕狀態
-          document.querySelectorAll('.donate-btn').forEach(btn => btn.classList.remove('active'));
-          event.target.classList.add('active');
-          
-          // 更新表單
-          document.getElementById('units').value = units;
-          document.getElementById('amount').value = amount;
-          
-          // 顯示選擇的金額
-          document.getElementById('selectedAmount').textContent = amount.toLocaleString();
-          document.getElementById('totalDisplay').style.display = 'block';
+    /*********************** 基本設定 **************************/
+    // 1. 將此處替換為 Apps Script 部署後的 Web App URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXNTP_iVtGh5Usrz-21mBszQ2yj5pe5M0wWbKBjh5eE782NzDu87KxJ8r66AqOQ8FV/exec'; // ←←← 修改這裡
+    // 2. 可設定是否啟用實際串接 (自動判斷也可以手動覆寫)
+    const isConfigured = /^https:\/\/script\.google\.com\/macros\/s\//.test(SCRIPT_URL);
+    // 3. 最大報名人數 (0 或 null 為不限制)
+    const MAX_PARTICIPANTS = 0;
+    // 4. 防止連續重複送出間隔 (ms)
+    const SUBMIT_COOLDOWN = 5000;
+    let lastSubmitTime = 0;
+    // 快取參與者資料
+    let cachedParticipants = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (isConfigured) {
+        document.getElementById('setupInstructions').style.display = 'none';
+        loadParticipants();
+      } else {
+        displayDemoData();
       }
-      
-      function selectCustom() {
-          const customUnits = prompt('請輸入認捐單位數：', '1');
-          if (customUnits && !isNaN(customUnits) && customUnits > 0) {
-              selectAmount(parseInt(customUnits));
-              
-              // 更新按鈕狀態
-              document.querySelectorAll('.donate-btn').forEach(btn => btn.classList.remove('active'));
-              event.target.classList.add('active');
-          }
+      setupFilter();
+    });
+
+    /*********************** 表單送出 **************************/
+    document.getElementById('registrationForm').addEventListener('submit', function(e){
+      e.preventDefault();
+
+      if (!isConfigured) {
+        showMessage('目前為示範模式，請先完成後端部署再正式使用。', 'info');
       }
-      
-      // 監聽單位數變更
-      document.getElementById('units').addEventListener('input', function() {
-          const units = parseInt(this.value) || 1;
-          const amount = units * 1000;
-          document.getElementById('amount').value = amount;
-          document.getElementById('selectedAmount').textContent = amount.toLocaleString();
-          document.getElementById('totalDisplay').style.display = 'block';
-      });
-      
-      // 表單提交處理
-      document.getElementById('donationForm').addEventListener('submit', function(e) {
-          e.preventDefault();
-          
-          const formData = new FormData(this);
-          const donorName = formData.get('donorName');
-          const units = formData.get('units');
-          const phone = formData.get('donorPhone');
-          
-          // 添加到參與者列表
-          const participantList = document.getElementById('participantList');
-          const newItem = document.createElement('li');
-          newItem.textContent = `${donorName} × ${units}`;
-          participantList.appendChild(newItem);
-          
-          // 顯示成功訊息
-          document.getElementById('successMessage').style.display = 'block';
-          
-          // 重置表單
-          this.reset();
-          document.getElementById('units').value = 1;
-          document.getElementById('amount').value = 1000;
-          document.getElementById('totalDisplay').style.display = 'none';
-          document.querySelectorAll('.donate-btn').forEach(btn => btn.classList.remove('active'));
-          
-          // 滾動到成功訊息
-          document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-          
-          // 3秒後隱藏成功訊息
+
+      const now = Date.now();
+      if (now - lastSubmitTime < SUBMIT_COOLDOWN) {
+        showMessage('請勿重複快速送出，稍候再試。', 'error');
+        return;
+      }
+
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      // 基本驗證
+      if (!data.name.trim()) return showMessage('姓名為必填。','error');
+      if (!data.gender) return showMessage('請選擇性別。','error');
+      if (!validatePhone(data.phone)) return showMessage('電話格式不正確，請重新確認。','error');
+      if (!data.birthday) return showMessage('生日為必填。','error');
+      if (!validateTaiwanID(data.idNumber)) return showMessage('身分證字號格式不正確。','error');
+      if (!data.identity) return showMessage('請選擇參與身份。','error');
+      if (data.email && !validateEmail(data.email)) return showMessage('Email 格式不正確。','error');
+
+      // 上限檢查
+      if (MAX_PARTICIPANTS && cachedParticipants.length >= MAX_PARTICIPANTS) {
+        showMessage('報名已額滿，感謝您的關注！','error');
+        return;
+      }
+
+      // 重複檢查 (前端初步)
+      const duplicate = cachedParticipants.some(p =>
+        (p.idNumber && p.idNumber === data.idNumber.toUpperCase()) ||
+        (p.name === data.name.trim() && p.birthday === data.birthday)
+      );
+      if (duplicate) {
+        showMessage('系統偵測到可能已報名，若需修改請聯絡主辦單位。','error');
+        return;
+      }
+
+      toggleSubmitButton(true);
+
+      if (isConfigured) {
+        submitToGoogleSheets(data)
+          .then(res => {
+            if (res.success) {
+              showMessage(`🎉 報名成功！親愛的 ${data.name}，感謝您加入《此生必划》活動。我們將於活動前再與您聯繫確認。`, 'success');
+              this.reset();
+              loadParticipants(true);
+              lastSubmitTime = now;
+            } else {
+              showMessage('報名失敗：' + (res.message || '請稍後再試。'), 'error');
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            showMessage('系統發生錯誤，請稍後再試或聯絡主辦單位。','error');
+          })
+          .finally(() => toggleSubmitButton(false));
+      } else {
+        // 示範模式
           setTimeout(() => {
-              document.getElementById('successMessage').style.display = 'none';
-          }, 5000);
+          showMessage(`🎉 示範送出成功（未寫入雲端）。歡迎 ${data.name}！`, 'success');
+          addDemoParticipant(data);
+          this.reset();
+          toggleSubmitButton(false);
+          lastSubmitTime = now;
+        }, 900);
+      }
+    });
+
+    function toggleSubmitButton(loading) {
+      const btn = document.getElementById('submitBtn');
+      const text = btn.querySelector('.btn-text');
+      const spinner = btn.querySelector('.loading');
+      if (loading) {
+        btn.disabled = true;
+        text.style.display = 'none';
+        spinner.style.display = 'flex';
+      } else {
+        btn.disabled = false;
+        text.style.display = 'inline';
+        spinner.style.display = 'none';
+      }
+    }
+
+    /*********************** JSONP 提交 **************************/
+    function submitToGoogleSheets(data) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_cb_submit_' + Math.floor(Math.random() * 1e6);
+        window[callbackName] = function(response){
+          resolve(response);
+          cleanup();
+        };
+        function cleanup(){
+          delete window[callbackName];
+          script.remove();
+        }
+        const params = new URLSearchParams({
+          action:'submit',
+          callback:callbackName,
+          ...data
+        });
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?${params.toString()}`;
+        script.onerror = () => { reject(new Error('JSONP Failed')); cleanup(); };
+        document.head.appendChild(script);
       });
-      
-      // 初始化
-      document.addEventListener('DOMContentLoaded', function() {
-          selectAmount(1);
+    }
+
+    /*********************** 讀取名單 **************************/
+    function loadParticipants(force = false) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_cb_list_' + Math.floor(Math.random()*1e6);
+        window[callbackName] = function(response) {
+          if (response.success) {
+            cachedParticipants = response.data || [];
+            renderParticipants(cachedParticipants);
+          } else {
+            showMessage('載入名單失敗。','error');
+          }
+          cleanup();
+          resolve(response);
+        };
+        function cleanup(){
+          delete window[callbackName];
+          script.remove();
+        }
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=getParticipants&callback=${callbackName}&_=${Date.now()}`;
+        script.onerror = () => { cleanup(); reject(new Error('JSONP Failed')); };
+        document.head.appendChild(script);
       });
+    }
+
+    /*********************** 篩選功能 **************************/
+    function setupFilter() {
+      const bar = document.getElementById('filterBar');
+      bar.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          [...bar.querySelectorAll('button')].forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          const filter = e.target.dataset.filter;
+          applyFilter(filter);
+        }
+      });
+    }
+    function applyFilter(type) {
+      if (!cachedParticipants.length) return;
+      if (type === '全部') {
+        renderParticipants(cachedParticipants);
+      } else {
+        renderParticipants(cachedParticipants.filter(p => p.identity === type));
+      }
+    }
+
+    /*********************** 顯示名單 **************************/
+    function renderParticipants(list) {
+      const container = document.getElementById('participantList');
+      const count = document.getElementById('participantCount');
+      const filterBar = document.getElementById('filterBar');
+
+      count.textContent = `目前報名人數：${cachedParticipants.length} 人` + (MAX_PARTICIPANTS && MAX_PARTICIPANTS>0
+        ? `（上限 ${MAX_PARTICIPANTS} 人）` : '');
+
+      if (!cachedParticipants.length) {
+        container.innerHTML = `<p style="text-align:center; color:#666; padding:25px 5px;">尚無報名資料</p>`;
+        filterBar.style.display = 'none';
+        return;
+      }
+
+      filterBar.style.display = 'flex';
+
+      if (!list.length) {
+        container.innerHTML = `<p style="text-align:center; color:#666; padding:25px 5px;">此分類目前無資料</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map(p => `
+        <div class="participant-card">
+          <div class="participant-name" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</div>
+          <div class="participant-identity">${escapeHtml(p.identity || '')}</div>
+        </div>
+      `).join('');
+    }
+
+    /*********************** 示範模式資料 **************************/
+    function displayDemoData() {
+      cachedParticipants = [
+        { name:'王小明', identity:'病友', idNumber:'', birthday:'' },
+        { name:'李美華', identity:'家屬', idNumber:'', birthday:'' },
+        { name:'張志強', identity:'照顧者', idNumber:'', birthday:'' },
+        { name:'陳淑芬', identity:'病友', idNumber:'', birthday:'' },
+        { name:'林大同', identity:'志工', idNumber:'', birthday:'' },
+        { name:'黃雅玲', identity:'家屬', idNumber:'', birthday:'' }
+      ];
+      renderParticipants(cachedParticipants);
+    }
+    function addDemoParticipant(data) {
+      cachedParticipants.push({
+        name:data.name.trim(),
+        identity:data.identity,
+        idNumber:data.idNumber?.toUpperCase() || '',
+        birthday:data.birthday || ''
+      });
+      renderParticipants(cachedParticipants);
+    }
+
+    /*********************** 驗證工具 **************************/
+    function validateTaiwanID(id) {
+      if (!id) return false;
+      id = id.toUpperCase().trim();
+      const regex = /^[A-Z][12]\d{8}$/;
+      if (!regex.test(id)) return false;
+      const letters = 'ABCDEFGHJKLMNPQRSTUVXYWZIO';
+      const code = letters.indexOf(id[0]) + 10;
+      const n1 = Math.floor(code / 10);
+      const n2 = code % 10;
+      let sum = n1 + n2 * 9;
+      for (let i=1;i<=8;i++) {
+        sum += parseInt(id[i]) * (9 - i);
+      }
+      sum += parseInt(id[9]);
+      return sum % 10 === 0;
+    }
+    function validatePhone(p) {
+      if (!p) return false;
+      const digits = p.replace(/\D/g,'');
+      return /^09\d{8}$/.test(digits);
+    }
+    function validateEmail(e) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+    }
+    function escapeHtml(str='') {
+      return str.replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    /*********************** UI 訊息 **************************/
+    function showMessage(msg, type='info') {
+      const box = document.getElementById('messageContainer');
+      const cls = type === 'error' ? 'error-message'
+                : type === 'success' ? 'success-message'
+                : 'info-message';
+      box.innerHTML = `<div class="${cls}">${msg.replace(/\n/g,'<br>')}</div>`;
+      if (type === 'success') {
+        setTimeout(() => { box.innerHTML=''; }, 9000);
+      }
+    }
+
+    /*********************** 輸入格式化 **************************/
+    document.getElementById('phone').addEventListener('input', e => {
+      let value = e.target.value.replace(/\D/g,'');
+      if (value.length >=4) {
+        if (value.length <=7) value = value.replace(/(\d{4})(\d{1,3})/,'$1-$2');
+        else value = value.replace(/(\d{4})(\d{3})(\d{1,3})/,'$1-$2-$3');
+      }
+      e.target.value = value;
+    });
+    document.getElementById('idNumber').addEventListener('input', e => {
+      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10);
+    });
   </script>
 </body>
 </html>
